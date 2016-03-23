@@ -56,10 +56,12 @@ class EigenstatesUnfolding(object):
 
     def _generate_vectors_projector(self):
         lattice_vectors, mappings = self._generate_lattice_vectors_in_sc()
-        print("lattice_vectors:")
+        print("lattice_vectors:", lattice_vectors.shape)
         print(lattice_vectors)
-        print("mappings:")
+        print("mappings:", mappings.shape)
         print(mappings)
+        if np.any(mappings == -1):
+            raise ValueError("Mapping is failed.")
         scaled_positions = self._unitcell_ideal.get_scaled_positions()
         self._vectors_projector = VectorsProjector(mappings, scaled_positions)
 

@@ -21,6 +21,7 @@ from ph_unfolder.file_io import read_input
 def get_default_dict_input():
     default_dict_input = {
         "spectrum": {
+            "function": "gaussian",
             "freq_min": -2.5,
             "freq_max": 10.0,
             "freq_pitch": 0.05,
@@ -58,6 +59,7 @@ def print_cells(phonon, unitcell_filename):
     print("-" * 32 + " super cell " + "-" * 32)
     print_cell(supercell, mapping=mapping, stars=s_indep_atoms)
     print("-" * 76)
+
 
 def main():
     print(" ".join(sys.argv))

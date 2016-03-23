@@ -116,6 +116,7 @@ class PhonopyUnfolding(Phonopy):
 
     def create_density_extractor(self, dict_spectrum):
         self._density_extractor = DensityExtractor(
+            function=dict_spectrum["function"],
             fmin=dict_spectrum["freq_min"],
             fmax=dict_spectrum["freq_max"],
             fpitch=dict_spectrum["freq_pitch"],

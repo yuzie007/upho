@@ -12,6 +12,7 @@ from ph_unfolder.file_io import read_band_hdf5
 class DensityExtractor(object):
     def __init__(self,
                  filename=None,
+                 function="gaussian",
                  fmin=0.0,
                  fmax=10.0,
                  fpitch=0.05,
@@ -20,6 +21,7 @@ class DensityExtractor(object):
         print("# sigma:", sigma)
 
         self._smearing = Smearing(
+            function_name=function,
             sigma=sigma,
             xmin=fmin,
             xmax=fmax,

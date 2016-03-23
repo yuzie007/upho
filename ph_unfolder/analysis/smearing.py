@@ -16,6 +16,17 @@ def gaussian(x, mu, sigma):
     return 1.0 / np.sqrt(2.0 * np.pi) / sigma * tmp
 
 
+def histogram(x, positions, width):
+    tmp = np.zeros((x.shape[0], positions.shape[-1]))
+    x_tmp = np.zeros(x.shape[0] + 1)
+    x_tmp[:-1] = x[:, 0] - width * 0.5
+    x_tmp[-1] = x[-1, 0] + width * 0.5
+    for i, p in enumerate(positions.T):  # only one value for each loop
+        tmp[:, i] = np.histogram(p, x_tmp)[0]
+    tmp /= width
+    return tmp
+
+
 class Smearing(object):
     def __init__(self,
                  function_name="gaussian",
@@ -33,6 +44,8 @@ class Smearing(object):
             self._smearing_function = gaussian
         elif function_name == "lorentzian":
             self._smearing_function = lorentzian
+        elif function_name == "histogram":
+            self._smearing_function = histogram
         else:
             raise ValueError("Invalid smaering function name.")
         return self
