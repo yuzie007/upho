@@ -61,20 +61,20 @@ class DensityExtractor(object):
         smearing = self._smearing
         fs = smearing.get_xs()
 
-        npath, nqpoint = frequencies.shape[:2]
-        for ipath in range(npath):
-            for i, d in enumerate(distances[ipath]):
-                values = []
-                for istar in range(nqstars[ipath, i]):
-                    f = frequencies[ipath, i, istar]
-                    w = pr_weights[ipath, i, istar]
-                    if eigenvectors_data is not None:
-                        eigenvectors = eigenvectors_data[ipath, i, istar]
-                        w = (np.abs(eigenvectors) ** 2) * w
-                    values.append(smearing.run(f, w))
-                values = np.array(values)
-                values = np.sum(values, axis=0)
-                print_density(d, fs, values)
+        filename = "spectral_functions.dat"
+        with open(filename, "w") as f:
+            self.set_file_output(f)
+
+            npath, nqpoint = frequencies.shape[:2]
+            for ipath in range(npath):
+                for i, d in enumerate(distances[ipath]):
+                    self.calculate_density(
+                        d,
+                        nqstar=nqstars[ipath, i],
+                        frequencies_data=frequencies[ipath, i],
+                        eigenvectors_data=None,
+                        pr_weights_data=pr_weights[ipath, i])
+                    print_density()
 
     def calculate_density(self,
                           distance,
@@ -109,11 +109,11 @@ class DensityExtractor(object):
         xs = self._smearing.get_xs()
         file_output = self._file_output
         for x, density in zip(xs, density_data):
-            print("{:12.6f}".format(distance), end="")
-            print("{:12.6f}".format(x), end="")
-            print("{:12.6f}".format(density), end="")
-            print()
-        print()
+            file_output.write("{:12.6f}".format(distance))
+            file_output.write("{:12.6f}".format(x))
+            file_output.write("{:12.6f}".format(density))
+            file_output.write("\n")
+        file_output.write("\n")
 
     def print_partial_density(self):
         distance = self._distance
@@ -140,6 +140,11 @@ def main():
                         default="band.hdf5",
                         type=str,
                         help="Filename for band.hdf5.")
+    parser.add_argument("--function",
+                        default="gaussian",
+                        type=str,
+                        choices=["gaussian", "lorentzian", "histogram"],
+                        help="Maximum plotted frequency (THz).")
     parser.add_argument("--fmax",
                         default=10.0,
                         type=float,
@@ -160,6 +165,7 @@ def main():
 
     DensityExtractor(
         filename=args.filename,
+        function=args.function,
         fmax=args.fmax,
         fmin=args.fmin,
         fpitch=args.fpitch,
