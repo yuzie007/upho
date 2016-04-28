@@ -71,7 +71,8 @@ class BandStructureUnfolding(BandStructure):
 
         self._density_extractor = density_extractor
 
-        with open("density.dat", "w") as self._file_density:
+        sf_filename = "spectral_functions.dat"
+        with open(sf_filename, "w") as self._file_density:
             self._density_extractor.set_file_output(self._file_density)
             self._set_band(verbose=verbose)
 
