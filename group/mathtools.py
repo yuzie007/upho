@@ -6,6 +6,7 @@ from __future__ import (absolute_import, division,
 __author__ = "Yuji Ikeda"
 
 from functools import reduce
+import numpy as np
 
 
 def gcd2(a, b):
@@ -24,3 +25,8 @@ def gcd(*numbers):
 
 def lcm(*numbers):
     return reduce(lcm2, numbers)
+
+
+def similarity_transformation(rot, mat):
+    """ R x M x R^-1 """
+    return np.dot(rot, np.dot(mat, np.linalg.inv(rot)))

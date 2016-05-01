@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
@@ -6,7 +6,10 @@ from __future__ import (absolute_import, division,
 __author__ = "Yuji Ikeda"
 
 import numpy as np
-from mathtools import lcm
+try:
+    from group.mathtools import lcm
+except:
+    from mathtools import lcm
 
 
 class Group(object):
@@ -22,7 +25,7 @@ class Group(object):
         self._create_conjugacy_classes()
         self._create_orders_of_elements()
         self._create_exponent()  # After creating orders_or_elements
-        self._create_center()
+        self.create_center()
         self._create_commutator_subgroup()
         self._create_crst()
         self._create_character_table()
@@ -72,6 +75,11 @@ class Group(object):
                     raise ValueError(
                         "The conjugacy class of k is not equal to that of i.")
         self._conjugacy_classes = conjugacy_classes
+        self._create_orders_of_conjugacy_classes()
+
+    def _create_orders_of_conjugacy_classes(self):
+        conjugacy_classes = self._conjugacy_classes
+        self._orders_of_conjugacy_classes = np.bincount(conjugacy_classes)
 
     def _create_character_table(self):
         pass
@@ -85,7 +93,12 @@ class Group(object):
         #     print("eigvecs:")
         #     print(eigvecs)
 
-    def _create_center(self):
+    def create_center(self):
+        """
+        Create the center of the group G.
+
+        The center is a normal abelian subgroup of G.
+        """
         order = self._order
         Cayley_table = self._Cayley_table
 
@@ -219,6 +232,9 @@ class Group(object):
 
     def get_conjugacy_classes(self):
         return self._conjugacy_classes
+
+    def get_orders_of_conjugacy_classes(self):
+        return self._orders_of_conjugacy_classes
 
     def get_center(self):
         return self._center

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
@@ -7,7 +7,7 @@ __author__ = "Yuji Ikeda"
 
 import unittest
 import numpy as np
-from group import Group
+from group.group import Group
 
 
 class TestGroup(unittest.TestCase):
@@ -17,6 +17,12 @@ class TestGroup(unittest.TestCase):
             [1, 0],
         ]
         group = Group(Cayley_table)
+
+        orders_of_conjugacy_classes = group.get_orders_of_conjugacy_classes()
+        orders_of_conjugacy_classes_expected = [1, 1]
+        self.assertListEqual(
+            list(orders_of_conjugacy_classes),
+            orders_of_conjugacy_classes_expected)
 
 
 def main():
