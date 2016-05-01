@@ -93,6 +93,12 @@ class EigenstatesUnfolding(object):
         return q_star
 
     def _generate_lattice_vectors_in_sc(self):
+        """
+
+        TODO
+        ----
+        Creations of lattice_vectors and mappings should be separated.
+        """
         supercell_matrix = np.linalg.inv(self._primitive_matrix_ideal)
         # lattice_vectors: Fractional coordinates for "SC".
         lattice_vectors = find_lattice_vectors(supercell_matrix)
@@ -227,6 +233,20 @@ class BlochRecoverer(object):
             phase = np.exp(2.0j * np.pi * np.dot(p, self._q))
             recovered_vecs[i] = vec * phase
         return recovered_vecs
+
+    def remove_phase_factors(self, vectors, kpoint):
+        """
+        Remove phase factors from given vectors.
+
+        Parameters
+        ----------
+        vectors : array
+                  Vectors whose phase factors are removed.
+        """
+        phases = np.exp(-2.0j * np.pi * np.dot(self._scaled_positions, kpoint))
+        phases = np.repeat(phases, 3)
+        modified_vectors = phases * vectors
+        return modified_vectors
 
 
 def get_displacements_from_eigvecs(eigvecs, supercell, q):
