@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Note
+----
+Characters are generally not integer.
+"""
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
@@ -7,18 +12,20 @@ __author__ = "Yuji Ikeda"
 
 import numpy as np
 from phonopy.structure.symmetry import get_pointgroup
-from ph_unfolder.structure.character_tables import character_tables
+from ph_unfolder.irreps.character_tables import character_tables
 from group.mathtools import similarity_transformation
 
 
 class Irreps(object):
     def __init__(self, rotations):
         self._rotations = rotations
+        self._run()
 
-    def run(self):
+    def _run(self):
         self._create_conventional_rotations()
         self._assign_character_table_data()
         self._assign_class_labels_to_rotations()
+        self._assign_characters_to_rotations()
 
     def _create_conventional_rotations(self):
         rotations = self._rotations
@@ -43,6 +50,22 @@ class Irreps(object):
             label = self._assign_class_label_to_rotation(rconv)
             rotation_labels.append(label)
         self._rotation_labels = rotation_labels
+
+    def _assign_characters_to_rotations(self):
+        rotation_labels = self._rotation_labels
+        character_table_data = self._character_table_data
+
+        character_table = np.array(character_table_data["character_table"])
+        label_order = character_table_data["rotation_labels"]
+
+        num_rotations = len(rotation_labels)
+        num_irreps = len(character_table_data["character_labels"])
+
+        characters = np.zeros((num_rotations, num_irreps))
+        for i, rotation_label in enumerate(rotation_labels):
+            rotation_index = label_order.index(rotation_label)
+            characters[i] = character_table[:, rotation_index]
+        self._characters = characters
 
     def _assign_class_label_to_rotation(self, rconv):
         """
@@ -81,4 +104,5 @@ class Irreps(object):
     def get_rotation_labels(self):
         return self._rotation_labels
 
-
+    def get_characters(self):
+        return self._characters
