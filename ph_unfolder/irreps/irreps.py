@@ -17,7 +17,21 @@ from group.mathtools import similarity_transformation
 
 
 class Irreps(object):
+    """
+
+    Note
+    ----
+    This does not work correctly for nonsymmorphic space groups.
+    """
     def __init__(self, rotations):
+        """
+
+        Parameters
+        ----------
+        rotations : A set of rotational symmetry operations.
+            This can be a set of symmetry operations of the point group of
+            a wave vector.
+        """
         self._rotations = rotations
         self._run()
 
@@ -59,7 +73,7 @@ class Irreps(object):
         label_order = character_table_data["rotation_labels"]
 
         num_rotations = len(rotation_labels)
-        num_irreps = len(character_table_data["character_labels"])
+        num_irreps = len(character_table_data["ir_labels"])
 
         characters = np.zeros((num_rotations, num_irreps))
         for i, rotation_label in enumerate(rotation_labels):
@@ -70,10 +84,10 @@ class Irreps(object):
     def _assign_class_label_to_rotation(self, rconv):
         """
 
-        Input
-        -----
-            rconv: conventional rotation obtained using the transformation
-                   matrix.
+        Parameters
+        ----------
+        rconv :
+            Conventional rotation obtained using the transformation matrix.
         """
         class_to_rotations = self._character_table_data["class_to_rotations"]
         for label, rotations in class_to_rotations.items():

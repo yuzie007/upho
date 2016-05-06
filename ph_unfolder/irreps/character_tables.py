@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+
+Note
+----
+The order of point groups follows Table 12.1.4.2 in ITA2006.
+"""
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
@@ -16,7 +22,7 @@ character_tables = {}
 character_tables['1'] = {
     'rotation_labels': ('E', ),
     'class_order_list': (1, ),
-    'character_labels': ('A', ),
+    'ir_labels': ('A', ),
     'character_table': (
         (1, ),
     )
@@ -25,7 +31,7 @@ character_tables['1'] = {
 character_tables['-1'] = {
     'rotation_labels': ('E', 'i'),
     'class_order_list': (1, 1),
-    'character_labels': ('Ag', 'Au'),
+    'ir_labels': ('Ag', 'Au'),
     'character_table': (
         (1,  1),
         (1, -1),
@@ -35,17 +41,17 @@ character_tables['-1'] = {
 character_tables['2'] = {
     'rotation_labels': ('E', 'C2'),
     'class_order_list': (1, 1),
-    'character_labels': ('A', 'B'),
+    'ir_labels': ('A', 'B'),
     'character_table': (
         (1,  1),
         (1, -1),
     )
-},
+}
 # 4(C_s)
 character_tables['m'] = {
     'rotation_labels': ('E', 'sgh'),
     'class_order_list': (1, 1),
-    'character_labels': ('A\'', 'A\'\''),
+    'ir_labels': ('A\'', 'A\'\''),
     'character_table': (
         (1,  1),
         (1, -1),
@@ -55,7 +61,7 @@ character_tables['m'] = {
 character_tables['2/m'] = {
     'rotation_labels': ('E', 'C2', 'i', 'sgh'),
     'class_order_list': (1, 1, 1, 1),
-    'character_labels': ('Ag', 'Bg', 'Au', 'Bu'),
+    'ir_labels': ('Ag', 'Bg', 'Au', 'Bu'),
     'character_table': (
         (1,  1,  1,  1),
         (1, -1,  1, -1),
@@ -67,7 +73,7 @@ character_tables['2/m'] = {
 character_tables['222'] = {
     'rotation_labels': ('E', 'C2', 'C2x', 'C2y'),
     'class_order_list': (1, 1, 1, 1),
-    'character_labels': ('A', 'B1', 'B2', 'B3'),
+    'ir_labels': ('A', 'B1', 'B2', 'B3'),
     'character_table': (
         (1,  1,  1,  1),
         (1,  1, -1, -1),
@@ -79,19 +85,33 @@ character_tables['222'] = {
 character_tables['mm2'] = {
     'rotation_labels': ('E', 'C2', 'sgv', 'sgv\''),
     'class_order_list': (1, 1, 1, 1),
-    'character_labels': ('A1', 'A2', 'B1', 'B2'),
+    'ir_labels': ('A1', 'A2', 'B1', 'B2'),
     'character_table': (
         (1,  1,  1,  1),
         (1,  1, -1, -1),
         (1, -1,  1, -1),
         (1, -1, -1,  1),
-    )
+    ),
+    'class_to_rotations': {
+        'E'    : ((( 1,  0,  0),
+                   ( 0,  1,  0),
+                   ( 0,  0,  1),),),
+        'C2'   : (((-1,  0,  0),
+                   ( 0, -1,  0),
+                   ( 0,  0,  1),),),
+        'sgv'  : (((-1,  0,  0),
+                   ( 0,  1,  0),
+                   ( 0,  0,  1),),),
+        'sgv\'': ((( 1,  0,  0),
+                   ( 0, -1,  0),
+                   ( 0,  0,  1),),)
+    }
 }
 # 8(D_2h)
 character_tables['mmm'] = {
     'rotation_labels': ('E', 'C2', 'C2x', 'C2y', 'i', 'sgxy', 'sgxz', 'sgyz'),
     'class_order_list': (1, 1, 1, 1, 1, 1, 1, 1),
-    'character_labels': ('Ag', 'B1g', 'B2g', 'B3g', 'Au', 'B1u', 'B2u', 'B3u'),
+    'ir_labels': ('Ag', 'B1g', 'B2g', 'B3g', 'Au', 'B1u', 'B2u', 'B3u'),
     'character_table': (
         (1,  1,  1,  1,  1,  1,  1,  1),
         (1,  1, -1, -1,  1,  1, -1, -1),
@@ -129,12 +149,77 @@ character_tables['mmm'] = {
                   ( 0,  0,  1),),)
     }
 }
+# 9(C_4)
+character_tables['4'] = {
+    'rotation_labels': ('E', 'C4', 'C2', 'C4^3'),
+    'class_order_list': (1, 1, 1, 1),
+    'ir_labels': ('A', 'B', 'E', 'E'),
+    'character_table': (
+        (1,   1,  1,   1),
+        (1,  -1,  1,  -1),
+        (1,  1j, -1, -1j),
+        (1, -1j, -1,  1j),
+    ),
+    'class_to_rotations': {
+        'E'   : ((( 1,  0,  0),
+                  ( 0,  1,  0),
+                  ( 0,  0,  1),),),
+        'C4'  : ((( 0, -1,  0),
+                  ( 1,  0,  0),
+                  ( 0,  0,  1),),),
+        'C2'  : (((-1,  0,  0),
+                  ( 0, -1,  0),
+                  ( 0,  0,  1),),),
+        'C4^3': ((( 0,  1,  0),
+                  (-1,  0,  0),
+                  ( 0,  0,  1),),),
+    }
+}
+# 13(C_4v)
+character_tables['4mm'] = {
+    'rotation_labels': ('E', 'C4', 'C2', 'sgv', 'sgd'),
+    'class_order_list': (1, 2, 1, 2, 2),
+    'ir_labels': ('A1', 'A2', 'B1', 'B2', 'E'),
+    'character_table': (
+        (1,  1,  1,  1,  1),
+        (1,  1,  1, -1, -1),
+        (1, -1,  1,  1, -1),
+        (1, -1,  1, -1,  1),
+        (2,  0, -2,  0,  0),
+     ),
+    'class_to_rotations': {
+        'E'     : ((( 1,  0,  0),
+                    ( 0,  1,  0),
+                    ( 0,  0,  1),),),
+        'C4'    : ((( 0, -1,  0),
+                    ( 1,  0,  0),
+                    ( 0,  0,  1),),
+                   (( 0,  1,  0),
+                    (-1,  0,  0),
+                    ( 0,  0,  1),),),
+        'C2'    : (((-1,  0,  0),
+                    ( 0, -1,  0),
+                    ( 0,  0,  1),),),
+        'sgv'   : (((-1,  0,  0),
+                    ( 0,  1,  0),
+                    ( 0,  0,  1),),
+                   (( 1,  0,  0),
+                    ( 0, -1,  0),
+                    ( 0,  0,  1),),),
+        'sgd'   : ((( 0,  1,  0),
+                    ( 1,  0,  0),
+                    ( 0,  0,  1),),
+                   (( 0, -1,  0),
+                    (-1,  0,  0),
+                    ( 0,  0,  1),),)
+    }
+}
 # 15(D_4h)
 character_tables['4/mmm'] = {
     'rotation_labels': ('E', 'C4', 'C2', 'C2\'', 'C2\'\'',
                       'i', 'S4', 'sgh', 'sgv', 'sgd'),
     'class_order_list': (1, 2, 1, 2, 2, 1, 2, 1, 2, 2),
-    'character_labels': ('A1g', 'A2g', 'B1g', 'B2g', 'Eg',
+    'ir_labels': ('A1g', 'A2g', 'B1g', 'B2g', 'Eg',
                    'A1u', 'A2u', 'B1u', 'B2u', 'Eu'),
     'character_table': (
         (1,  1,  1,  1,  1,  1,  1,  1,  1,  1),
@@ -199,11 +284,42 @@ character_tables['4/mmm'] = {
                     ( 0, 0, 1 ),),)
     }
 }
+# 19(C_3v)
+character_tables['3m'] = {
+    'rotation_labels': ('E', 'C3', 'sgv'),
+    'class_order_list': (1, 2, 3),
+    'ir_labels': ('A1', 'A2', 'E'),
+    'character_table': (
+        (1,  1,  1),
+        (1,  1, -1),
+        (2, -1,  0),
+    ),
+    'class_to_rotations': {
+        'E'  : ((( 1,  0,  0),
+                 ( 0,  1,  0),
+                 ( 0,  0,  1),),),
+        'C3' : ((( 0, -1,  0),
+                 ( 1, -1,  0),
+                 ( 0,  0,  1),),
+                ((-1,  1,  0),
+                 (-1,  0,  0),
+                 ( 0,  0,  1),),),
+        'sgv': ((( 0, -1,  0),
+                 (-1,  0,  0),
+                 ( 0,  0,  1),),
+                ((-1,  1,  0),
+                 ( 0,  1,  0),
+                 ( 0,  0,  1),),
+                (( 1,  0,  0),
+                 ( 1, -1,  0),
+                 ( 0,  0,  1),),)
+    },
+}
 # 20(D_3d)
 character_tables['-3m'] = {
     'rotation_labels': ('E', 'C3', 'C2', 'i', 'S6', 'sgd'),
     'class_order_list': (1, 2, 3, 1, 2, 3),
-    'character_labels': ('A1g', 'A2g', 'Eg', 'A1u', 'A2u', 'Eu'),
+    'ir_labels': ('A1g', 'A2g', 'Eg', 'A1u', 'A2u', 'Eu'),
     'character_table': (
         (1,  1,  1,  1,  1,  1),
         (1,  1, -1,  1,  1, -1),
@@ -212,7 +328,7 @@ character_tables['-3m'] = {
         (1,  1, -1, -1, -1,  1),
         (2, -1,  0, -2,  1,  0),
     ),
-    'mapping_table': {
+    'class_to_rotations': {
         'E'  : ((( 1,  0,  0),
                  ( 0,  1,  0),
                  ( 0,  0,  1),),),
@@ -256,7 +372,7 @@ character_tables['6/mmm'] = {
     'rotation_labels': ('E', 'C6', 'C3', 'C2', 'C2\'', 'C2\'\'',
                       'i', 'S3', 'S6', 'sgh', 'sgd', 'sgv'),
     'class_order_list': (1, 2, 2, 1, 3, 3, 1, 2, 2, 1, 3, 3),
-    'character_labels': ('A1g', 'A2g', 'B1g', 'B2g', 'E1g', 'E2g',
+    'ir_labels': ('A1g', 'A2g', 'B1g', 'B2g', 'E1g', 'E2g',
                    'A1u', 'A2u', 'B1u', 'B2u', 'E1u', 'E2u'), 
     'character_table': (
         (1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1),
@@ -351,7 +467,7 @@ character_tables['6/mmm'] = {
 character_tables['m-3m'] = {
    'rotation_labels': ('E', 'C3', 'C2', 'C4', 'C4^2', 'i', 'S4', 'S6', 'sgh', 'sgd'),
    'class_order_list': (1, 8, 6, 6, 3, 1, 6, 8, 3, 6),
-   'character_labels': ('A1g', 'A2g', 'Eg', 'T1g', 'T2g', 'A1u', 'A2u', 'Eu', 'T1u', 'T2u'),
+   'ir_labels': ('A1g', 'A2g', 'Eg', 'T1g', 'T2g', 'A1u', 'A2u', 'Eu', 'T1u', 'T2u'),
    'character_table': (
        (1,  1,  1,  1,  1,  1,  1,  1,  1,  1),
        (1,  1, -1, -1,  1,  1, -1,  1,  1, -1),
