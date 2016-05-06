@@ -277,11 +277,13 @@ class BlochRecoverer(object):
         Parameters
         ----------
         vectors : array
-                  Vectors whose phase factors are removed.
+            Vectors whose phase factors are removed.
+        kpiont :
+            Reciprocal space point in fractional coordinates for SC.
         """
         phases = np.exp(-2.0j * np.pi * np.dot(self._scaled_positions, kpoint))
         phases = np.repeat(phases, 3)
-        modified_vectors = phases * vectors
+        modified_vectors = phases[:, None] * vectors
         return modified_vectors
 
 
