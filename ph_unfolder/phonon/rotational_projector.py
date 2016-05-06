@@ -40,7 +40,7 @@ class RotationalProjector(object):
 
     def _create_characters(self, rotations):
         irreps = Irreps(rotations)
-        # print(irreps.get_pointgroup_symbol())
+        print("pointgroup_symbol:", irreps.get_pointgroup_symbol())
         character_table_data = irreps.get_character_table_data()
 
         self._characters = irreps.get_characters()
@@ -54,7 +54,7 @@ class RotationalProjector(object):
         Parameters
         ----------
         vectors : Vectors without phase factors.
-        kpoint : K point in fractional coordinates.
+        kpoint : K point in fractional coordinates for SC.
         """
         rotations, translations = self._symmetry.get_group_of_wave_vector(kpoint)
         # print(rotations, translations)
@@ -73,7 +73,7 @@ class RotationalProjector(object):
         expanded_mappings_inv = self._mappings_modifier.expand_mappings(
             ndim, is_inverse=True)
 
-        phases = np.exp(-2.0j * np.pi * np.dot(scaled_positions, kpoint))
+        phases = np.exp(2.0j * np.pi * np.dot(scaled_positions, kpoint))
         phases = np.repeat(phases, ndim)
 
         shape = (len(ir_dimensions), ) + vectors.shape
@@ -86,7 +86,7 @@ class RotationalProjector(object):
                 tmp2[(3 * iatom):(3 * (iatom + 1))] = np.dot(
                     r, tmp[(3 * iatom):(3 * (iatom + 1))])
 
-            projected_vectors += characters[i, :, None, None] * tmp2[None, :, :]
+            projected_vectors += np.conj(characters[i, :, None, None]) * tmp2[None, :, :]
 
         projected_vectors *= phases[None, :, None]
         projected_vectors *= ir_dimensions[:, None, None]
