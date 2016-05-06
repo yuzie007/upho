@@ -12,11 +12,13 @@ from ph_unfolder.file_io import read_band_hdf5
 class DensityExtractor(object):
     def __init__(self,
                  filename=None,
+                 outfile=None,
                  function="gaussian",
                  fmin=0.0,
                  fmax=10.0,
                  fpitch=0.05,
-                 sigma=1.0):
+                 sigma=1.0,
+                 weight_label="pr_weights"):
 
         print("# sigma:", sigma)
 
@@ -27,6 +29,10 @@ class DensityExtractor(object):
             xmax=fmax,
             xpitch=fpitch,
         )
+
+        self._weight_label = weight_label 
+
+        self._outfile = outfile
 
         if filename is not None:
             self.load_data(filename)
@@ -46,14 +52,19 @@ class DensityExtractor(object):
         return self
 
     def run(self):
+        weight_label = self._weight_label
+        print("# weight: {}".format(weight_label))
 
         distances   = self._band_data["distances"]
         frequencies = self._band_data["frequencies"]
-        pr_weights  = self._band_data["pr_weights"]
+        weights     = self._band_data[weight_label]
         nqstars     = self._band_data["nqstars"]
+        num_irs_list = self._band_data["num_irs"]
         if "eigenvectors_data" in self._band_data:
             eigenvectors_data = self._band_data["eigenvectors_data"]
             print_density = self.print_partial_density
+        elif weight_label == "rot_pr_weights":
+            print_density = self.print_ir_density
         else:
             eigenvectors_data = None
             print_density = self.print_total_density
@@ -61,19 +72,25 @@ class DensityExtractor(object):
         smearing = self._smearing
         fs = smearing.get_xs()
 
-        filename = "spectral_functions.dat"
+        filename = self._outfile
         with open(filename, "w") as f:
             self.set_file_output(f)
 
             npath, nqpoint = frequencies.shape[:2]
             for ipath in range(npath):
                 for i, d in enumerate(distances[ipath]):
+                    if weight_label == "rot_pr_weights":
+                        num_irs = num_irs_list[ipath, i]
+                        weights_data = weights[ipath, i, :, :num_irs]
+                    else:
+                        weights_data = weights[ipath, i]
+
                     self.calculate_density(
                         d,
                         nqstar=nqstars[ipath, i],
                         frequencies_data=frequencies[ipath, i],
                         eigenvectors_data=None,
-                        pr_weights_data=pr_weights[ipath, i])
+                        weights_data=weights_data)
                     print_density()
 
     def calculate_density(self,
@@ -81,26 +98,27 @@ class DensityExtractor(object):
                           nqstar,
                           frequencies_data,
                           eigenvectors_data,
-                          pr_weights_data):
+                          weights_data):
         """
 
-        Args:
-            distance:
-            nqstar: integer
-            frequencies: (nqstar, nband) array
-            pr_weights:  (nqstar, nband) array
-            eigenvectors_data: (nqstar, nband, nband) array
+        Parameters
+        ----------
+        distance :
+        nqstar : integer
+        frequencies : (nqstar, nband) array
+        weights : (nqstar, nband) array
+        eigenvectors_data : (nqstar, nband, nband) array
         """
         self._distance = distance
         density_data = []
         for istar in range(nqstar):
             f = frequencies_data[istar]
-            w = pr_weights_data[istar]
+            w = weights_data[istar]
             if eigenvectors_data is not None:
                 eigenvectors = eigenvectors_data[istar]
                 w = (np.abs(eigenvectors) ** 2) * w
             density_data.append(self._smearing.run(f, w))
-        density_data = np.sum(density_data, axis=0)
+        density_data = np.sum(density_data, axis=0)  # Sum over star
         self._density_data = density_data
 
     def print_total_density(self):
@@ -112,6 +130,20 @@ class DensityExtractor(object):
             file_output.write("{:12.6f}".format(distance))
             file_output.write("{:12.6f}".format(x))
             file_output.write("{:12.6f}".format(density))
+            file_output.write("\n")
+        file_output.write("\n")
+
+    def print_ir_density(self):
+        distance = self._distance
+        density_data = self._density_data
+        xs = self._smearing.get_xs()
+        file_output = self._file_output
+        for x, densities in zip(xs, density_data):
+            file_output.write("{:12.6f}".format(distance))
+            file_output.write("{:12.6f}".format(x))
+            file_output.write("{:12.6f}".format(np.sum(densities)))
+            for ir_density in densities:
+                file_output.write("{:12.6f}".format(ir_density))
             file_output.write("\n")
         file_output.write("\n")
 
@@ -140,11 +172,20 @@ def main():
                         default="band.hdf5",
                         type=str,
                         help="Filename for band.hdf5.")
+    parser.add_argument("-o", "--outfile",
+                        default="spectral_functions.dat",
+                        type=str,
+                        help="Output filename for spectral functions")
     parser.add_argument("--function",
                         default="gaussian",
                         type=str,
                         choices=["gaussian", "lorentzian", "histogram"],
                         help="Maximum plotted frequency (THz).")
+    parser.add_argument("--weight_label",
+                        default="pr_weights",
+                        type=str,
+                        choices=["pr_weights", "rot_pr_weights"],
+                        help="Weight label to plot.")
     parser.add_argument("--fmax",
                         default=10.0,
                         type=float,
@@ -170,6 +211,8 @@ def main():
         fmin=args.fmin,
         fpitch=args.fpitch,
         sigma=args.sigma,
+        outfile=args.outfile,
+        weight_label=args.weight_label,
     ).run()
 
 

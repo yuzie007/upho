@@ -10,6 +10,7 @@ from ph_unfolder.phonon.star_creator import StarCreator
 from ph_unfolder.phonon.vectors_projector import VectorsProjector
 from ph_unfolder.structure.structure_analyzer import (
     StructureAnalyzer, find_lattice_vectors)
+from ph_unfolder.phonon.rotational_projector import RotationalProjector
 
 
 class EigenstatesUnfolding(object):
@@ -23,6 +24,8 @@ class EigenstatesUnfolding(object):
         self._verbose = verbose
         self._mode = mode
 
+        self._max_irs = 12  # D_6h
+
         self._cell = dynamical_matrix.get_primitive()  # Disordered
         self._dynamical_matrix = dynamical_matrix
 
@@ -33,6 +36,7 @@ class EigenstatesUnfolding(object):
         self._build_star_creator()
         self._generate_vectors_projector()
         self._generate_bloch_recoverer()
+        self._create_rotational_projector()
 
     def _build_star_creator(self):
         if self._star == "all":
@@ -64,6 +68,10 @@ class EigenstatesUnfolding(object):
             raise ValueError("Mapping is failed.")
         scaled_positions = self._unitcell_ideal.get_scaled_positions()
         self._vectors_projector = VectorsProjector(mappings, scaled_positions)
+
+    def _create_rotational_projector(self):
+        # TODO(ikeda)
+        self._rotational_projector = RotationalProjector(self._unitcell_ideal)
 
     def _generate_bloch_recoverer(self):
         # Get the (disordered) unitcell.
@@ -130,22 +138,36 @@ class EigenstatesUnfolding(object):
 
         nband = self._cell.get_number_of_atoms() * 3
         nopr = self._nopr
+        max_irs = self._max_irs
 
         eigvals_all = np.zeros((nopr, nband), dtype=float) * np.nan
         weights_all = np.zeros((nopr, nband), dtype=float) * np.nan
         eigvecs_all = np.zeros((nopr, nband, nband), dtype=complex) * np.nan
+        rot_weights_all = np.zeros((nopr, max_irs, nband), dtype=float) * np.nan
+        ir_labels = np.empty(max_irs, dtype='S3')
+        ir_labels[:] = ""
         for i_star, q in enumerate(q_star):
             print("i_star:", i_star)
             print("q_pc:", q)
-            eigvals, eigvecs, weights = self._extract_eigenstates_for_q(q)
+            (eigvals,
+             eigvecs,
+             weights,
+             rot_weights,
+             num_irs,
+             ir_labels_tmp) = self._extract_eigenstates_for_q(q)
             eigvals_all[i_star] = eigvals
             eigvecs_all[i_star] = eigvecs
             weights_all[i_star] = weights
+            rot_weights_all[i_star] = rot_weights
+
+        ir_labels[:num_irs] = ir_labels_tmp
 
         weights_all /= len(q_star)
         print("sum(weights_all):", np.sum(weights_all[:len(q_star)]))
 
-        return eigvals_all, eigvecs_all, weights_all, len(q_star)
+        rot_weights_all = np.array(rot_weights_all) / len(q_star)
+
+        return eigvals_all, eigvecs_all, weights_all, len(q_star), rot_weights_all, num_irs, ir_labels
 
     def _extract_eigenstates_for_q(self, q_pc):
         """Extract eigenstates with their weights.
@@ -166,9 +188,9 @@ class EigenstatesUnfolding(object):
         dm = self._dynamical_matrix.get_dynamical_matrix()
         eigvals, eigvecs = np.linalg.eigh(dm)
 
-        weights = self._extract_weights(q_sc, eigvecs)
+        weights, rot_weights, num_irs, ir_labels = self._extract_weights(q_sc, eigvecs)
 
-        return eigvals, eigvecs, weights
+        return eigvals, eigvecs, weights, rot_weights, num_irs, ir_labels
 
     def _extract_weights(self, q, eigvecs):
         """Extract weights.
@@ -193,7 +215,21 @@ class EigenstatesUnfolding(object):
         weights = np.sum(
             np.conj(recovered_eigvecs) * projected_eigvecs, axis=0
         ).real
-        return weights
+
+        # TODO(ikeda): Implemention of rotational projection.
+        projected_eigvecs = bloch_recoverer.remove_phase_factors(
+            projected_eigvecs, q)
+        rot_projected_eigvecs, ir_labels = (
+            self._rotational_projector.project_vectors(projected_eigvecs, q))
+
+        max_irs = self._max_irs
+
+        num_irs = rot_projected_eigvecs.shape[0]
+        shape = (max_irs, eigvecs.shape[-1])
+        rot_weights = np.zeros(shape, dtype=float) * np.nan
+        rot_weights[:num_irs] = np.linalg.norm(rot_projected_eigvecs, axis=1)
+
+        return weights, rot_weights, num_irs, ir_labels
 
 
 class BlochRecoverer(object):
