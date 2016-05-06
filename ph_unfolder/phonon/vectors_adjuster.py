@@ -61,3 +61,29 @@ class VectorsAdjuster(object):
         phases = np.repeat(phases, 3)
         modified_vectors = phases[:, None] * vectors
         return modified_vectors
+
+    def reduce_vectors_to_primitive(self, vectors, primitive):
+        """
+        Reduce size of vectors to primitive.
+
+        Parameters
+        ----------
+        vectors : array
+            Vectors which will be reduced.
+            Phase factors must be removed in advance.
+        primitive : Phonopy Primitive object.
+
+        Returns
+        -------
+        reduced_vectors : array
+            Reduced vectors.
+        """
+        ndim = 3
+        p2s_map = primitive.get_primitive_to_supercell_map()
+        print(p2s_map)
+        num_atoms = vectors.shape[0] // ndim
+        tmp = vectors.reshape(ndim, num_atoms, -1)
+        tmp = tmp[:, p2s_map, :]
+        reduced_vectors = tmp.reshape(ndim * len(p2s_map), -1)
+        print(reduced_vectors)
+        return reduced_vectors
