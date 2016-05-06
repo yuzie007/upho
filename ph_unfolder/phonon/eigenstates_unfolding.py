@@ -11,6 +11,7 @@ from ph_unfolder.phonon.vectors_projector import VectorsProjector
 from ph_unfolder.structure.structure_analyzer import (
     StructureAnalyzer, find_lattice_vectors)
 from ph_unfolder.phonon.rotational_projector import RotationalProjector
+from ph_unfolder.phonon.vectors_adjuster import VectorsAdjuster
 
 
 class EigenstatesUnfolding(object):
@@ -35,7 +36,7 @@ class EigenstatesUnfolding(object):
 
         self._build_star_creator()
         self._generate_vectors_projector()
-        self._generate_bloch_recoverer()
+        self._generate_vectors_adjuster()
         self._create_rotational_projector()
 
     def _build_star_creator(self):
@@ -73,11 +74,11 @@ class EigenstatesUnfolding(object):
         # TODO(ikeda)
         self._rotational_projector = RotationalProjector(self._unitcell_ideal)
 
-    def _generate_bloch_recoverer(self):
+    def _generate_vectors_adjuster(self):
         # Get the (disordered) unitcell.
         primitive = self._dynamical_matrix.get_primitive()
         scaled_positions = primitive.get_scaled_positions()
-        self._bloch_recoverer = BlochRecoverer(scaled_positions)
+        self._vectors_adjuster = VectorsAdjuster(scaled_positions)
 
     def create_q_star(self, q):
         """
@@ -204,12 +205,12 @@ class EigenstatesUnfolding(object):
         Returns:
             weights: Weights of eigenvectors on the primitive cell at q.
         """
-        bloch_recoverer = self._bloch_recoverer
+        vectors_adjuster = self._vectors_adjuster
         vectors_projector = self._vectors_projector
 
-        bloch_recoverer.set_q(q)
+        vectors_adjuster.set_q(q)
 
-        recovered_eigvecs = bloch_recoverer.recover_Bloch(eigvecs)
+        recovered_eigvecs = vectors_adjuster.recover_Bloch(eigvecs)
 
         projected_eigvecs = vectors_projector.project_vectors_onto_k(
             vecs=recovered_eigvecs, k=q)
@@ -221,10 +222,18 @@ class EigenstatesUnfolding(object):
         return weights, projected_eigvecs
 
     def _create_rot_projection_weights(self, kpoint, t_proj_vectors):
-        # TODO(ikeda): Implemention of rotational projection.
-        bloch_recoverer = self._bloch_recoverer
+        """
 
-        t_proj_vectors = bloch_recoverer.remove_phase_factors(
+        Parameters
+        ----------
+        kpoint : 1d array
+            Reciprocal space point in fractional coordinates for SC.
+        t_proj_vectors : array
+            Vectors for SC after translational projection.
+        """
+        vectors_adjuster = self._vectors_adjuster
+
+        t_proj_vectors = vectors_adjuster.remove_phase_factors(
             t_proj_vectors, kpoint)
         rot_proj_vectors, ir_labels = (
             self._rotational_projector.project_vectors(t_proj_vectors, kpoint))
@@ -239,61 +248,6 @@ class EigenstatesUnfolding(object):
         print("sum(rot_weights):", np.sum(rot_weights[:num_irs]))
 
         return rot_weights, num_irs, ir_labels
-
-
-class BlochRecoverer(object):
-    def __init__(self, scaled_positions):
-        self.set_scaled_positions(scaled_positions)
-
-    def set_scaled_positions(self, scaled_positions):
-        """
-
-        Args:
-            scaled_positions:
-                Scaled positions for the (disordered) cell.
-        """
-        self._scaled_positions = scaled_positions
-
-    def set_q(self, q):
-        """
-
-        Args:
-            q: Reciprocal space point in fractional coordinates for SC.
-        """
-        self._q = q
-
-    def recover_Bloch(self, vecs):
-        """Recorver the properties of Bloch's waves.
-
-        Args:
-            vecs: Vectors to be recovered.
-
-        Returns:
-            recovered_vecs: Vectors having the properties of Bloch's waves.
-        """
-        recovered_vecs = np.zeros_like(vecs) * np.nan
-        for i, vec in enumerate(vecs):
-            iatom = i // 3
-            p = self._scaled_positions[iatom]
-            phase = np.exp(2.0j * np.pi * np.dot(p, self._q))
-            recovered_vecs[i] = vec * phase
-        return recovered_vecs
-
-    def remove_phase_factors(self, vectors, kpoint):
-        """
-        Remove phase factors from given vectors.
-
-        Parameters
-        ----------
-        vectors : array
-            Vectors whose phase factors are removed.
-        kpiont :
-            Reciprocal space point in fractional coordinates for SC.
-        """
-        phases = np.exp(-2.0j * np.pi * np.dot(self._scaled_positions, kpoint))
-        phases = np.repeat(phases, 3)
-        modified_vectors = phases[:, None] * vectors
-        return modified_vectors
 
 
 def get_displacements_from_eigvecs(eigvecs, supercell, q):
