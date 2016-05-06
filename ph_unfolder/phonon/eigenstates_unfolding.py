@@ -188,7 +188,9 @@ class EigenstatesUnfolding(object):
         dm = self._dynamical_matrix.get_dynamical_matrix()
         eigvals, eigvecs = np.linalg.eigh(dm)
 
-        weights, rot_weights, num_irs, ir_labels = self._extract_weights(q_sc, eigvecs)
+        weights, t_proj_eigvecs = self._extract_weights(q_sc, eigvecs)
+        rot_weights, num_irs, ir_labels = self._create_rot_projection_weights(
+            q_sc, t_proj_eigvecs)
 
         return eigvals, eigvecs, weights, rot_weights, num_irs, ir_labels
 
@@ -216,20 +218,27 @@ class EigenstatesUnfolding(object):
             np.conj(recovered_eigvecs) * projected_eigvecs, axis=0
         ).real
 
+        return weights, projected_eigvecs
+
+    def _create_rot_projection_weights(self, kpoint, t_proj_vectors):
         # TODO(ikeda): Implemention of rotational projection.
-        projected_eigvecs = bloch_recoverer.remove_phase_factors(
-            projected_eigvecs, q)
-        rot_projected_eigvecs, ir_labels = (
-            self._rotational_projector.project_vectors(projected_eigvecs, q))
+        bloch_recoverer = self._bloch_recoverer
+
+        t_proj_vectors = bloch_recoverer.remove_phase_factors(
+            t_proj_vectors, kpoint)
+        rot_proj_vectors, ir_labels = (
+            self._rotational_projector.project_vectors(t_proj_vectors, kpoint))
 
         max_irs = self._max_irs
 
-        num_irs = rot_projected_eigvecs.shape[0]
-        shape = (max_irs, eigvecs.shape[-1])
+        num_irs = rot_proj_vectors.shape[0]
+        shape = (max_irs, t_proj_vectors.shape[-1])
         rot_weights = np.zeros(shape, dtype=float) * np.nan
-        rot_weights[:num_irs] = np.linalg.norm(rot_projected_eigvecs, axis=1)
+        rot_weights[:num_irs] = np.linalg.norm(rot_proj_vectors, axis=1)
 
-        return weights, rot_weights, num_irs, ir_labels
+        print("sum(rot_weights):", np.sum(rot_weights[:num_irs]))
+
+        return rot_weights, num_irs, ir_labels
 
 
 class BlochRecoverer(object):
