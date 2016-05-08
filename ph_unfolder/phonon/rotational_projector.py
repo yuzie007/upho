@@ -48,6 +48,14 @@ class RotationalProjector(object):
         character_table = np.array(character_table_data["character_table"])
         self._ir_dimensions = character_table[:, 0]
 
+    def _create_rotations_cart(self, rotations):
+        rotations_cart = []
+        cell = self._atoms.get_cell()
+        for r in rotations:
+            rotation_cart = np.dot(np.dot(cell.T, r), np.linalg.inv(cell.T))
+            rotations_cart.append(rotation_cart)
+        return np.array(rotations_cart)
+
     def project_vectors(self, vectors, kpoint):
         """
 
@@ -57,10 +65,12 @@ class RotationalProjector(object):
         kpoint : K point in fractional coordinates for SC.
         """
         rotations, translations = self._symmetry.get_group_of_wave_vector(kpoint)
-        # print(rotations, translations)
+        print("len(rotations):", len(rotations))
         self._create_mappings(rotations, translations)
         # TODO(ikeda): To be modified for nonsymmorphic space groups.
         self._create_characters(rotations)
+
+        rotations_cart = self._create_rotations_cart(rotations)
 
         ir_dimensions = self._ir_dimensions
         characters = self._characters
@@ -78,7 +88,7 @@ class RotationalProjector(object):
 
         shape = (len(ir_dimensions), ) + vectors.shape
         projected_vectors = np.zeros(shape, dtype=vectors.dtype)
-        for i, (r, expanded_mapping_inv) in enumerate(zip(rotations, expanded_mappings_inv)):
+        for i, (r, expanded_mapping_inv) in enumerate(zip(rotations_cart, expanded_mappings_inv)):
             tmp = vectors[expanded_mapping_inv]
 
             tmp2 = np.zeros_like(vectors)
