@@ -33,6 +33,9 @@ class EigenstatesUnfolding(object):
         self._star = star
         self._unitcell_ideal = unitcell_ideal
         self._primitive_matrix_ideal = primitive_matrix_ideal
+        # In this module, primitive is w.r.t. the unit cell (may be disordered).
+        self._primitive = get_primitive(
+            self._unitcell_ideal, self._primitive_matrix_ideal)
 
         self._build_star_creator()
         self._generate_vectors_projector()
@@ -72,7 +75,7 @@ class EigenstatesUnfolding(object):
 
     def _create_rotational_projector(self):
         # TODO(ikeda)
-        self._rotational_projector = RotationalProjector(self._unitcell_ideal)
+        self._rotational_projector = RotationalProjector(self._primitive)
 
     def _generate_vectors_adjuster(self):
         # Get the (disordered) unitcell.
@@ -190,8 +193,12 @@ class EigenstatesUnfolding(object):
         eigvals, eigvecs = np.linalg.eigh(dm)
 
         weights, t_proj_eigvecs = self._extract_weights(q_sc, eigvecs)
+
+        t_proj_eigvecs = self._vectors_adjuster.remove_phase_factors(
+            t_proj_eigvecs, q_sc)
+
         rot_weights, num_irs, ir_labels = self._create_rot_projection_weights(
-            q_sc, t_proj_eigvecs)
+            q_pc, t_proj_eigvecs)
 
         return eigvals, eigvecs, weights, rot_weights, num_irs, ir_labels
 
@@ -227,14 +234,16 @@ class EigenstatesUnfolding(object):
         Parameters
         ----------
         kpoint : 1d array
-            Reciprocal space point in fractional coordinates for SC.
+            Reciprocal space point in fractional coordinates for PC.
         t_proj_vectors : array
             Vectors for SC after translational projection.
         """
         vectors_adjuster = self._vectors_adjuster
 
-        t_proj_vectors = vectors_adjuster.remove_phase_factors(
-            t_proj_vectors, kpoint)
+        # TODO(ikeda): Finally phase_factors will not be considered explicitly.
+        t_proj_vectors = vectors_adjuster.reduce_vectors_to_primitive(
+            t_proj_vectors, self._primitive)
+
         rot_proj_vectors, ir_labels = (
             self._rotational_projector.project_vectors(t_proj_vectors, kpoint))
 
