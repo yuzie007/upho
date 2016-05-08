@@ -252,7 +252,7 @@ class EigenstatesUnfolding(object):
         num_irs = rot_proj_vectors.shape[0]
         shape = (max_irs, t_proj_vectors.shape[-1])
         rot_weights = np.zeros(shape, dtype=float) * np.nan
-        rot_weights[:num_irs] = np.linalg.norm(rot_proj_vectors, axis=1)
+        rot_weights[:num_irs] = np.linalg.norm(rot_proj_vectors, axis=1) ** 2
 
         print("sum(rot_weights):", np.sum(rot_weights[:num_irs]))
 
