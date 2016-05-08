@@ -80,10 +80,13 @@ class VectorsAdjuster(object):
         """
         ndim = 3
         p2s_map = primitive.get_primitive_to_supercell_map()
-        print(p2s_map)
         num_atoms = vectors.shape[0] // ndim
         tmp = vectors.reshape(ndim, num_atoms, -1)
         tmp = tmp[:, p2s_map, :]
         reduced_vectors = tmp.reshape(ndim * len(p2s_map), -1)
-        print(reduced_vectors)
+
+        # Renormalization of the reduced vectors
+        relative_size = num_atoms / len(p2s_map)
+        reduced_vectors *= np.sqrt(relative_size)
+
         return reduced_vectors
