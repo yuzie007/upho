@@ -37,14 +37,6 @@ class DensityExtractor(object):
         if filename is not None:
             self.load_data(filename)
 
-    def set_file_output(self, file_output):
-        """
-
-        Args:
-            file_output: A file object to print density.
-        """
-        self._file_output = file_output
-
     def load_data(self, filename):
         print("# Reading band.hdf5: ", end="")
         self._band_data = read_band_hdf5(filename)
@@ -64,7 +56,7 @@ class DensityExtractor(object):
             eigenvectors_data = self._band_data["eigenvectors_data"]
             print_density = self.print_partial_density
         elif weight_label == "rot_pr_weights":
-            print_density = self.print_ir_density
+            print_density = self.print_partial_density
         else:
             eigenvectors_data = None
             print_density = self.print_total_density
@@ -74,8 +66,6 @@ class DensityExtractor(object):
 
         filename = self._outfile
         with open(filename, "w") as f:
-            self.set_file_output(f)
-
             npath, nqpoint = frequencies.shape[:2]
             for ipath in range(npath):
                 for i, d in enumerate(distances[ipath]):
@@ -91,14 +81,14 @@ class DensityExtractor(object):
                         frequencies_data=frequencies[ipath, i],
                         eigenvectors_data=None,
                         weights_data=weights_data)
-                    print_density()
+                    print_density(f)
 
     def calculate_density(self,
                           distance,
                           nqstar,
                           frequencies_data,
-                          eigenvectors_data,
-                          weights_data):
+                          weights_data,
+                          eigenvectors_data=None):
         """
 
         Parameters
@@ -121,11 +111,16 @@ class DensityExtractor(object):
         density_data = np.sum(density_data, axis=0)  # Sum over star
         self._density_data = density_data
 
-    def print_total_density(self):
+    def print_total_density(self, file_output):
+        """
+
+        Parameters
+        ----------
+        file_output : A file object to print density.
+        """
         distance = self._distance
         density_data = self._density_data
         xs = self._smearing.get_xs()
-        file_output = self._file_output
         for x, density in zip(xs, density_data):
             file_output.write("{:12.6f}".format(distance))
             file_output.write("{:12.6f}".format(x))
@@ -133,11 +128,16 @@ class DensityExtractor(object):
             file_output.write("\n")
         file_output.write("\n")
 
-    def print_ir_density(self):
+    def print_ir_density(self, file_output):
+        """
+
+        Parameters
+        ----------
+        file_output : A file object to print density.
+        """
         distance = self._distance
         density_data = self._density_data
         xs = self._smearing.get_xs()
-        file_output = self._file_output
         for x, densities in zip(xs, density_data):
             file_output.write("{:12.6f}".format(distance))
             file_output.write("{:12.6f}".format(x))
@@ -147,11 +147,16 @@ class DensityExtractor(object):
             file_output.write("\n")
         file_output.write("\n")
 
-    def print_partial_density(self):
+    def print_partial_density(self, file_output):
+        """
+
+        Parameters
+        ----------
+        file_output : A file object to print density.
+        """
         distance = self._distance
         density_data = self._density_data
         xs = self._smearing.get_xs()
-        file_output = self._file_output
         for x, densities in zip(xs, density_data):
             file_output.write("{:12.6f}".format(distance))
             file_output.write("{:12.6f}".format(x))

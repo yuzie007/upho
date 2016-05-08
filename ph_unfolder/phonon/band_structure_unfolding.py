@@ -71,9 +71,12 @@ class BandStructureUnfolding(BandStructure):
 
         self._density_extractor = density_extractor
 
-        sf_filename = "spectral_functions.dat"
-        with open(sf_filename, "w") as self._file_density:
-            self._density_extractor.set_file_output(self._file_density)
+        fn_sf_atoms = "spectral_functions_atoms.dat"
+        fn_sf_irs   = "spectral_functions_irs.dat"
+        with open(fn_sf_atoms, "w") as fatoms, open(fn_sf_irs, "w") as firs:
+            self._file_sf_atoms = fatoms
+            self._file_sf_irs   = firs
+
             self._set_band(verbose=verbose)
 
     def write_hdf5(self):
@@ -220,10 +223,19 @@ class BandStructureUnfolding(BandStructure):
                 )
                 frequencies = self._calculate_frequencies(eigvals)
 
-                # Print partial density
-                self._density_extractor.calculate_density(
-                    self._distance, nqstar, frequencies, eigvecs, pr_weights)
-                self._density_extractor.print_partial_density()
+                # Print spectral functions
+                density_extractor = self._density_extractor
+
+                density_extractor.calculate_density(
+                    self._distance, nqstar, frequencies,
+                    weights_data=pr_weights,
+                    eigenvectors_data=eigvecs)
+                density_extractor.print_partial_density(self._file_sf_atoms)
+
+                density_extractor.calculate_density(
+                    self._distance, nqstar, frequencies,
+                    weights_data=rot_pr_weights[:, :num_irs])
+                density_extractor.print_partial_density(self._file_sf_irs)
 
             frequencies_on_path.append(frequencies)
             pr_weights_on_path.append(pr_weights)
