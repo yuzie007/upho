@@ -59,11 +59,35 @@ class Irreps(object):
         self._character_table_data = character_tables[self._pointgroup_symbol]
 
     def _assign_class_labels_to_rotations(self):
-        rotation_labels = []
-        for rconv in self._conventional_rotations:
-            label = self._assign_class_label_to_rotation(rconv)
-            rotation_labels.append(label)
-        self._rotation_labels = rotation_labels
+        class_to_rotations_list = (
+            self._character_table_data["class_to_rotations_list"])
+        for class_to_rotations in class_to_rotations_list:
+            rotation_labels = []
+            for rconv in self._conventional_rotations:
+                label = self._assign_class_label_to_rotation(
+                    rconv, class_to_rotations)
+                rotation_labels.append(label)
+            if False not in rotation_labels:
+                self._rotation_labels = rotation_labels
+                return
+        raise ValueError("Class labels cannot be assigned to rotations.")
+
+    def _assign_class_label_to_rotation(self, rconv, class_to_rotations):
+        """
+
+        Parameters
+        ----------
+        rconv :
+            Conventional rotation obtained using the transformation matrix.
+        class_to_rotations : Dictionary
+            Keys are class labels and values are corresponding
+            conventional rotations.
+        """
+        for label, rotations in class_to_rotations.items():
+            for rotation in rotations:
+                if np.all(rconv == rotation):
+                    return label
+        return False
 
     def _assign_characters_to_rotations(self):
         rotation_labels = self._rotation_labels
@@ -80,21 +104,6 @@ class Irreps(object):
             rotation_index = label_order.index(rotation_label)
             characters[i] = character_table[:, rotation_index]
         self._characters = characters
-
-    def _assign_class_label_to_rotation(self, rconv):
-        """
-
-        Parameters
-        ----------
-        rconv :
-            Conventional rotation obtained using the transformation matrix.
-        """
-        class_to_rotations = self._character_table_data["class_to_rotations"]
-        for label, rotations in class_to_rotations.items():
-            for rotation in rotations:
-                if np.all(rconv == rotation):
-                    return label
-        raise ValueError("Label cannot be found.")
 
     def _transform_rotations(self, tmat, rotations):
         trans_rots = []
