@@ -48,8 +48,7 @@ class EigenstatesUnfolding(object):
         else:  # "none" or "sym"
             is_overlapping = False
 
-        primitive_ideal_wrt_unitcell = (
-            get_primitive(self._unitcell_ideal, self._primitive_matrix_ideal))
+        primitive_ideal_wrt_unitcell = self._primitive
 
         self._star_creator = StarCreator(
             is_overlapping=is_overlapping,
@@ -58,7 +57,7 @@ class EigenstatesUnfolding(object):
         if self._star == "none":
             self._nopr = 1
         else:  # "sym" or "all"
-            self._nopr = len(self._star_creator.reciprocal_operations)
+            self._nopr = len(self._star_creator.get_rotations())
 
         print("nopr:", self._nopr)
 
@@ -94,15 +93,17 @@ class EigenstatesUnfolding(object):
         "none": The star of k is not considered.
         """
         if self._star == "none":
-            q_star = np.array([q])
+            q_star, transformation_matrices = (
+                np.array(q)[None, :], np.eye(3, dtype=int)[None, :, :])
         else:  # "all" or "sym"
-            q_star = self._star_creator.create_star_of_k(q)
+            q_star, transformation_matrices = (
+                self._star_creator.create_star(q))
 
         print("len(q_star):", len(q_star))
         print("q_star:")
         print(q_star)
 
-        return q_star
+        return q_star, transformation_matrices
 
     def _generate_lattice_vectors_in_sc(self):
         """
@@ -131,14 +132,17 @@ class EigenstatesUnfolding(object):
     def extract_eigenstates(self, q):
         """
 
-        Args:
-            q: Reciprocal space point in fractional coordinates for "PC".
+        Parameters
+        ----------
+        q : Reciprocal space point in fractional coordinates for "PC".
         """
         print("=" * 40)
         print("q:", q)
         print("=" * 40)
 
-        q_star = self.create_q_star(q)
+        self._rotational_projector.create_standard_rotations(q)
+
+        q_star, transformation_matrices = self.create_q_star(q)
 
         nband = self._cell.get_number_of_atoms() * 3
         nopr = self._nopr
@@ -150,7 +154,7 @@ class EigenstatesUnfolding(object):
         rot_weights_all = np.zeros((nopr, max_irs, nband), dtype=float) * np.nan
         ir_labels = np.empty(max_irs, dtype='S3')
         ir_labels[:] = ""
-        for i_star, q in enumerate(q_star):
+        for i_star, (q, transformation_matrix) in enumerate(zip(q_star, transformation_matrices)):
             print("i_star:", i_star)
             print("q_pc:", q)
             (eigvals,
@@ -158,7 +162,7 @@ class EigenstatesUnfolding(object):
              weights,
              rot_weights,
              num_irs,
-             ir_labels_tmp) = self._extract_eigenstates_for_q(q)
+             ir_labels_tmp) = self._extract_eigenstates_for_q(q, transformation_matrix)
             eigvals_all[i_star] = eigvals
             eigvecs_all[i_star] = eigvecs
             weights_all[i_star] = weights
@@ -173,7 +177,7 @@ class EigenstatesUnfolding(object):
 
         return eigvals_all, eigvecs_all, weights_all, len(q_star), rot_weights_all, num_irs, ir_labels
 
-    def _extract_eigenstates_for_q(self, q_pc):
+    def _extract_eigenstates_for_q(self, q_pc, transformation_matrix):
         """Extract eigenstates with their weights.
 
         Args:
@@ -198,7 +202,7 @@ class EigenstatesUnfolding(object):
             t_proj_eigvecs, q_sc)
 
         rot_weights, num_irs, ir_labels = self._create_rot_projection_weights(
-            q_pc, t_proj_eigvecs)
+            q_pc, transformation_matrix, t_proj_eigvecs)
 
         return eigvals, eigvecs, weights, rot_weights, num_irs, ir_labels
 
@@ -228,7 +232,7 @@ class EigenstatesUnfolding(object):
 
         return weights, projected_eigvecs
 
-    def _create_rot_projection_weights(self, kpoint, t_proj_vectors):
+    def _create_rot_projection_weights(self, kpoint, transformation_matrix, t_proj_vectors):
         """
 
         Parameters
@@ -245,7 +249,7 @@ class EigenstatesUnfolding(object):
             t_proj_vectors, self._primitive)
 
         rot_proj_vectors, ir_labels = (
-            self._rotational_projector.project_vectors(t_proj_vectors, kpoint))
+            self._rotational_projector.project_vectors(t_proj_vectors, kpoint, transformation_matrix))
 
         max_irs = self._max_irs
 
