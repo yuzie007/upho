@@ -39,7 +39,9 @@ class Irreps(object):
         self._create_conventional_rotations()
         self._assign_character_table_data()
         self._assign_class_labels_to_rotations()
-        self._assign_characters_to_rotations()
+
+        self._characters = self.assign_characters_to_rotations(
+            self._rotation_labels)
 
     def _create_conventional_rotations(self):
         rotations = self._rotations
@@ -89,8 +91,20 @@ class Irreps(object):
                     return label
         return False
 
-    def _assign_characters_to_rotations(self):
-        rotation_labels = self._rotation_labels
+    def assign_characters_to_rotations(self, rotation_labels):
+        """
+
+        Parameters
+        ----------
+        rotation_labels : 1d list
+            Elements : Class labels.
+
+        Returns
+        -------
+        characters : 2d list
+            Row : IR labels
+            Column : Rotations
+        """
         character_table_data = self._character_table_data
 
         character_table = np.array(character_table_data["character_table"])
@@ -103,7 +117,7 @@ class Irreps(object):
         for i, rotation_label in enumerate(rotation_labels):
             rotation_index = label_order.index(rotation_label)
             characters[i] = character_table[:, rotation_index]
-        self._characters = characters
+        return characters
 
     def _transform_rotations(self, tmat, rotations):
         trans_rots = []
