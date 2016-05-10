@@ -18,14 +18,14 @@ class TestUnfolderSymmetry(unittest.TestCase):
     def test_000(self):
         kpoint = np.array([0.0, 0.0, 0.0])
         (rotations_kpoint,
-         translations_kpoint) = self._symmetry.get_group_of_kpoint(kpoint)
+         translations_kpoint) = self._symmetry.create_little_group(kpoint)
 
         self.assertEqual(len(rotations_kpoint), 48)
 
     def test_100(self):
         kpoint = np.array([0.5, 0.0, 0.0])  # X: D_4h
         (rotations_kpoint,
-         translations_kpoint) = self._symmetry.get_group_of_kpoint(kpoint)
+         translations_kpoint) = self._symmetry.create_little_group(kpoint)
 
         self.assertNotEqual(len(rotations_kpoint), 48)
         self.assertEqual(len(rotations_kpoint), 16)
@@ -33,7 +33,7 @@ class TestUnfolderSymmetry(unittest.TestCase):
     def test_110(self):
         kpoint = np.array([0.5, 0.5, 0.0])  # M: D_4h
         (rotations_kpoint,
-         translations_kpoint) = self._symmetry.get_group_of_kpoint(kpoint)
+         translations_kpoint) = self._symmetry.create_little_group(kpoint)
 
         self.assertNotEqual(len(rotations_kpoint), 48)
         self.assertEqual(len(rotations_kpoint), 16)
@@ -41,9 +41,45 @@ class TestUnfolderSymmetry(unittest.TestCase):
     def test_111(self):
         kpoint = np.array([0.5, 0.5, 0.5])  # R: O_h
         (rotations_kpoint,
-         translations_kpoint) = self._symmetry.get_group_of_kpoint(kpoint)
+         translations_kpoint) = self._symmetry.create_little_group(kpoint)
 
         self.assertEqual(len(rotations_kpoint), 48)
+
+    def test_star_000(self):
+        symmetry = self._symmetry
+        prec = 1e-9
+        kpoint = np.array([0.0, 0.0, 0.0])
+        star, transformation_matrices = symmetry.create_star(kpoint)
+
+        star_exp = [
+            [0.0, 0.0, 0.0],
+        ]
+
+        self.assertTrue(np.all(np.abs(star - star_exp) < prec))
+
+    def test_star_100(self):
+        symmetry = self._symmetry
+        prec = 1e-9
+        kpoint = np.array([0.5, 0.0, 0.0])
+        star, transformation_matrices = symmetry.create_star(kpoint)
+
+        self.assertEqual(len(star), 6)
+
+    def test_star_110(self):
+        symmetry = self._symmetry
+        prec = 1e-9
+        kpoint = np.array([0.5, 0.5, 0.0])
+        star, transformation_matrices = symmetry.create_star(kpoint)
+
+        self.assertEqual(len(star), 12)
+
+    def test_star_111(self):
+        symmetry = self._symmetry
+        prec = 1e-9
+        kpoint = np.array([0.5, 0.5, 0.5])
+        star, transformation_matrices = symmetry.create_star(kpoint)
+
+        self.assertEqual(len(star), 8)
 
 
 if __name__ == "__main__":
