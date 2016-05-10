@@ -204,6 +204,9 @@ class EigenstatesUnfolding(object):
         rot_weights, num_irs, ir_labels = self._create_rot_projection_weights(
             q_pc, transformation_matrix, t_proj_eigvecs)
 
+        if True:  # TODO(ikeda): Debug print
+            print_debug(eigvals, num_irs, ir_labels, rot_weights)
+
         return eigvals, eigvecs, weights, rot_weights, num_irs, ir_labels
 
     def _extract_weights(self, q, eigvecs):
@@ -261,6 +264,14 @@ class EigenstatesUnfolding(object):
         print("sum(rot_weights):", np.sum(rot_weights[:num_irs]))
 
         return rot_weights, num_irs, ir_labels
+
+
+def print_debug(eigvals, num_irs, ir_labels, rot_weights):
+        print(" " * 14, end="")
+        print("".join("{:<12s}".format(v) for v in ir_labels[:num_irs]))
+        for i, values in enumerate(rot_weights.T):
+            print("{:12.6f}  ".format(eigvals[i]), end="")
+            print("".join("{:12.6f}".format(v) for v in values[:num_irs]))
 
 
 def get_displacements_from_eigvecs(eigvecs, supercell, q):
