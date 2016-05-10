@@ -30,7 +30,7 @@ class DensityExtractor(object):
             xpitch=fpitch,
         )
 
-        self._weight_label = weight_label 
+        self._weight_label = weight_label
 
         self._outfile = outfile
 
@@ -60,9 +60,6 @@ class DensityExtractor(object):
         else:
             eigenvectors_data = None
             print_density = self.print_total_density
-
-        smearing = self._smearing
-        fs = smearing.get_xs()
 
         filename = self._outfile
         with open(filename, "w") as f:
@@ -106,10 +103,42 @@ class DensityExtractor(object):
             w = weights_data[istar]
             if eigenvectors_data is not None:
                 eigenvectors = eigenvectors_data[istar]
-                w = (np.abs(eigenvectors) ** 2) * w
+                w = self._create_atom_weights(w, eigenvectors)
             density_data.append(self._smearing.run(f, w))
         density_data = np.sum(density_data, axis=0)  # Sum over star
         self._density_data = density_data
+
+    def _create_atom_weights(self, weights, vectors, ndim=3):
+        """
+
+        Parameters
+        ----------
+        weights : (nbands) array
+            Original weights on mode eigenvectors.
+        vectors : (nbands, nbands) array
+            Original mode eigenvectors.
+        ndim : Integer
+            # of dimensions of the considered space.
+
+        Returns
+        -------
+        atom_weights : (natoms, nbands) array
+            natoms should be equal to nbands // ndim.
+
+        Note
+        ----
+        This method is used to not care Cartesian coordinates.
+        This is because it can be confusing when we average contributions
+        from arms of the star.
+        """
+        shape = vectors.shape
+        tmp = vectors.reshape(ndim, shape[0] // ndim, shape[1])
+        atom_weights = (np.linalg.norm(tmp, axis=0) ** 2) * weights
+        return atom_weights
+
+    def _create_cartesian_weights(self, weights, vectors):
+        cartesian_weights = (np.abs(vectors) ** 2) * weights
+        return cartesian_weights
 
     def print_total_density(self, file_output):
         """
@@ -142,6 +171,7 @@ class DensityExtractor(object):
             file_output.write("{:12.6f}".format(distance))
             file_output.write("{:12.6f}".format(x))
             file_output.write("{:12.6f}".format(np.sum(densities)))
+            file_output.write("  ")
             for ir_density in densities:
                 file_output.write("{:12.6f}".format(ir_density))
             file_output.write("\n")
@@ -161,6 +191,7 @@ class DensityExtractor(object):
             file_output.write("{:12.6f}".format(distance))
             file_output.write("{:12.6f}".format(x))
             file_output.write("{:12.6f}".format(np.sum(densities)))
+            file_output.write("  ")
             for partial_density in densities:
                 file_output.write("{:12.6f}".format(partial_density))
             file_output.write("\n")
