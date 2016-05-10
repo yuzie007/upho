@@ -9,65 +9,70 @@ from phonopy.structure.symmetry import Symmetry
 
 
 class StarCreator(object):
-    def __init__(self, is_overlapping=False, atoms=None):
+    def __init__(self, is_overlapping=False, atoms=None, symprec=1e-6):
         """
+
+        Parameters
+        ----------
+        atoms : Phonopy Atoms object
+            Atoms for primitive cell.
         """
         self.set_is_overlapping(is_overlapping)
-        if atoms is not None:
-            self.build_reciprocal_operations(atoms)
+        self._atoms = atoms
+        self._symprec = symprec
+        self._create_symmetry()
 
     def set_is_overlapping(self, is_overlapping):
         """
 
-        Args:
-            is_overlapping:
-                If True, it allows the overlapping arms of the star.
-                The number of the arms equals to that of the reciprocal
-                operations.
+        Parameters
+        ----------
+        is_overlapping : Bool
+            If True, it allows the overlapping arms of the star.
+            The number of the arms equals to that of the rotational
+            operations.
         """
         self._is_overlapping = is_overlapping
 
-    def build_reciprocal_operations(self, atoms, prec=1e-6):
+    def _create_symmetry(self):
+        symmetry = Symmetry(
+            self._atoms, symprec=self._symprec, is_symmetry=True)
+        self._symmetry = symmetry
+
+    def get_rotations(self):
+        return self._symmetry.get_dataset()["rotations"]
+
+    def create_star(self, kpoint):
         """
+        Create the star of the given kpoint
 
-        Args:
-            atoms:
-                The "Atoms" object.
-                Note that the given q-point (in fractional cooridnates)
-                must correspond to the atoms.
+        Parameters
+        ----------
+        kpoint : Reciprocal space point
 
-        Note:
-            "time_reversal_symmetry" is considered in reciprocal_operations.
+        Returns
+        -------
+        star : n x 3 array
+            Star of the given kpoint.
+        transformation_matrices : n x 3 x 3 array
+            Matrices to obtain arms of the star from the given kpoint.
         """
-        symmetry = Symmetry(atoms, symprec=prec, is_symmetry=True)
-        self._reciprocal_operations = symmetry.get_reciprocal_operations()
+        rotations = self._symmetry.get_dataset()["rotations"]
+        lattice = self._atoms.get_cell()
 
-    @property
-    def reciprocal_operations(self):
-        return self._reciprocal_operations
+        def get_dist(tmp, arm):
+            diff = tmp - arm
+            # diff -= np.rint(diff)  # TODO(ikeda): Check definition.
+            dist = np.linalg.norm(np.dot(np.linalg.inv(lattice), diff))
+            return dist
 
-    def create_star_of_k(self, k, prec=1e-6):
-        """Create the star of given k.
+        star = []
+        transformation_matrices = []
+        for r in rotations:
+            tmp = np.dot(kpoint, r)
+            if (self._is_overlapping or
+                all(get_dist(tmp, arm) > self._symprec for arm in star)):
+                star.append(tmp)
+                transformation_matrices.append(r)
 
-        Args:
-            k: Reciprocal space point to be checked.
-
-        Returns:
-            star_k: n x 3 array of the star of k.
-        """
-        star_k = []
-        for r in self._reciprocal_operations:
-            is_identical = False
-            tmp_k = np.dot(r, k)
-
-            # Symmetry is considered.
-            if not self._is_overlapping:
-                for arm in star_k:
-                    if (np.abs(tmp_k - arm) < prec).all():
-                        is_identical = True
-                        break
-
-            if not is_identical:
-                star_k.append(tmp_k)
-        star_k = np.array(star_k)
-        return star_k
+        return np.array(star), np.array(transformation_matrices)
