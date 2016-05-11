@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
+__author__ = "Yuji Ikeda"
+
+import unittest
+import numpy as np
+from ph_unfolder.phonon.rotational_projector import RotationalProjector
+from phonopy.interface.vasp import read_vasp
+
+
+class TestRotationalProjector(unittest.TestCase):
+    def setUp(self):
+        # self._vectors = np.random.rand(3, 100) + 1.0j * np.random.rand(3, 100)
+        self._vectors     = np.load("/Users/ikeda/tmp_t.npy")
+        self._vectors_exp = np.load("/Users/ikeda/tmp_r.npy")
+
+    def load_sc(self):
+        atoms = read_vasp("poscars/POSCAR_sc")
+        self._rotational_projector = RotationalProjector(atoms)
+
+    def load_fcc(self):
+        atoms = read_vasp("poscars/POSCAR_fcc_prim_test")
+        # atoms = read_vasp("poscars/POSCAR_fcc_prim")
+        self._rotational_projector = RotationalProjector(atoms)
+
+    def test_0(self):
+        self.load_sc()
+        self._kpoint = np.array([0.00, 0.00, 0.00])
+        self.check()
+
+    def test_1(self):
+        self.load_sc()
+        self._kpoint = np.array([0.00, 0.25, 0.25])
+        self.check()
+
+    def test_0_fcc(self):
+        self.load_fcc()
+        self._kpoint = np.array([0.00, 0.00, 0.00])
+        self.check()
+
+    def test_1_fcc(self):
+        self.load_fcc()
+        self._kpoint = np.array([0.00, 0.25, 0.25])
+        self.check()
+
+    def test_2_fcc(self):
+        self.load_fcc()
+        self._kpoint = np.array([0.50, 0.25, 0.25])
+        self.check()
+
+    def test_3_fcc(self):
+        self.load_fcc()
+        self._kpoint = np.array([0.25, 0.25, 0.25])
+        self.check()
+
+    def test_5_fcc(self):
+        self.load_fcc()
+        self._kpoint = np.array([0.00, 0.05, 0.05])
+        self.check()
+
+    # def test_4_fcc(self):
+    #     self.load_fcc()
+    #     self._kpoint = np.array([0.75, 0.50, 0.25])
+    #     self.check()
+
+    def check(self):
+        prec = 1e-6
+        kpoint = self._kpoint
+        vectors = self._vectors
+        self._rotational_projector.create_standard_rotations(kpoint)
+        r_proj_vectors, ir_labels = self._rotational_projector.project_vectors(
+            vectors, kpoint, np.eye(3, dtype=int))
+        print(ir_labels)
+
+        sum_r_proj_vectors = np.sum(r_proj_vectors, axis=0)
+        self.assertTrue(np.all(np.abs(sum_r_proj_vectors - vectors) < prec))
+
+        print(sum_r_proj_vectors - self._vectors_exp)
+
+if __name__ == "__main__":
+    unittest.main()

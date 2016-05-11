@@ -261,10 +261,21 @@ class EigenstatesUnfolding(object):
         rot_weights = np.zeros(shape, dtype=float) * np.nan
         rot_weights[:num_irs] = np.linalg.norm(rot_proj_vectors, axis=1) ** 2
 
+        self.check_rotational_projected_vectors(
+            rot_proj_vectors, t_proj_vectors)
+
         print("sum(rot_weights):", np.sum(rot_weights[:num_irs]))
 
         return rot_weights, num_irs, ir_labels
 
+    def check_rotational_projected_vectors(self, rot_proj_vectors, vectors):
+        sum_rot_proj_vectors = np.sum(rot_proj_vectors, axis=0)
+        diff = sum_rot_proj_vectors - vectors
+        if np.any(np.abs(diff) > 1e-12):
+            np.save("tmp_t", vectors)
+            np.save("tmp_r", sum_rot_proj_vectors)
+            raise ValueError("Sum of rotationally projected vectors is not "
+                             "equal to original vectors.")
 
 def print_debug(eigvals, num_irs, ir_labels, rot_weights):
         print(" " * 14, end="")

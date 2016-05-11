@@ -21,7 +21,6 @@ class RotationalProjector(object):
         ----------
             atoms : Phonopy Atoms object.
         """
-        self._scaled_positions = atoms.get_scaled_positions()
         self._atoms = atoms
         self._symmetry = UnfolderSymmetry(atoms)
 
@@ -148,9 +147,9 @@ class RotationalProjector(object):
         expanded_mappings_inv = self._mappings_modifier.expand_mappings(
             ndim, is_inverse=True)
 
-        scaled_positions = self._atoms.get_scaled_positions()
-        phases = np.exp(2.0j * np.pi * np.dot(scaled_positions, kpoint))
-        phases = np.repeat(phases, ndim)
+        # scaled_positions = self._atoms.get_scaled_positions()
+        # phases = np.exp(2.0j * np.pi * np.dot(scaled_positions, kpoint))
+        # phases = np.repeat(phases, ndim)
 
         shape = (len(ir_dimensions), ) + vectors.shape
         projected_vectors = np.zeros(shape, dtype=vectors.dtype)
@@ -164,7 +163,7 @@ class RotationalProjector(object):
 
             projected_vectors += np.conj(characters[i, :, None, None]) * tmp2[None, :, :]
 
-        projected_vectors *= phases[None, :, None]
+        # projected_vectors *= phases[None, :, None]
         projected_vectors *= ir_dimensions[:, None, None]
         projected_vectors /= order
 
