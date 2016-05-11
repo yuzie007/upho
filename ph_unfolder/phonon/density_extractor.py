@@ -132,8 +132,8 @@ class DensityExtractor(object):
         from arms of the star.
         """
         shape = vectors.shape
-        tmp = vectors.reshape(ndim, shape[0] // ndim, shape[1])
-        atom_weights = (np.linalg.norm(tmp, axis=0) ** 2) * weights
+        tmp = vectors.reshape(shape[0] // ndim, ndim, shape[1])
+        atom_weights = (np.linalg.norm(tmp, axis=1) ** 2) * weights
         return atom_weights
 
     def _create_cartesian_weights(self, weights, vectors):
