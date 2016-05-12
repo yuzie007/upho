@@ -81,8 +81,8 @@ class VectorsAdjuster(object):
         ndim = 3
         p2s_map = primitive.get_primitive_to_supercell_map()
         num_atoms = vectors.shape[0] // ndim
-        tmp = vectors.reshape(ndim, num_atoms, -1)
-        tmp = tmp[:, p2s_map, :]
+        tmp = vectors.reshape(num_atoms, ndim, -1)
+        tmp = tmp[p2s_map, :, :]
         reduced_vectors = tmp.reshape(ndim * len(p2s_map), -1)
 
         # Renormalization of the reduced vectors
