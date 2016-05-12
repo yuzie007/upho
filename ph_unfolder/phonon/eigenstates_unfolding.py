@@ -25,8 +25,6 @@ class EigenstatesUnfolding(object):
         self._verbose = verbose
         self._mode = mode
 
-        self._max_irs = 12  # D_6h
-
         self._cell = dynamical_matrix.get_primitive()  # Disordered
         self._dynamical_matrix = dynamical_matrix
 
@@ -140,35 +138,34 @@ class EigenstatesUnfolding(object):
         print("q:", q)
         print("=" * 40)
 
-        self._rotational_projector.create_standard_rotations(q)
+        rotational_projector = self._rotational_projector
+        rotational_projector.create_standard_rotations(q)
+        max_irs = rotational_projector.get_max_irs()
+        num_irs = rotational_projector.get_num_irs()
+
+        ir_labels = np.zeros(max_irs, dtype='S3')
+        ir_labels[:num_irs] = rotational_projector.get_ir_labels()
 
         q_star, transformation_matrices = self.create_q_star(q)
 
         nband = self._cell.get_number_of_atoms() * 3
         nopr = self._nopr
-        max_irs = self._max_irs
 
         eigvals_all = np.zeros((nopr, nband), dtype=float) * np.nan
         weights_all = np.zeros((nopr, nband), dtype=float) * np.nan
         eigvecs_all = np.zeros((nopr, nband, nband), dtype=complex) * np.nan
         rot_weights_all = np.zeros((nopr, max_irs, nband), dtype=float) * np.nan
-        ir_labels = np.empty(max_irs, dtype='S3')
-        ir_labels[:] = ""
         for i_star, (q, transformation_matrix) in enumerate(zip(q_star, transformation_matrices)):
             print("i_star:", i_star)
             print("q_pc:", q)
             (eigvals,
              eigvecs,
              weights,
-             rot_weights,
-             num_irs,
-             ir_labels_tmp) = self._extract_eigenstates_for_q(q, transformation_matrix)
+             rot_weights) = self._extract_eigenstates_for_q(q, transformation_matrix)
             eigvals_all[i_star] = eigvals
             eigvecs_all[i_star] = eigvecs
             weights_all[i_star] = weights
             rot_weights_all[i_star] = rot_weights
-
-        ir_labels[:num_irs] = ir_labels_tmp
 
         weights_all /= len(q_star)
         print("sum(weights_all):", np.sum(weights_all[:len(q_star)]))
@@ -201,13 +198,14 @@ class EigenstatesUnfolding(object):
         t_proj_eigvecs = self._vectors_adjuster.remove_phase_factors(
             t_proj_eigvecs, q_sc)
 
-        rot_weights, num_irs, ir_labels = self._create_rot_projection_weights(
+        rot_weights, rot_proj_vectors = self._create_rot_projection_weights(
             q_pc, transformation_matrix, t_proj_eigvecs)
 
         if True:  # TODO(ikeda): Debug print
-            print_debug(eigvals, num_irs, ir_labels, rot_weights)
+            self._print_debug(
+                eigvals, t_proj_eigvecs, rot_weights, rot_proj_vectors)
 
-        return eigvals, eigvecs, weights, rot_weights, num_irs, ir_labels
+        return eigvals, eigvecs, weights, rot_weights
 
     def _extract_weights(self, q, eigvecs):
         """Extract weights.
@@ -251,12 +249,12 @@ class EigenstatesUnfolding(object):
         t_proj_vectors = vectors_adjuster.reduce_vectors_to_primitive(
             t_proj_vectors, self._primitive)
 
-        rot_proj_vectors, ir_labels = (
-            self._rotational_projector.project_vectors(t_proj_vectors, kpoint, transformation_matrix))
+        rot_proj_vectors = self._rotational_projector.project_vectors(
+            t_proj_vectors, kpoint, transformation_matrix)
 
-        max_irs = self._max_irs
+        max_irs = self._rotational_projector.get_max_irs()
+        num_irs = self._rotational_projector.get_num_irs()
 
-        num_irs = rot_proj_vectors.shape[0]
         shape = (max_irs, t_proj_vectors.shape[-1])
         rot_weights = np.zeros(shape, dtype=float) * np.nan
         rot_weights[:num_irs] = np.linalg.norm(rot_proj_vectors, axis=1) ** 2
@@ -266,7 +264,7 @@ class EigenstatesUnfolding(object):
 
         print("sum(rot_weights):", np.sum(rot_weights[:num_irs]))
 
-        return rot_weights, num_irs, ir_labels
+        return rot_weights, rot_proj_vectors
 
     def check_rotational_projected_vectors(self, rot_proj_vectors, vectors):
         sum_rot_proj_vectors = np.sum(rot_proj_vectors, axis=0)
@@ -277,12 +275,17 @@ class EigenstatesUnfolding(object):
             raise ValueError("Sum of rotationally projected vectors is not "
                              "equal to original vectors.")
 
-def print_debug(eigvals, num_irs, ir_labels, rot_weights):
+    def _print_debug(self, eigvals, t_proj_eigvecs, rot_weights, rot_proj_vectors):
+        ir_labels = self._rotational_projector.get_ir_labels()
+        num_irs = len(ir_labels)
         print(" " * 14, end="")
-        print("".join("{:<12s}".format(v) for v in ir_labels[:num_irs]))
+        print("".join("{:<12s}".format(v) for v in ir_labels))
         for i, values in enumerate(rot_weights.T):
             print("{:12.6f}  ".format(eigvals[i]), end="")
-            print("".join("{:12.6f}".format(v) for v in values[:num_irs]))
+            print("".join("{:12.6f}".format(v) for v in values[:num_irs]), end="")
+            print("  ", end="")
+            print("".join("{0.real:12.6f}{0.imag:12.6f}".format(v) for v in t_proj_eigvecs.T[i][0:3]), end="")
+            print()
 
 
 def get_displacements_from_eigvecs(eigvecs, supercell, q):
