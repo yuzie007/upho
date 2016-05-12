@@ -7,7 +7,7 @@ __author__ = "Yuji Ikeda"
 import numpy as np
 from phonopy.structure.cells import get_primitive
 from ph_unfolder.phonon.star_creator import StarCreator
-from ph_unfolder.phonon.vectors_projector import VectorsProjector
+from ph_unfolder.phonon.translational_projector import TranslationalProjector
 from ph_unfolder.structure.structure_analyzer import (
     StructureAnalyzer, find_lattice_vectors)
 from ph_unfolder.phonon.rotational_projector import RotationalProjector
@@ -36,7 +36,7 @@ class EigenstatesUnfolding(object):
             self._unitcell_ideal, self._primitive_matrix_ideal)
 
         self._build_star_creator()
-        self._generate_vectors_projector()
+        self._generate_translational_projector()
         self._generate_vectors_adjuster()
         self._create_rotational_projector()
 
@@ -59,7 +59,7 @@ class EigenstatesUnfolding(object):
 
         print("nopr:", self._nopr)
 
-    def _generate_vectors_projector(self):
+    def _generate_translational_projector(self):
         lattice_vectors, mappings = self._generate_lattice_vectors_in_sc()
         print("lattice_vectors:", lattice_vectors.shape)
         print(lattice_vectors)
@@ -68,7 +68,8 @@ class EigenstatesUnfolding(object):
         if np.any(mappings == -1):
             raise ValueError("Mapping is failed.")
         scaled_positions = self._unitcell_ideal.get_scaled_positions()
-        self._vectors_projector = VectorsProjector(mappings, scaled_positions)
+        self._translational_projector = TranslationalProjector(
+            mappings, scaled_positions)
 
     def _create_rotational_projector(self):
         # TODO(ikeda)
@@ -195,9 +196,6 @@ class EigenstatesUnfolding(object):
 
         weights, t_proj_eigvecs = self._extract_weights(q_sc, eigvecs)
 
-        t_proj_eigvecs = self._vectors_adjuster.remove_phase_factors(
-            t_proj_eigvecs, q_sc)
-
         rot_weights, rot_proj_vectors = self._create_rot_projection_weights(
             q_pc, transformation_matrix, t_proj_eigvecs)
 
@@ -216,19 +214,12 @@ class EigenstatesUnfolding(object):
         Returns:
             weights: Weights of eigenvectors on the primitive cell at q.
         """
-        vectors_adjuster = self._vectors_adjuster
-        vectors_projector = self._vectors_projector
+        translational_projector = self._translational_projector
 
-        vectors_adjuster.set_q(q)
+        projected_eigvecs = translational_projector.project_vectors(
+            vectors=eigvecs, kpoint=q)
 
-        recovered_eigvecs = vectors_adjuster.recover_Bloch(eigvecs)
-
-        projected_eigvecs = vectors_projector.project_vectors_onto_k(
-            vecs=recovered_eigvecs, k=q)
-
-        weights = np.sum(
-            np.conj(recovered_eigvecs) * projected_eigvecs, axis=0
-        ).real
+        weights = np.linalg.norm(projected_eigvecs, axis=0) ** 2
 
         return weights, projected_eigvecs
 
