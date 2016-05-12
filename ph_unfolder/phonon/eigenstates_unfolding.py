@@ -201,9 +201,8 @@ class EigenstatesUnfolding(object):
         rot_weights, rot_proj_vectors = self._create_rot_projection_weights(
             q_pc, transformation_matrix, t_proj_eigvecs)
 
-        if True:  # TODO(ikeda): Debug print
-            self._print_debug(
-                eigvals, t_proj_eigvecs, rot_weights, rot_proj_vectors)
+        # if __debug__:
+        #     self._print_debug(eigvals, rot_weights)
 
         return eigvals, eigvecs, weights, rot_weights
 
@@ -275,7 +274,7 @@ class EigenstatesUnfolding(object):
             raise ValueError("Sum of rotationally projected vectors is not "
                              "equal to original vectors.")
 
-    def _print_debug(self, eigvals, t_proj_eigvecs, rot_weights, rot_proj_vectors):
+    def _print_debug(self, eigvals, rot_weights):
         ir_labels = self._rotational_projector.get_ir_labels()
         num_irs = len(ir_labels)
         print(" " * 14, end="")
@@ -283,8 +282,6 @@ class EigenstatesUnfolding(object):
         for i, values in enumerate(rot_weights.T):
             print("{:12.6f}  ".format(eigvals[i]), end="")
             print("".join("{:12.6f}".format(v) for v in values[:num_irs]), end="")
-            print("  ", end="")
-            print("".join("{0.real:12.6f}{0.imag:12.6f}".format(v) for v in t_proj_eigvecs.T[i][0:3]), end="")
             print()
 
 
