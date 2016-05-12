@@ -98,7 +98,6 @@ class RotationalProjector(object):
 
     def _create_irreps(self, rotations):
         irreps = Irreps(rotations)
-        print("pointgroup_symbol:", irreps.get_pointgroup_symbol())
         character_table_data = irreps.get_character_table_data()
 
         self._ir_labels = character_table_data["ir_labels"]
@@ -179,3 +178,6 @@ class RotationalProjector(object):
 
     def get_num_irs(self):
         return len(self._ir_labels)
+
+    def get_pointgroup_symbol(self):
+        return self._irreps.get_pointgroup_symbol()

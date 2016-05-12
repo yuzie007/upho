@@ -89,6 +89,7 @@ class BandStructureUnfolding(BandStructure):
             w.create_dataset('frequencies', data=self._frequencies)
             w.create_dataset('pr_weights', data=self._pr_weights)
             w.create_dataset('rot_pr_weights', data=self._rot_pr_weights)
+            w.create_dataset('pg_symbols', data=self._pg_symbols)
             w.create_dataset('ir_labels', data=self._ir_labels)
             if self._group_velocity is not None:
                 w.create_dataset('group_velocities', data=self._group_velocity)
@@ -152,6 +153,7 @@ class BandStructureUnfolding(BandStructure):
         is_nac = self._dynamical_matrix.is_nac()
         num_irs = []
         ir_labels = []
+        pg_symbols = []
 
         for path in self._paths:
             self._set_initial_point(path[0])
@@ -172,6 +174,7 @@ class BandStructureUnfolding(BandStructure):
             nqstars.append(np.array(nqstars_on_path))
             num_irs.append(np.array(num_irs_on_path))
             ir_labels.append(np.array(ir_labels_on_path))
+            pg_symbols.append(self.get_pg_symbol_on_path())
 
             if self._is_eigenvectors:
                 eigvecs.append(np.array(eigvecs_on_path))
@@ -186,6 +189,7 @@ class BandStructureUnfolding(BandStructure):
         self._num_irs     = num_irs
         self._rot_pr_weights = rot_pr_weights
         self._ir_labels = ir_labels
+        self._pg_symbols = np.array(pg_symbols, dtype=str)
 
         if self._is_eigenvectors:
             self._eigenvectors = eigvecs
@@ -202,6 +206,7 @@ class BandStructureUnfolding(BandStructure):
         nqstar_on_path = []
         gv_on_path = []
         rot_pr_weights_on_path = []
+        pg_symbol_on_path = []
         num_irs_on_path = []
         ir_labels_on_path = []
 
@@ -241,6 +246,8 @@ class BandStructureUnfolding(BandStructure):
             pr_weights_on_path.append(pr_weights)
             rot_pr_weights_on_path.append(rot_pr_weights)
             ir_labels_on_path.append(ir_labels)
+            pg_symbol_on_path.append(
+                self._eigenstates_unfolding.get_pointgroup_symbol())
 
             if self._is_eigenvectors:
                 eigvecs_on_path.append(eigvecs)
@@ -252,6 +259,8 @@ class BandStructureUnfolding(BandStructure):
 
         ir_labels_on_path = np.array(ir_labels_on_path)
 
+        self._pg_symbol_on_path = pg_symbol_on_path
+
         return (
             distances_on_path,
             frequencies_on_path,
@@ -262,6 +271,9 @@ class BandStructureUnfolding(BandStructure):
             rot_pr_weights_on_path,
             num_irs_on_path,
             ir_labels_on_path)
+
+    def get_pg_symbol_on_path(self):
+        return self._pg_symbol_on_path
 
     def _calculate_frequencies(self, eigenvalues):
         frequencies = np.sqrt(np.abs(eigenvalues)) * np.sign(eigenvalues)

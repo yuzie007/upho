@@ -143,6 +143,7 @@ class EigenstatesUnfolding(object):
         rotational_projector.create_standard_rotations(q)
         max_irs = rotational_projector.get_max_irs()
         num_irs = rotational_projector.get_num_irs()
+        print("pointgroup_symbol:", self.get_pointgroup_symbol())
 
         ir_labels = np.zeros(max_irs, dtype='S3')
         ir_labels[:num_irs] = rotational_projector.get_ir_labels()
@@ -174,6 +175,9 @@ class EigenstatesUnfolding(object):
         rot_weights_all = np.array(rot_weights_all) / len(q_star)
 
         return eigvals_all, eigvecs_all, weights_all, len(q_star), rot_weights_all, num_irs, ir_labels
+
+    def get_pointgroup_symbol(self):
+        return self._rotational_projector.get_pointgroup_symbol()
 
     def _extract_eigenstates_for_q(self, q_pc, transformation_matrix):
         """Extract eigenstates with their weights.
