@@ -8,8 +8,6 @@ import numpy as np
 from phonopy.structure.cells import get_primitive
 from ph_unfolder.phonon.star_creator import StarCreator
 from ph_unfolder.phonon.translational_projector import TranslationalProjector
-from ph_unfolder.structure.structure_analyzer import (
-    StructureAnalyzer, find_lattice_vectors)
 from ph_unfolder.phonon.rotational_projector import RotationalProjector
 from ph_unfolder.phonon.vectors_adjuster import VectorsAdjuster
 
@@ -60,19 +58,10 @@ class EigenstatesUnfolding(object):
         print("nopr:", self._nopr)
 
     def _generate_translational_projector(self):
-        lattice_vectors, mappings = self._generate_lattice_vectors_in_sc()
-        print("lattice_vectors:", lattice_vectors.shape)
-        print(lattice_vectors)
-        print("mappings:", mappings.shape)
-        print(mappings)
-        if np.any(mappings == -1):
-            raise ValueError("Mapping is failed.")
-        scaled_positions = self._unitcell_ideal.get_scaled_positions()
         self._translational_projector = TranslationalProjector(
-            mappings, scaled_positions)
+            self._primitive, self._unitcell_ideal)
 
     def _create_rotational_projector(self):
-        # TODO(ikeda)
         self._rotational_projector = RotationalProjector(self._primitive)
 
     def _generate_vectors_adjuster(self):
@@ -103,30 +92,6 @@ class EigenstatesUnfolding(object):
         print(q_star)
 
         return q_star, transformation_matrices
-
-    def _generate_lattice_vectors_in_sc(self):
-        """
-
-        TODO
-        ----
-        Creations of lattice_vectors and mappings should be separated.
-        """
-        supercell_matrix = np.linalg.inv(self._primitive_matrix_ideal)
-        # lattice_vectors: Fractional coordinates for "SC".
-        lattice_vectors = find_lattice_vectors(supercell_matrix)
-
-        structure_analyzer = StructureAnalyzer(self._unitcell_ideal)
-
-        eye = np.eye(3, dtype=int)
-        mappings = []
-        for lv in lattice_vectors:
-            mapping, diff_positions = (
-                structure_analyzer.extract_mapping_for_symopr(eye, lv))
-            mappings.append(mapping)
-
-        mappings = np.array(mappings)
-
-        return lattice_vectors, mappings
 
     def extract_eigenstates(self, q):
         """
