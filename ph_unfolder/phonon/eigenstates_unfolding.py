@@ -28,10 +28,9 @@ class EigenstatesUnfolding(object):
 
         self._star = star
         self._unitcell_ideal = unitcell_ideal
-        self._primitive_matrix_ideal = primitive_matrix_ideal
         # In this module, primitive is w.r.t. the unit cell (may be disordered).
         self._primitive = get_primitive(
-            self._unitcell_ideal, self._primitive_matrix_ideal)
+            self._unitcell_ideal, primitive_matrix_ideal)
 
         self._build_star_creator()
         self._generate_translational_projector()
@@ -155,7 +154,8 @@ class EigenstatesUnfolding(object):
             eigvecs: Eigenvectors of "SC".
             weights: Weights for the phonon modes of SC on PC.
         """
-        q_sc = get_q_sc_from_q_pc(q_pc, self._primitive_matrix_ideal)
+        primitive_matrix = self._primitive.get_primitive_matrix()
+        q_sc = get_q_sc_from_q_pc(q_pc, primitive_matrix)
 
         print("q_sc:", q_sc)
 

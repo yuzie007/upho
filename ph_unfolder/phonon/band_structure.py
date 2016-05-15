@@ -5,13 +5,12 @@ from __future__ import print_function
 __author__ = "Yuji Ikeda"
 
 import numpy as np
-from phonopy.phonon.band_structure import BandStructure
 from phonopy.units import VaspToTHz
 from phonopy.structure.cells import get_primitive
 from eigenstates_unfolding import EigenstatesUnfolding
 
 
-class BandStructureUnfolding(BandStructure):
+class BandStructure(object):
     def __init__(self,
                  paths,
                  dynamical_matrix,
@@ -141,6 +140,15 @@ class BandStructureUnfolding(BandStructure):
                                          eigenvectors[j, l * 3 + m, k].imag))
 
                 w.write("\n")
+
+    def _set_initial_point(self, qpoint):
+        self._lastq = qpoint.copy()
+
+    def _shift_point(self, qpoint):
+        self._distance += np.linalg.norm(
+            np.dot(qpoint - self._lastq,
+                   np.linalg.inv(self._cell.get_cell()).T))
+        self._lastq = qpoint.copy()
 
     def _set_band(self, verbose=False):
         frequencies = []

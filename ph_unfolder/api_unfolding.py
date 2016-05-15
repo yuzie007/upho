@@ -9,7 +9,7 @@ from phonopy import Phonopy
 from phonopy.structure.symmetry import Symmetry
 from phonopy.structure.cells import get_supercell, get_primitive
 from phonopy.units import VaspToTHz
-from ph_unfolder.phonon.band_structure_unfolding import BandStructureUnfolding
+from ph_unfolder.phonon.band_structure import BandStructure
 from ph_unfolder.phonon.mesh_unfolding import MeshUnfolding
 # from ph_unfolder.dos_unfolding import TotalDos, PartialDos
 from ph_unfolder.phonon.dos_unfolding import TotalDosUnfolding
@@ -133,7 +133,7 @@ class PhonopyUnfolding(Phonopy):
             self._band_structure = None
             return False
 
-        self._band_structure = BandStructureUnfolding(
+        self._band_structure = BandStructure(
             bands,
             self._dynamical_matrix,
             self._unitcell_ideal,
