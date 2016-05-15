@@ -106,11 +106,7 @@ class Eigenstates(object):
         rotational_projector = self._rotational_projector
         rotational_projector.create_standard_rotations(q)
         max_irs = rotational_projector.get_max_irs()
-        num_irs = rotational_projector.get_num_irs()
         print("pointgroup_symbol:", self.get_pointgroup_symbol())
-
-        ir_labels = np.zeros(max_irs, dtype='S3')
-        ir_labels[:num_irs] = rotational_projector.get_ir_labels()
 
         q_star, transformation_matrices = self.create_q_star(q)
 
@@ -138,10 +134,29 @@ class Eigenstates(object):
 
         rot_weights_all = np.array(rot_weights_all) / len(q_star)
 
-        return eigvals_all, eigvecs_all, weights_all, len(q_star), rot_weights_all, num_irs, ir_labels
+        self._q_star = q_star
+
+        return eigvals_all, eigvecs_all, weights_all, rot_weights_all
+
+    def get_narms(self):
+        return len(self._q_star)
 
     def get_pointgroup_symbol(self):
         return self._rotational_projector.get_pointgroup_symbol()
+
+    def get_ir_labels(self):
+        rotational_projector = self._rotational_projector
+
+        num_irs = rotational_projector.get_num_irs()
+        max_irs = rotational_projector.get_max_irs()
+
+        ir_labels = np.zeros(max_irs, dtype='S3')
+        ir_labels[:num_irs] = rotational_projector.get_ir_labels()
+
+        return ir_labels
+
+    def get_num_irs(self):
+        return self._rotational_projector.get_num_irs()
 
     def _extract_eigenstates_for_q(self, q_pc, transformation_matrix):
         """Extract eigenstates with their weights.
@@ -244,6 +259,10 @@ class Eigenstates(object):
             print("".join("{:12.6f}".format(v) for v in values[:num_irs]), end="")
             print()
 
+def calculate_frequencies(eigenvalues, factor):
+    frequencies = np.sqrt(np.abs(eigenvalues)) * np.sign(eigenvalues)
+    frequencies *= factor
+    return frequencies
 
 def get_displacements_from_eigvecs(eigvecs, supercell, q):
     """

@@ -8,7 +8,7 @@ __author__ = "Yuji Ikeda"
 import numpy as np
 from phonopy.units import VaspToTHz
 from phonopy.structure.cells import get_primitive
-from ph_unfolder.phonon.eigenstates import Eigenstates
+from ph_unfolder.phonon.eigenstates import Eigenstates, calculate_frequencies
 
 
 class BandStructure(object):
@@ -207,6 +207,8 @@ class BandStructure(object):
         self._distances = distances
 
     def _solve_dm_on_path(self, path, verbose):
+        eigenstates = self._eigenstates
+
         is_nac = self._dynamical_matrix.is_nac()
         distances_on_path = []
         frequencies_on_path = []
@@ -231,39 +233,43 @@ class BandStructure(object):
             if is_nac:
                 print("ERROR: NAC is not implemented yet for unfolding")
                 raise ValueError
-            else:
-                eigvals, eigvecs, pr_weights, nqstar, rot_pr_weights, num_irs, ir_labels = (
-                    self._eigenstates.extract_eigenstates(q)
-                )
-                frequencies = self._calculate_frequencies(eigvals)
 
-                # Print spectral functions
-                density_extractor = self._density_extractor
+            eigvals, eigvecs, pr_weights, rot_pr_weights = (
+                eigenstates.extract_eigenstates(q))
+            frequencies = calculate_frequencies(eigvals, self._factor)
 
-                density_extractor.calculate_density(
-                    self._distance, nqstar, frequencies,
-                    weights_data=pr_weights,
-                    eigenvectors_data=eigvecs)
-                density_extractor.print_partial_density(self._file_sf_atoms)
+            pg_symbol_on_path.append(eigenstates.get_pointgroup_symbol())
 
-                density_extractor.calculate_density(
-                    self._distance, nqstar, frequencies,
-                    weights_data=rot_pr_weights[:, :num_irs])
-                density_extractor.print_partial_density(self._file_sf_irs)
+            narms = eigenstates.get_narms()
+            nqstar_on_path.append(narms)
+
+            num_irs = eigenstates.get_num_irs()
+            num_irs_on_path.append(num_irs)
+
+            ir_labels_on_path.append(eigenstates.get_ir_labels())
+
+            # Print spectral functions
+            density_extractor = self._density_extractor
+
+            density_extractor.calculate_density(
+                self._distance, narms, frequencies,
+                weights_data=pr_weights,
+                eigenvectors_data=eigvecs)
+            density_extractor.print_partial_density(self._file_sf_atoms)
+
+            density_extractor.calculate_density(
+                self._distance, narms, frequencies,
+                weights_data=rot_pr_weights[:, :num_irs])
+            density_extractor.print_partial_density(self._file_sf_irs)
 
             frequencies_on_path.append(frequencies)
             pr_weights_on_path.append(pr_weights)
             rot_pr_weights_on_path.append(rot_pr_weights)
-            ir_labels_on_path.append(ir_labels)
-            pg_symbol_on_path.append(self._eigenstates.get_pointgroup_symbol())
 
             if self._is_eigenvectors:
                 eigvecs_on_path.append(eigvecs)
             if self._group_velocity is not None:
                 gv_on_path.append(gv[i])
-
-            nqstar_on_path.append(nqstar)
-            num_irs_on_path.append(num_irs)
 
         ir_labels_on_path = np.array(ir_labels_on_path)
 
@@ -282,8 +288,3 @@ class BandStructure(object):
 
     def get_pg_symbol_on_path(self):
         return self._pg_symbol_on_path
-
-    def _calculate_frequencies(self, eigenvalues):
-        frequencies = np.sqrt(np.abs(eigenvalues)) * np.sign(eigenvalues)
-        frequencies *= self._factor
-        return frequencies
