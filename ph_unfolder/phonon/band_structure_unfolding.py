@@ -88,7 +88,7 @@ class BandStructureUnfolding(BandStructure):
             w.create_dataset('num_irs', data=self._num_irs)
             w.create_dataset('frequencies', data=self._frequencies)
             w.create_dataset('pr_weights', data=self._pr_weights)
-            w.create_dataset('rot_pr_weights', data=self._rot_pr_weights)
+            # w.create_dataset('rot_pr_weights', data=self._rot_pr_weights)
             w.create_dataset('pg_symbols', data=self._pg_symbols)
             w.create_dataset('ir_labels', data=self._ir_labels)
             if self._group_velocity is not None:
