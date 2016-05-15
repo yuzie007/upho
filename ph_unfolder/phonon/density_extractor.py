@@ -51,7 +51,8 @@ class DensityExtractor(object):
         frequencies = self._band_data["frequencies"]
         weights     = self._band_data[weight_label]
         nqstars     = self._band_data["nqstars"]
-        num_irs_list = self._band_data["num_irs"]
+        if "num_irs" in self._band_data:
+            num_irs_list = self._band_data["num_irs"]
         if "eigenvectors_data" in self._band_data:
             eigenvectors_data = self._band_data["eigenvectors_data"]
             print_density = self.print_partial_density
