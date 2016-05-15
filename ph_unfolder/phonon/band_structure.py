@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 
 __author__ = "Yuji Ikeda"
 
 import numpy as np
 from phonopy.units import VaspToTHz
 from phonopy.structure.cells import get_primitive
-from eigenstates_unfolding import EigenstatesUnfolding
+from ph_unfolder.phonon.eigenstates import Eigenstates
 
 
 class BandStructure(object):
@@ -60,7 +61,7 @@ class BandStructure(object):
         self._star = star
         self._mode = mode
 
-        self._eigenstates_unfolding = EigenstatesUnfolding(
+        self._eigenstates = Eigenstates(
             dynamical_matrix,
             unitcell_ideal,
             primitive_matrix_ideal,
@@ -232,7 +233,7 @@ class BandStructure(object):
                 raise ValueError
             else:
                 eigvals, eigvecs, pr_weights, nqstar, rot_pr_weights, num_irs, ir_labels = (
-                    self._eigenstates_unfolding.extract_eigenstates(q)
+                    self._eigenstates.extract_eigenstates(q)
                 )
                 frequencies = self._calculate_frequencies(eigvals)
 
@@ -254,8 +255,7 @@ class BandStructure(object):
             pr_weights_on_path.append(pr_weights)
             rot_pr_weights_on_path.append(rot_pr_weights)
             ir_labels_on_path.append(ir_labels)
-            pg_symbol_on_path.append(
-                self._eigenstates_unfolding.get_pointgroup_symbol())
+            pg_symbol_on_path.append(self._eigenstates.get_pointgroup_symbol())
 
             if self._is_eigenvectors:
                 eigvecs_on_path.append(eigvecs)

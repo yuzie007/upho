@@ -12,7 +12,7 @@ from ph_unfolder.phonon.rotational_projector import RotationalProjector
 from ph_unfolder.phonon.vectors_adjuster import VectorsAdjuster
 
 
-class EigenstatesUnfolding(object):
+class Eigenstates(object):
     def __init__(self,
                  dynamical_matrix,
                  unitcell_ideal,

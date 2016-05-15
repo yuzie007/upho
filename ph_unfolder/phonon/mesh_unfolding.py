@@ -9,7 +9,7 @@ from phonopy.units import VaspToTHz
 from phonopy.structure.grid_points import GridPoints
 from phonopy.phonon.mesh import Mesh
 from phonopy.structure.cells import get_primitive
-from ph_unfolder.phonon.eigenstates_unfolding import EigenstatesUnfolding
+from ph_unfolder.phonon.eigenstates import Eigenstates
 
 
 class MeshUnfolding(Mesh):
@@ -61,7 +61,7 @@ class MeshUnfolding(Mesh):
 
         self._star = star
 
-        self._eigenstates_unfolding = EigenstatesUnfolding(
+        self._eigenstates_unfolding = Eigenstates(
             dynamical_matrix,
             unitcell_ideal,
             primitive_matrix_ideal,
