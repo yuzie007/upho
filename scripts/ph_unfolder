@@ -19,6 +19,12 @@ from ph_unfolder.file_io import read_input
 
 
 def get_default_dict_input():
+    """
+    star :
+        type=str
+        choices=("none", "all", "sym")
+        help="Treatment for the star of q-points."
+    """
     default_dict_input = {
         "spectrum": {
             "function": "gaussian",
@@ -31,6 +37,7 @@ def get_default_dict_input():
         "structure_ideal": "POSCAR_ideal",
         "force_constants": "FORCE_CONSTANTS",
         "run_mode"       : "band",
+        "star"           : "sym",
     }
     return default_dict_input
 
@@ -86,10 +93,6 @@ def main():
     parser.add_argument("--nosym", dest="is_nosym",
                         action="store_true",
                         help="Symmetry is not imposed.")
-    parser.add_argument("--star",
-                        type=str,
-                        choices=("none", "all", "sym"),
-                        help="Treatment for the star of q-points.")
     parser.add_argument("--tolerance", dest="symprec", type=float,
                         help="Symmetry tolerance to search")
     parser.add_argument("-i", "--input_file",
@@ -117,9 +120,10 @@ def main():
     print("=" * 40)
 
     run_mode = dict_input["run_mode"]
+    star     = dict_input["star"]
 
     print("run_mode:", run_mode)
-    print("star:", args.star)
+    print("star:", star)
 
     # Phonon calculation mode: Band, mesh, qpoints, etc
 
@@ -150,7 +154,7 @@ def main():
                               primitive_matrix,
                               factor=factor,
                               dict_spectrum=dict_input["spectrum"],
-                              star=args.star,
+                              star=star,
                               mode=pr_mode,
                               symprec=args.symprec,
                               log_level=log_level)
