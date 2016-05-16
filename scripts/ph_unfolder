@@ -30,6 +30,7 @@ def get_default_dict_input():
         "structure"      : "POSCAR",
         "structure_ideal": "POSCAR_ideal",
         "force_constants": "FORCE_CONSTANTS",
+        "run_mode"       : "band",
     }
     return default_dict_input
 
@@ -106,12 +107,6 @@ def main():
                                      option_list=[])
     settings = phonopy_conf.get_settings()
 
-    # Phonon calculation mode: Band, mesh, qpoints, etc
-    run_mode = settings.get_run_mode()
-
-    print("run_mode:", run_mode)
-    print("star:", args.star)
-
     dict_input = get_default_dict_input()
     if args.input_file is not None:
         dict_input.update(read_input(args.input_file))
@@ -120,6 +115,13 @@ def main():
     print("dict_input:")
     pprint(dict_input)
     print("=" * 40)
+
+    run_mode = dict_input["run_mode"]
+
+    print("run_mode:", run_mode)
+    print("star:", args.star)
+
+    # Phonon calculation mode: Band, mesh, qpoints, etc
 
     pr_mode = "eigenvector"
 
@@ -224,6 +226,9 @@ def main():
                     plot.savefig('total_dos.pdf')
                 else:
                     plot.show()
+
+    elif run_mode == "single_point":
+        phonon.run_single_point(dict_input["qpoint"], dict_input["distance"])
 
 
 if __name__ == "__main__":

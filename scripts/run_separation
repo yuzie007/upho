@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
+__author__ = "Yuji Ikeda"
+
+import os
+import subprocess
+from ph_unfolder.file_io import read_band_hdf5
+
+
+def main():
+    ph_unfolder = "~/code/ph_unfolder/scripts/ph_unfolder"
+    str_command = "python -m cProfile "
+    str_command += ph_unfolder
+    str_command += " band.conf -i input.json"
+
+    n1, n2 = read_band_hdf5("band.hdf5")["distances"].shape
+    for i1 in range(n1):
+        for i2 in range(n2):
+            dirname = "{}_{}".format(i1, i2)
+            os.chdir(dirname)
+            print(dirname)
+            with open("band.log", "w") as f:
+                subprocess.call(str_command, stdout=f, shell=True)
+            os.chdir("..")
+
+
+if __name__ == "__main__":
+    main()

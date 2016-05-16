@@ -10,6 +10,7 @@ from phonopy.structure.symmetry import Symmetry
 from phonopy.structure.cells import get_supercell, get_primitive
 from phonopy.units import VaspToTHz
 from ph_unfolder.phonon.band_structure import BandStructure
+from ph_unfolder.phonon.single_point import SinglePoint
 from ph_unfolder.phonon.mesh_unfolding import MeshUnfolding
 # from ph_unfolder.dos_unfolding import TotalDos, PartialDos
 from ph_unfolder.phonon.dos_unfolding import TotalDosUnfolding
@@ -122,6 +123,20 @@ class PhonopyUnfolding(Phonopy):
             fpitch=dict_spectrum["freq_pitch"],
             sigma=dict_spectrum["sigma"],
         )
+
+    # Single point
+    def run_single_point(self, qpoint, distance):
+        single_point = SinglePoint(
+            qpoint,
+            distance,
+            dynamical_matrix=self._dynamical_matrix,
+            unitcell_ideal=self._unitcell_ideal,
+            primitive_matrix_ideal=self._primitive_matrix_ideal,
+            density_extractor=self._density_extractor,
+            factor=self._factor,
+            star=self._star,
+            mode=self._mode,
+            verbose=True)
 
     # Band structure
     def set_band_structure(self,

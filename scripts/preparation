@@ -1,0 +1,113 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
+__author__ = "Yuji Ikeda"
+
+import os
+import numpy as np
+from phonopy.cui.settings import PhonopyConfParser
+from phonopy.interface.vasp import read_vasp
+from phonopy.structure.cells import get_primitive
+from ph_unfolder.file_io import read_input
+
+
+class Separation(object):
+    def __init__(self, conf_file, poscar_file):
+        self._conf_file = conf_file
+
+        phonopy_conf = PhonopyConfParser(filename=self._conf_file,
+                                         option_list=[])
+        self._settings = phonopy_conf.get_settings()
+
+        self._distance = 0.
+
+        self.create_primitive_cell(poscar_file)
+
+        self._paths = np.array(self._settings.get_bands())
+        print(self._paths)
+
+        self.create_distances()
+
+        self.write_hdf5()
+
+        self.write_input()
+
+    def create_primitive_cell(self, poscar_file):
+        primitive_matrix = self._settings.get_primitive_matrix()
+        atoms = read_vasp(poscar_file)
+        self._cell = get_primitive(atoms, primitive_matrix)
+
+    def _set_initial_point(self, qpoint):
+        self._lastq = qpoint.copy()
+
+    def _shift_point(self, qpoint):
+        self._distance += np.linalg.norm(
+            np.dot(qpoint - self._lastq,
+                   np.linalg.inv(self._cell.get_cell()).T))
+        self._lastq = qpoint.copy()
+
+    def write_input(self):
+        import json
+
+        dict_input = read_input("input.json")
+        dict_input["run_mode"] = "single_point"
+        for ipath, path in enumerate(self._paths):
+            for iq, qpoint in enumerate(path):
+                dict_input["qpoint"] = list(qpoint)
+                dict_input["distance"] = self._distances[ipath, iq]
+
+                dirname = "{}_{}".format(ipath, iq)
+                if not os.path.isdir(dirname):
+                    os.mkdir(dirname)
+                filename = "{}/input.json".format(dirname)
+                with open(filename, "w") as f:
+                    f.write(json.dumps(dict_input, indent=4))
+
+                files = [
+                    "POSCAR",
+                    "POSCAR_ideal",
+                    "FORCE_CONSTANTS",
+                    self._conf_file,
+                ]
+
+                os.chdir(dirname)
+                for f in files:
+                    if os.path.isfile(f):
+                        os.remove(f)
+                    os.symlink("../" + f, f)
+                os.chdir("../")
+
+    def create_distances(self):
+        distances = []
+        for path in self._paths:
+            self._set_initial_point(path[0])
+            distances_on_path = []
+            for i, q in enumerate(path):
+                self._shift_point(q)
+                distances_on_path.append(self._distance)
+            distances.append(distances_on_path)
+        distances = np.array(distances)
+        print(distances)
+        self._distances = distances
+
+    def write_hdf5(self):
+        import h5py
+        with h5py.File('band.hdf5', 'w') as w:
+            w.create_dataset('paths', data=self._paths)
+            w.create_dataset('distances', data=self._distances)
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("conf_file",
+                        type=str,
+                        help="Phonopy conf file")
+    args = parser.parse_args()
+
+    Separation(args.conf_file, "POSCAR_ideal")
+
+if __name__ == "__main__":
+    main()
