@@ -182,7 +182,7 @@ class BandStructure(object):
             rot_pr_weights.append(rot_pr_weights_on_path)
             nqstars.append(np.array(nqstars_on_path))
             num_irs.append(np.array(num_irs_on_path))
-            ir_labels.append(np.array(ir_labels_on_path))
+            ir_labels.append(ir_labels_on_path)
             pg_symbols.append(self.get_pg_symbol_on_path())
 
             if self._is_eigenvectors:
@@ -197,7 +197,7 @@ class BandStructure(object):
         self._nqstars     = nqstars
         self._num_irs     = num_irs
         self._rot_pr_weights = rot_pr_weights
-        self._ir_labels = ir_labels
+        self._ir_labels = np.array(ir_labels, dtype='S')
         self._pg_symbols = np.array(pg_symbols, dtype=str)
 
         if self._is_eigenvectors:
@@ -271,7 +271,7 @@ class BandStructure(object):
             if self._group_velocity is not None:
                 gv_on_path.append(gv[i])
 
-        ir_labels_on_path = np.array(ir_labels_on_path)
+        ir_labels_on_path = ir_labels_on_path
 
         self._pg_symbol_on_path = pg_symbol_on_path
 

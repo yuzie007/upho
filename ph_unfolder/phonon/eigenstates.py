@@ -147,10 +147,9 @@ class Eigenstates(object):
     def get_ir_labels(self):
         rotational_projector = self._rotational_projector
 
-        num_irs = rotational_projector.get_num_irs()
-
-        ir_labels = np.zeros(MAX_IRREPS, dtype='S3')
-        ir_labels[:num_irs] = rotational_projector.get_ir_labels()
+        ir_labels = [''] * MAX_IRREPS
+        for i, l in enumerate(rotational_projector.get_ir_labels()):
+            ir_labels[i] = l
 
         return ir_labels
 
