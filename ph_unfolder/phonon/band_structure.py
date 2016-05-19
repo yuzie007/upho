@@ -198,7 +198,7 @@ class BandStructure(object):
         self._num_irs     = num_irs
         self._rot_pr_weights = rot_pr_weights
         self._ir_labels = np.array(ir_labels, dtype='S')
-        self._pg_symbols = np.array(pg_symbols, dtype=str)
+        self._pg_symbols = np.array(pg_symbols, dtype='S')
 
         if self._is_eigenvectors:
             self._eigenvectors = eigvecs
