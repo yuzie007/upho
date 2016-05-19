@@ -132,6 +132,9 @@ class Irreps(object):
     def get_pointgroup_symbol(self):
         return self._pointgroup_symbol
 
+    def get_ir_labels(self):
+        return self._character_table_data['ir_labels']
+
     def get_conventional_rotations(self):
         return self._conventional_rotations
 
