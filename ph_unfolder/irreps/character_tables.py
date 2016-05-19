@@ -14,6 +14,8 @@ __author__ = "Yuji Ikeda"
 import numpy as np
 
 
+MAX_IRREPS = 12  # D_6h, temporary
+
 r6 = np.exp(2.0j * np.pi / 6.0)
 r3 = r6 ** 2
 

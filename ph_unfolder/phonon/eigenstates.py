@@ -10,6 +10,7 @@ from ph_unfolder.phonon.star_creator import StarCreator
 from ph_unfolder.phonon.translational_projector import TranslationalProjector
 from ph_unfolder.phonon.rotational_projector import RotationalProjector
 from ph_unfolder.phonon.vectors_adjuster import VectorsAdjuster
+from ph_unfolder.irreps.character_tables import MAX_IRREPS
 
 
 class Eigenstates(object):
@@ -105,7 +106,6 @@ class Eigenstates(object):
 
         rotational_projector = self._rotational_projector
         rotational_projector.create_standard_rotations(q)
-        max_irs = rotational_projector.get_max_irs()
         print("pointgroup_symbol:", self.get_pointgroup_symbol())
 
         q_star, transformation_matrices = self.create_q_star(q)
@@ -116,7 +116,7 @@ class Eigenstates(object):
         eigvals_all = np.zeros((nopr, nband), dtype=float) * np.nan
         weights_all = np.zeros((nopr, nband), dtype=float) * np.nan
         eigvecs_all = np.zeros((nopr, nband, nband), dtype=complex) * np.nan
-        rot_weights_all = np.zeros((nopr, max_irs, nband), dtype=float) * np.nan
+        rot_weights_all = np.zeros((nopr, MAX_IRREPS, nband), dtype=float) * np.nan
         for i_star, (q, transformation_matrix) in enumerate(zip(q_star, transformation_matrices)):
             print("i_star:", i_star)
             print("q_pc:", q)
@@ -148,9 +148,8 @@ class Eigenstates(object):
         rotational_projector = self._rotational_projector
 
         num_irs = rotational_projector.get_num_irs()
-        max_irs = rotational_projector.get_max_irs()
 
-        ir_labels = np.zeros(max_irs, dtype='S3')
+        ir_labels = np.zeros(MAX_IRREPS, dtype='S3')
         ir_labels[:num_irs] = rotational_projector.get_ir_labels()
 
         return ir_labels
@@ -226,10 +225,9 @@ class Eigenstates(object):
         rot_proj_vectors = self._rotational_projector.project_vectors(
             t_proj_vectors, kpoint, transformation_matrix)
 
-        max_irs = self._rotational_projector.get_max_irs()
         num_irs = self._rotational_projector.get_num_irs()
 
-        shape = (max_irs, t_proj_vectors.shape[-1])
+        shape = (MAX_IRREPS, t_proj_vectors.shape[-1])
         rot_weights = np.zeros(shape, dtype=float) * np.nan
         rot_weights[:num_irs] = np.linalg.norm(rot_proj_vectors, axis=1) ** 2
 

@@ -24,8 +24,6 @@ class RotationalProjector(object):
         self._atoms = atoms
         self._symmetry = UnfolderSymmetry(atoms)
 
-        self._max_irs = 12  # D_6h
-
     def create_standard_rotations(self, kpoint):
         """
         Create standard rotations for IR labels
@@ -172,9 +170,6 @@ class RotationalProjector(object):
 
     def get_ir_labels(self):
         return self._ir_labels
-
-    def get_max_irs(self):
-        return self._max_irs
 
     def get_num_irs(self):
         return len(self._ir_labels)
