@@ -84,13 +84,13 @@ class BandStructure(object):
         with h5py.File('band.hdf5', 'w') as w:
             w.create_dataset('paths', data=self._paths)
             w.create_dataset('distances', data=self._distances)
-            w.create_dataset('nqstars', data=self._nqstars)
-            w.create_dataset('num_irs', data=self._num_irs)
+            w.create_dataset('nums_arms', data=self._nums_arms)
+            w.create_dataset('pg_symbols', data=self._pg_symbols)
+            w.create_dataset('nums_irreps', data=self._nums_irreps)
+            w.create_dataset('ir_labels', data=self._ir_labels)
             w.create_dataset('frequencies', data=self._frequencies)
             w.create_dataset('pr_weights', data=self._pr_weights)
             # w.create_dataset('rot_pr_weights', data=self._rot_pr_weights)
-            w.create_dataset('pg_symbols', data=self._pg_symbols)
-            w.create_dataset('ir_labels', data=self._ir_labels)
             if self._group_velocity is not None:
                 w.create_dataset('group_velocities', data=self._group_velocity)
             if self._eigenvectors is not None:
@@ -155,12 +155,12 @@ class BandStructure(object):
         frequencies = []
         eigvecs = []
         pr_weights = []
-        nqstars = []
+        nums_arms = []
         group_velocities = []
         distances = []
         rot_pr_weights = []
         is_nac = self._dynamical_matrix.is_nac()
-        num_irs = []
+        nums_irreps = []
         ir_labels = []
         pg_symbols = []
 
@@ -174,14 +174,14 @@ class BandStructure(object):
              nqstars_on_path,
              gv_on_path,
              rot_pr_weights_on_path,
-             num_irs_on_path,
+             nums_irreps_on_path,
              ir_labels_on_path) = self._solve_dm_on_path(path, verbose)
 
             frequencies.append(np.array(frequencies_on_path))
             pr_weights.append(np.array(pr_weights_on_path))
             rot_pr_weights.append(rot_pr_weights_on_path)
-            nqstars.append(np.array(nqstars_on_path))
-            num_irs.append(np.array(num_irs_on_path))
+            nums_arms.append(np.array(nqstars_on_path))
+            nums_irreps.append(np.array(nums_irreps_on_path))
             ir_labels.append(ir_labels_on_path)
             pg_symbols.append(self.get_pg_symbol_on_path())
 
@@ -194,8 +194,8 @@ class BandStructure(object):
 
         self._frequencies = frequencies
         self._pr_weights  = pr_weights
-        self._nqstars     = nqstars
-        self._num_irs     = num_irs
+        self._nums_arms   = nums_arms
+        self._nums_irreps = nums_irreps
         self._rot_pr_weights = rot_pr_weights
         self._ir_labels = np.array(ir_labels, dtype='S')
         self._pg_symbols = np.array(pg_symbols, dtype='S')
