@@ -10,6 +10,8 @@ from ph_unfolder.phonon.star_creator import StarCreator
 from ph_unfolder.phonon.translational_projector import TranslationalProjector
 from ph_unfolder.phonon.rotational_projector import RotationalProjector
 from ph_unfolder.phonon.vectors_adjuster import VectorsAdjuster
+from ph_unfolder.phonon.element_weights_calculator import (
+    ElementWeightsCalculator)
 from ph_unfolder.irreps.character_tables import MAX_IRREPS
 
 
@@ -37,6 +39,13 @@ class Eigenstates(object):
         self._generate_translational_projector()
         self._generate_vectors_adjuster()
         self._create_rotational_projector()
+        self._build_element_weights_calculator()
+
+    def _build_element_weights_calculator(self):
+        unitcell_orig   = self._cell
+        primitive_ideal = self._primitive
+        self._element_weights_calculator = ElementWeightsCalculator(
+            unitcell_orig, primitive_ideal)
 
     def _build_star_creator(self):
         if self._star == "all":
@@ -113,30 +122,41 @@ class Eigenstates(object):
         nband = self._cell.get_number_of_atoms() * 3
         nopr = self._nopr
 
+        natoms_p = self._primitive.get_number_of_atoms()
+        nelements = self._element_weights_calculator.get_number_of_elements()
+
         eigvals_all = np.zeros((nopr, nband), dtype=float) * np.nan
         weights_all = np.zeros((nopr, nband), dtype=float) * np.nan
         eigvecs_all = np.zeros((nopr, nband, nband), dtype=complex) * np.nan
         rot_weights_all = np.zeros((nopr, MAX_IRREPS, nband), dtype=float) * np.nan
+        element_weights_arms = np.full(
+            (nopr, natoms_p, nelements, nband), np.nan)
+
         for i_star, (q, transformation_matrix) in enumerate(zip(q_star, transformation_matrices)):
             print("i_star:", i_star)
             print("q_pc:", q)
             (eigvals,
              eigvecs,
              weights,
-             rot_weights) = self._extract_eigenstates_for_q(q, transformation_matrix)
+             rot_weights,
+             element_weights) = self._extract_eigenstates_for_q(
+                q, transformation_matrix)
             eigvals_all[i_star] = eigvals
             eigvecs_all[i_star] = eigvecs
             weights_all[i_star] = weights
             rot_weights_all[i_star] = rot_weights
+            element_weights_arms[i_star] = element_weights
 
         weights_all /= len(q_star)
         print("sum(weights_all):", np.sum(weights_all[:len(q_star)]))
 
         rot_weights_all = np.array(rot_weights_all) / len(q_star)
 
+        element_weights_arms /= len(q_star)
+
         self._q_star = q_star
 
-        return eigvals_all, eigvecs_all, weights_all, rot_weights_all
+        return eigvals_all, eigvecs_all, weights_all, rot_weights_all, element_weights_arms
 
     def get_narms(self):
         return len(self._q_star)
@@ -184,7 +204,9 @@ class Eigenstates(object):
         # if __debug__:
         #     self._print_debug(eigvals, rot_weights)
 
-        return eigvals, eigvecs, weights, rot_weights
+        element_weights = self._create_element_weights(eigvecs, weights)
+
+        return eigvals, eigvecs, weights, rot_weights, element_weights
 
     def _extract_weights(self, q, eigvecs):
         """Extract weights.
@@ -255,6 +277,25 @@ class Eigenstates(object):
             print("{:12.6f}  ".format(eigvals[i]), end="")
             print("".join("{:12.6f}".format(v) for v in values[:num_irs]), end="")
             print()
+
+    def _create_element_weights(self, eigenvectors, trans_proj_weights):
+        """
+
+        Parameters
+        ----------
+        eigenvectors : (natoms_u * ndims, nbands) array
+        trans_proj_weights : nbands array
+
+        Returns
+        -------
+        element_weights : (natoms_p, nelements, nbands) array
+        """
+        element_weights_calculator = self._element_weights_calculator
+
+        tmp_weights = element_weights_calculator.run(eigenvectors)
+        element_weights = tmp_weights * trans_proj_weights
+
+        return element_weights
 
 def calculate_frequencies(eigenvalues, factor):
     frequencies = np.sqrt(np.abs(eigenvalues)) * np.sign(eigenvalues)

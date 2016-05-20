@@ -81,7 +81,11 @@ class BandStructure(object):
 
     def write_hdf5(self):
         import h5py
+        natoms_primitive = self._cell.get_number_of_atoms()
+        elements = self.get_reduced_elements()
         with h5py.File('band.hdf5', 'w') as w:
+            w.create_dataset('natoms_primitive', data=natoms_primitive)
+            w.create_dataset('elements', data=elements)
             w.create_dataset('paths', data=self._paths)
             w.create_dataset('distances', data=self._distances)
             w.create_dataset('nums_arms', data=self._nums_arms)
@@ -90,6 +94,7 @@ class BandStructure(object):
             w.create_dataset('ir_labels', data=self._ir_labels)
             w.create_dataset('frequencies', data=self._frequencies)
             w.create_dataset('pr_weights', data=self._pr_weights)
+            w.create_dataset('element_weights', data=self._element_weights)
             # w.create_dataset('rot_pr_weights', data=self._rot_pr_weights)
             if self._group_velocity is not None:
                 w.create_dataset('group_velocities', data=self._group_velocity)
@@ -163,6 +168,7 @@ class BandStructure(object):
         nums_irreps = []
         ir_labels = []
         pg_symbols = []
+        element_weights = []
 
         for path in self._paths:
             self._set_initial_point(path[0])
@@ -183,7 +189,9 @@ class BandStructure(object):
             nums_arms.append(np.array(nqstars_on_path))
             nums_irreps.append(np.array(nums_irreps_on_path))
             ir_labels.append(ir_labels_on_path)
+
             pg_symbols.append(self.get_pg_symbol_on_path())
+            element_weights.append(self.get_element_weights_on_path())
 
             if self._is_eigenvectors:
                 eigvecs.append(np.array(eigvecs_on_path))
@@ -199,6 +207,7 @@ class BandStructure(object):
         self._rot_pr_weights = rot_pr_weights
         self._ir_labels = np.array(ir_labels, dtype='S')
         self._pg_symbols = np.array(pg_symbols, dtype='S')
+        self._element_weights = np.array(element_weights)
 
         if self._is_eigenvectors:
             self._eigenvectors = eigvecs
@@ -220,6 +229,7 @@ class BandStructure(object):
         pg_symbol_on_path = []
         num_irs_on_path = []
         ir_labels_on_path = []
+        element_weights_on_path = []
 
         # Probably group_velocity has not worked for the unfolding so far.
         if self._group_velocity is not None:
@@ -234,7 +244,7 @@ class BandStructure(object):
                 print("ERROR: NAC is not implemented yet for unfolding")
                 raise ValueError
 
-            eigvals, eigvecs, pr_weights, rot_pr_weights = (
+            eigvals, eigvecs, pr_weights, rot_pr_weights, element_weights = (
                 eigenstates.extract_eigenstates(q))
             frequencies = calculate_frequencies(eigvals, self._factor)
 
@@ -247,6 +257,8 @@ class BandStructure(object):
             num_irs_on_path.append(num_irs)
 
             ir_labels_on_path.append(eigenstates.get_ir_labels())
+
+            element_weights_on_path.append(element_weights)
 
             # Print spectral functions
             density_extractor = self._density_extractor
@@ -274,6 +286,7 @@ class BandStructure(object):
         ir_labels_on_path = ir_labels_on_path
 
         self._pg_symbol_on_path = pg_symbol_on_path
+        self._element_weights_on_path = element_weights_on_path
 
         return (
             distances_on_path,
@@ -288,3 +301,16 @@ class BandStructure(object):
 
     def get_pg_symbol_on_path(self):
         return self._pg_symbol_on_path
+
+    def get_element_weights_on_path(self):
+        return self._element_weights_on_path
+
+    def get_unitcell_orig(self):
+        unitcell_orig = self._dynamical_matrix.get_primitive()
+        return unitcell_orig
+
+    def get_reduced_elements(self):
+        unitcell_orig = self.get_unitcell_orig()
+        elements = unitcell_orig.get_chemical_symbols()
+        reduced_elements = sorted(set(elements), key=elements.index)
+        return reduced_elements

@@ -47,20 +47,22 @@ class DensityExtractor(object):
         weight_label = self._weight_label
         print("# weight: {}".format(weight_label))
 
-        distances   = self._band_data["distances"]
-        frequencies = self._band_data["frequencies"]
-        weights     = self._band_data[weight_label]
-        nqstars     = self._band_data["nqstars"]
-        if "num_irs" in self._band_data:
-            num_irs_list = self._band_data["num_irs"]
-        if "eigenvectors_data" in self._band_data:
-            eigenvectors_data = self._band_data["eigenvectors_data"]
-            print_density = self.print_partial_density
-        elif weight_label == "rot_pr_weights":
-            print_density = self.print_partial_density
-        else:
-            eigenvectors_data = None
+        band_data = self._band_data
+
+        distances   = band_data["distances"]
+        frequencies = band_data["frequencies"]
+        weights     = band_data[weight_label]
+        nums_arms   = band_data["nums_arms"]
+        if "nums_irreps" in self._band_data:
+            nums_irreps = band_data["nums_irreps"]
+
+        if weight_label is None:
             print_density = self.print_total_density
+        elif weight_label == 'element_weights':
+            print_density = self._print_sf_elements
+            self._outfile = 'spectral_functions_elements.dat'
+        else:
+            print_density = self.print_partial_density
 
         filename = self._outfile
         with open(filename, "w") as f:
@@ -68,14 +70,17 @@ class DensityExtractor(object):
             for ipath in range(npath):
                 for i, d in enumerate(distances[ipath]):
                     if weight_label == "rot_pr_weights":
-                        num_irs = num_irs_list[ipath, i]
-                        weights_data = weights[ipath, i, :, :num_irs]
+                        num_irreps = nums_irreps[ipath, i]
+                        weights_data = weights[ipath, i, :, :num_irreps]
+                    elif weight_label == "rot_pr_weights":
+                        weights_data = band_data["element_weights"][ipath, i]
                     else:
                         weights_data = weights[ipath, i]
 
+                    num_arms = nums_arms[ipath, i]
                     self.calculate_density(
                         d,
-                        nqstar=nqstars[ipath, i],
+                        nqstar=num_arms,
                         frequencies_data=frequencies[ipath, i],
                         eigenvectors_data=None,
                         weights_data=weights_data)
@@ -198,6 +203,28 @@ class DensityExtractor(object):
             file_output.write("\n")
         file_output.write("\n")
 
+    def _print_sf_elements(self, file_output):
+        """
+
+        Parameters
+        ----------
+        file_output : A file object to print density.
+        """
+        distance = self._distance
+        density_data = self._density_data
+        xs = self._smearing.get_xs()
+        for x, densities in zip(xs, density_data):
+            file_output.write("{:12.6f}".format(distance))
+            file_output.write("{:12.6f}".format(x))
+            file_output.write("{:12.6f}".format(np.sum(densities)))
+            file_output.write("  ")
+            for sf_elements in densities:
+                file_output.write("  ")
+                for sf_element in sf_elements:
+                    file_output.write("{:12.6f}".format(sf_element))
+            file_output.write("\n")
+        file_output.write("\n")
+
     def set_distance(self, distance):
         self._distance = distance
 
@@ -221,7 +248,7 @@ def main():
     parser.add_argument("--weight_label",
                         default="pr_weights",
                         type=str,
-                        choices=["pr_weights", "rot_pr_weights"],
+                        choices=["pr_weights", "rot_pr_weights", "element_weights"],
                         help="Weight label to plot.")
     parser.add_argument("--fmax",
                         default=10.0,
