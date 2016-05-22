@@ -171,8 +171,6 @@ def main():
                 is_eigenvectors=settings.get_is_eigenvectors(),
                 is_band_connection=settings.get_is_band_connection(),
             )
-            # phonon.write_yaml_band_structure()
-            phonon.write_hdf5_band_structure()
 
     if run_mode == 'mesh' or run_mode == 'band_mesh':
         settings.set_is_mesh_symmetry(False)  # For unfolding.

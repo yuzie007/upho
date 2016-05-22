@@ -4,6 +4,7 @@ from __future__ import absolute_import, print_function
 
 __author__ = "Yuji Ikeda"
 
+import h5py
 import numpy as np
 from ph_unfolder.analysis.smearing import Smearing
 from ph_unfolder.file_io import read_band_hdf5
@@ -12,13 +13,11 @@ from ph_unfolder.file_io import read_band_hdf5
 class DensityExtractor(object):
     def __init__(self,
                  filename=None,
-                 outfile=None,
                  function="gaussian",
                  fmin=0.0,
                  fmax=10.0,
                  fpitch=0.05,
-                 sigma=1.0,
-                 weight_label="pr_weights"):
+                 sigma=1.0):
 
         print("# sigma:", sigma)
 
@@ -30,12 +29,9 @@ class DensityExtractor(object):
             xpitch=fpitch,
         )
 
-        self._weight_label = weight_label
-
-        self._outfile = outfile
-
-        if filename is not None:
-            self.load_data(filename)
+        with h5py.File(filename, 'r') as f:
+            self._band_data = f
+            self._run()
 
     def load_data(self, filename):
         print("# Reading band.hdf5: ", end="")
@@ -43,75 +39,42 @@ class DensityExtractor(object):
         print("Finished")
         return self
 
-    def run(self):
-        weight_label = self._weight_label
-        print("# weight: {}".format(weight_label))
-
+    def _run(self):
         band_data = self._band_data
 
-        distances   = band_data["distances"]
-        frequencies = band_data["frequencies"]
-        weights     = band_data[weight_label]
-        nums_arms   = band_data["nums_arms"]
-        if "nums_irreps" in self._band_data:
-            nums_irreps = band_data["nums_irreps"]
+        npaths, npoints = band_data['paths'].shape[:2]
+        fn_elements = 'sf_elements.dat'
+        fn_irreps   = 'sf_irreps.dat'
+        with open(fn_elements, 'w') as fe, open(fn_irreps, 'w') as fi:
+            for ipath in range(npaths):
+                for ip in range(npoints):
+                    print(ipath, ip)
+                    group = '{}/{}/'.format(ipath, ip)
+                    distance        = band_data[group + 'distance'       ]
+                    frequencies     = band_data[group + 'frequencies'    ]
+                    rot_weights     = band_data[group + 'rot_weights'    ]
+                    element_weights = band_data[group + 'element_weights']
 
-        if weight_label is None:
-            print_density = self.print_total_density
-        elif weight_label == 'element_weights':
-            print_density = self._print_sf_elements
-            self._outfile = 'spectral_functions_elements.dat'
-        else:
-            print_density = self.print_partial_density
+                    self.set_distance(float(np.array(distance)))
 
-        filename = self._outfile
-        with open(filename, "w") as f:
-            npath, nqpoint = frequencies.shape[:2]
-            for ipath in range(npath):
-                for i, d in enumerate(distances[ipath]):
-                    if weight_label == "rot_pr_weights":
-                        num_irreps = nums_irreps[ipath, i]
-                        weights_data = weights[ipath, i, :, :num_irreps]
-                    elif weight_label == "rot_pr_weights":
-                        weights_data = band_data["element_weights"][ipath, i]
-                    else:
-                        weights_data = weights[ipath, i]
+                    self.calculate_density(frequencies, element_weights)
+                    self._print_sf_elements(fe)
 
-                    num_arms = nums_arms[ipath, i]
-                    self.calculate_density(
-                        d,
-                        nqstar=num_arms,
-                        frequencies_data=frequencies[ipath, i],
-                        eigenvectors_data=None,
-                        weights_data=weights_data)
-                    print_density(f)
+                    self.calculate_density(frequencies, rot_weights)
+                    self._print_sf_irreps(fi)
 
-    def calculate_density(self,
-                          distance,
-                          nqstar,
-                          frequencies_data,
-                          weights_data,
-                          eigenvectors_data=None):
+    def calculate_density(self, frequencies, weights):
         """
 
         Parameters
         ----------
-        distance :
-        nqstar : integer
-        frequencies : (nqstar, nband) array
-        weights : (nqstar, nband) array
-        eigenvectors_data : (nqstar, nband, nband) array
+        frequencies : (num_arms, nbands) array
+        weights : (num_arms, nbands) array
         """
-        self._distance = distance
         density_data = []
-        for istar in range(nqstar):
-            f = frequencies_data[istar]
-            w = weights_data[istar]
-            if eigenvectors_data is not None:
-                eigenvectors = eigenvectors_data[istar]
-                w = self._create_atom_weights(w, eigenvectors)
+        for f, w in zip(frequencies, weights):
             density_data.append(self._smearing.run(f, w))
-        density_data = np.sum(density_data, axis=0)  # Sum over star
+        density_data = np.sum(density_data, axis=0)  # Sum over arms
         self._density_data = density_data
 
     def _create_atom_weights(self, weights, vectors, ndim=3):
@@ -163,7 +126,7 @@ class DensityExtractor(object):
             file_output.write("\n")
         file_output.write("\n")
 
-    def print_ir_density(self, file_output):
+    def _print_sf_irreps(self, file_output):
         """
 
         Parameters
@@ -236,20 +199,11 @@ def main():
                         default="band.hdf5",
                         type=str,
                         help="Filename for band.hdf5.")
-    parser.add_argument("-o", "--outfile",
-                        default="spectral_functions.dat",
-                        type=str,
-                        help="Output filename for spectral functions")
     parser.add_argument("--function",
                         default="gaussian",
                         type=str,
                         choices=["gaussian", "lorentzian", "histogram"],
                         help="Maximum plotted frequency (THz).")
-    parser.add_argument("--weight_label",
-                        default="pr_weights",
-                        type=str,
-                        choices=["pr_weights", "rot_pr_weights", "element_weights"],
-                        help="Weight label to plot.")
     parser.add_argument("--fmax",
                         default=10.0,
                         type=float,
@@ -275,9 +229,7 @@ def main():
         fmin=args.fmin,
         fpitch=args.fpitch,
         sigma=args.sigma,
-        outfile=args.outfile,
-        weight_label=args.weight_label,
-    ).run()
+    )
 
 
 if __name__ == "__main__":

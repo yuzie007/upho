@@ -6,6 +6,7 @@ __author__ = "Yuji Ikeda"
 
 import numpy as np
 from phonopy.structure.cells import get_primitive
+from phonopy.units import VaspToTHz
 from ph_unfolder.phonon.star_creator import StarCreator
 from ph_unfolder.phonon.translational_projector import TranslationalProjector
 from ph_unfolder.phonon.rotational_projector import RotationalProjector
@@ -22,9 +23,12 @@ class Eigenstates(object):
                  primitive_matrix_ideal,
                  star="none",
                  mode="eigenvector",
+                 factor=VaspToTHz,
                  verbose=False):
         self._verbose = verbose
         self._mode = mode
+
+        self._factor = factor
 
         self._cell = dynamical_matrix.get_primitive()  # Disordered
         self._dynamical_matrix = dynamical_matrix
@@ -119,19 +123,10 @@ class Eigenstates(object):
 
         q_star, transformation_matrices = self.create_q_star(q)
 
-        nband = self._cell.get_number_of_atoms() * 3
-        nopr = self._nopr
-
-        natoms_p = self._primitive.get_number_of_atoms()
-        nelements = self._element_weights_calculator.get_number_of_elements()
-
-        eigvals_all = np.zeros((nopr, nband), dtype=float) * np.nan
-        weights_all = np.zeros((nopr, nband), dtype=float) * np.nan
-        eigvecs_all = np.zeros((nopr, nband, nband), dtype=complex) * np.nan
-        rot_weights_all = np.zeros((nopr, MAX_IRREPS, nband), dtype=float) * np.nan
-        element_weights_arms = np.full(
-            (nopr, natoms_p, nelements, nband), np.nan)
-
+        eigvals_arms         = []  # (num_arms, nbands)
+        trans_weights_arms   = []  # (num_arms, nbands)
+        rot_weights_arms     = []  # (num_arms, num_irreps, nbands)
+        element_weights_arms = []  # (num_arms, natoms_p, nelements, nbands)
         for i_star, (q, transformation_matrix) in enumerate(zip(q_star, transformation_matrices)):
             print("i_star:", i_star)
             print("q_pc:", q)
@@ -141,39 +136,66 @@ class Eigenstates(object):
              rot_weights,
              element_weights) = self._extract_eigenstates_for_q(
                 q, transformation_matrix)
-            eigvals_all[i_star] = eigvals
-            eigvecs_all[i_star] = eigvecs
-            weights_all[i_star] = weights
-            rot_weights_all[i_star] = rot_weights
-            element_weights_arms[i_star] = element_weights
 
-        weights_all /= len(q_star)
-        print("sum(weights_all):", np.sum(weights_all[:len(q_star)]))
+            eigvals_arms        .append(eigvals)
+            trans_weights_arms  .append(weights)
+            rot_weights_arms    .append(rot_weights)
+            element_weights_arms.append(element_weights)
 
-        rot_weights_all = np.array(rot_weights_all) / len(q_star)
+        frequencies_arms = calculate_frequencies(np.array(eigvals_arms), self._factor)
 
-        element_weights_arms /= len(q_star)
+        trans_weights_arms   = np.array(trans_weights_arms  ) / len(q_star)
+        rot_weights_arms     = np.array(rot_weights_arms    ) / len(q_star)
+        element_weights_arms = np.array(element_weights_arms) / len(q_star)
+
+        print("Sum of trans_weights_arms  :", np.nansum(trans_weights_arms  ))
+        print("Sum of rot_weights_arms    :", np.nansum(rot_weights_arms    ))
+        print("Sum of element_weights_arms:", np.nansum(element_weights_arms))
 
         self._q_star = q_star
+        self._point = q
 
-        return eigvals_all, eigvecs_all, weights_all, rot_weights_all, element_weights_arms
+        self._frequencies_arms     = frequencies_arms
+        self._trans_weights_arms   = trans_weights_arms
+        self._rot_weights_arms     = rot_weights_arms
+        self._element_weights_arms = element_weights_arms
+
+    def get_point(self):
+        return self._point
+
+    def get_frequencies_arms(self):
+        return self._frequencies_arms
+
+    def get_trans_weights_arms(self):
+        return self._trans_weights_arms
+
+    def get_rot_weights_arms(self):
+        return self._rot_weights_arms
+
+    def get_element_weights_arms(self):
+        return self._element_weights_arms
 
     def get_narms(self):
         return len(self._q_star)
 
     def get_pointgroup_symbol(self):
-        return self._rotational_projector.get_pointgroup_symbol()
+        return np.array(
+            self._rotational_projector.get_pointgroup_symbol(), dtype='S')
+
+    # def get_ir_labels(self):
+    #     rotational_projector = self._rotational_projector
+
+    #     ir_labels = [''] * MAX_IRREPS
+    #     for i, l in enumerate(rotational_projector.get_ir_labels()):
+    #         ir_labels[i] = l
+
+    #     return ir_labels
 
     def get_ir_labels(self):
-        rotational_projector = self._rotational_projector
+        return np.array(
+            self._rotational_projector.get_ir_labels(), dtype='S')
 
-        ir_labels = [''] * MAX_IRREPS
-        for i, l in enumerate(rotational_projector.get_ir_labels()):
-            ir_labels[i] = l
-
-        return ir_labels
-
-    def get_num_irs(self):
+    def get_num_irreps(self):
         return self._rotational_projector.get_num_irs()
 
     def _extract_eigenstates_for_q(self, q_pc, transformation_matrix):
@@ -248,14 +270,12 @@ class Eigenstates(object):
 
         num_irs = self._rotational_projector.get_num_irs()
 
-        shape = (MAX_IRREPS, t_proj_vectors.shape[-1])
-        rot_weights = np.zeros(shape, dtype=float) * np.nan
-        rot_weights[:num_irs] = np.linalg.norm(rot_proj_vectors, axis=1) ** 2
+        rot_weights = np.linalg.norm(rot_proj_vectors, axis=1) ** 2
 
         self.check_rotational_projected_vectors(
             rot_proj_vectors, t_proj_vectors)
 
-        print("sum(rot_weights):", np.sum(rot_weights[:num_irs]))
+        print("sum(rot_weights):", np.nansum(rot_weights))
 
         return rot_weights, rot_proj_vectors
 
@@ -296,6 +316,44 @@ class Eigenstates(object):
         element_weights = tmp_weights * trans_proj_weights
 
         return element_weights
+
+    def get_distance(self):
+        return self._distance
+
+    def set_distance(self, distance):
+        self._distance = distance
+
+    def get_reduced_elements(self):
+        return self._element_weights_calculator.get_reduced_elements()
+
+    def write_hdf5(self, hdf5_file, group=''):
+        """
+
+        Parameters
+        ----------
+        hdf5_file : HDF5 file object
+        group : String
+            Indices for the present q-point.
+        """
+        natoms_primitive = self._cell.get_number_of_atoms()
+
+        data_dict = {
+            'point'            : self.get_point(),
+            'distance'         : self.get_distance(),
+            'natoms_primitive' : natoms_primitive,
+            'elements'         : self.get_reduced_elements(),
+            'num_arms'         : self.get_narms(),
+            'pointgroup_symbol': self.get_pointgroup_symbol(),
+            'num_irreps'       : self.get_num_irreps(),
+            'ir_labels'        : self.get_ir_labels(),
+            'frequencies'      : self.get_frequencies_arms(),
+            'trans_weights'    : self.get_trans_weights_arms(),
+            'rot_weights'      : self.get_rot_weights_arms(),
+            'element_weights'  : self.get_element_weights_arms(),
+        }
+
+        for k, v in data_dict.items():
+            hdf5_file.create_dataset(group + k, data=v)
 
 def calculate_frequencies(eigenvalues, factor):
     frequencies = np.sqrt(np.abs(eigenvalues)) * np.sign(eigenvalues)

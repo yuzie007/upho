@@ -163,9 +163,6 @@ class PhonopyUnfolding(Phonopy):
             verbose=True)
         return True
 
-    def write_hdf5_band_structure(self):
-        self._band_structure.write_hdf5()
-
     # Sampling mesh
     def set_mesh(self,
                  mesh,
