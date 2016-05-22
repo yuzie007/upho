@@ -117,7 +117,7 @@ class TranslationalProjector(object):
 
         projected_vectors = np.zeros_like(vectors)
         for expanded_mapping in expanded_mappings:
-            projected_vectors += vectors[expanded_mapping, :]
+            projected_vectors += vectors.take(expanded_mapping, axis=0)
 
         projected_vectors /= ncells
 
