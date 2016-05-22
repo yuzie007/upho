@@ -13,7 +13,6 @@ from ph_unfolder.phonon.rotational_projector import RotationalProjector
 from ph_unfolder.phonon.vectors_adjuster import VectorsAdjuster
 from ph_unfolder.phonon.element_weights_calculator import (
     ElementWeightsCalculator)
-from ph_unfolder.irreps.character_tables import MAX_IRREPS
 
 
 class Eigenstates(object):
@@ -261,21 +260,17 @@ class Eigenstates(object):
         """
         vectors_adjuster = self._vectors_adjuster
 
-        # TODO(ikeda): Finally phase_factors will not be considered explicitly.
+        # Reduce vectors to the size for the primitive cell
         t_proj_vectors = vectors_adjuster.reduce_vectors_to_primitive(
             t_proj_vectors, self._primitive)
 
         rot_proj_vectors = self._rotational_projector.project_vectors(
             t_proj_vectors, kpoint, transformation_matrix)
 
-        num_irs = self._rotational_projector.get_num_irs()
-
         rot_weights = np.linalg.norm(rot_proj_vectors, axis=1) ** 2
 
         self.check_rotational_projected_vectors(
             rot_proj_vectors, t_proj_vectors)
-
-        print("sum(rot_weights):", np.nansum(rot_weights))
 
         return rot_weights, rot_proj_vectors
 
