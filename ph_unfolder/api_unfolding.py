@@ -47,7 +47,8 @@ class PhonopyUnfolding(Phonopy):
         self._use_lapack_solver = use_lapack_solver
         self._log_level = log_level
 
-        self.create_density_extractor(dict_spectrum)
+        # self.create_density_extractor(dict_spectrum)
+        self._density_extractor = None
 
         # Create supercell and primitive cell
         self._unitcell = unitcell

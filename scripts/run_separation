@@ -16,15 +16,16 @@ def main():
     str_command += ph_unfolder
     str_command += " band.conf -i input.json"
 
-    n1, n2 = read_band_hdf5("band.hdf5")["distances"].shape
+    n1, n2 = read_band_hdf5("band.hdf5")["paths"].shape[:2]
+    root = os.getcwd()
     for i1 in range(n1):
         for i2 in range(n2):
-            dirname = "{}_{}".format(i1, i2)
+            dirname = "{}/{}/".format(i1, i2)
             os.chdir(dirname)
             print(dirname)
             with open("band.log", "w") as f:
                 subprocess.call(str_command, stdout=f, shell=True)
-            os.chdir("..")
+            os.chdir(root)
 
 
 if __name__ == "__main__":

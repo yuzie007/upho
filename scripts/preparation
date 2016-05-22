@@ -6,14 +6,12 @@ from __future__ import (absolute_import, division,
 __author__ = "Yuji Ikeda"
 
 import os
+import h5py
 import numpy as np
 from phonopy.cui.settings import PhonopyConfParser
 from phonopy.interface.vasp import read_vasp
 from phonopy.structure.cells import get_primitive
 from ph_unfolder.file_io import read_input
-from ph_unfolder.structure.unfolder_symmetry import UnfolderSymmetry
-from ph_unfolder.irreps.irreps import Irreps
-from ph_unfolder.irreps.character_tables import MAX_IRREPS
 
 
 class Separation(object):
@@ -39,47 +37,6 @@ class Separation(object):
 
     def analyze_paths(self):
         self.create_distances()
-        self._analyze_irreps()
-
-    def _analyze_irreps(self):
-        symmetry = UnfolderSymmetry(self._cell)
-
-        nums_arms = []
-        pg_symbols = []
-        nums_irreps = []
-        ir_labels = []
-
-        for path in self._paths:
-            pg_symbols_on_path = []
-            nums_irreps_on_path = []
-            nums_arms_on_path = []
-            ir_labels_on_path = []
-
-            for i, q in enumerate(path):
-                star = symmetry.create_star(q)
-
-                rotations, translations = symmetry.create_little_group(q)
-
-                irreps = Irreps(rotations)
-                pg_symbol = irreps.get_pointgroup_symbol()
-                ir_labels_on_q = [''] * MAX_IRREPS
-                for i, l in enumerate(irreps.get_ir_labels()):
-                    ir_labels_on_q[i] = l
-
-                nums_arms_on_path.append(len(star))
-                pg_symbols_on_path.append(pg_symbol)
-                nums_irreps_on_path.append(len(ir_labels_on_q))
-                ir_labels_on_path.append(ir_labels_on_q)
-
-            nums_arms.append(nums_arms_on_path)
-            pg_symbols.append(pg_symbols_on_path)
-            nums_irreps.append(nums_irreps_on_path)
-            ir_labels.append(ir_labels_on_path)
-
-        self._nums_arms   = np.array(nums_arms)
-        self._pg_symbols  = np.array(pg_symbols, dtype='S')
-        self._nums_irreps = np.array(nums_irreps)
-        self._ir_labels   = np.array(ir_labels, dtype='S')
 
     def create_primitive_cell(self, poscar_file):
         primitive_matrix = self._settings.get_primitive_matrix()
@@ -105,10 +62,10 @@ class Separation(object):
                 dict_input["qpoint"] = list(qpoint)
                 dict_input["distance"] = self._distances[ipath, iq]
 
-                dirname = "{}_{}".format(ipath, iq)
+                dirname = '{}/{}/'.format(ipath, iq)
                 if not os.path.isdir(dirname):
-                    os.mkdir(dirname)
-                filename = "{}/input.json".format(dirname)
+                    os.makedirs(dirname)
+                filename = "{}input.json".format(dirname)
                 with open(filename, "w") as f:
                     f.write(json.dumps(dict_input, indent=4))
 
@@ -123,8 +80,8 @@ class Separation(object):
                 for f in files:
                     if os.path.isfile(f):
                         os.remove(f)
-                    os.symlink("../" + f, f)
-                os.chdir("../")
+                    os.symlink("../../" + f, f)
+                os.chdir("../../")
 
     def create_distances(self):
         distances = []
@@ -140,14 +97,14 @@ class Separation(object):
         self._distances = distances
 
     def write_hdf5(self):
-        import h5py
         with h5py.File('band.hdf5', 'w') as w:
             w.create_dataset('paths', data=self._paths)
-            w.create_dataset('distances', data=self._distances)
-            w.create_dataset('nums_arms', data=self._nums_arms)
-            w.create_dataset('pg_symbols', data=self._pg_symbols)
-            w.create_dataset('nums_irreps', data=self._nums_irreps)
-            w.create_dataset('ir_labels', data=self._ir_labels)
+
+            # Create groups using ExternalLink
+            for ipath, path in enumerate(self._paths):
+                for ip, point in enumerate(path):
+                    group = '{}/{}/'.format(ipath, ip)
+                    w[group] = h5py.ExternalLink(group + 'point.hdf5', '/')
 
 
 def main():

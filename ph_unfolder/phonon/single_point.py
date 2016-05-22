@@ -5,8 +5,9 @@ from __future__ import (absolute_import, division,
 
 __author__ = "Yuji Ikeda"
 
+import h5py
 from phonopy.units import VaspToTHz
-from ph_unfolder.phonon.eigenstates import Eigenstates, calculate_frequencies
+from ph_unfolder.phonon.eigenstates import Eigenstates
 
 
 class SinglePoint(object):
@@ -35,14 +36,18 @@ class SinglePoint(object):
             star=star,
             verbose=verbose)
 
-        self._density_extractor = density_extractor
+        # self._density_extractor = density_extractor
 
-        fn_sf_atoms = "spectral_functions_atoms.dat"
-        fn_sf_irs   = "spectral_functions_irs.dat"
-        with open(fn_sf_atoms, "w") as fatoms, open(fn_sf_irs, "w") as firs:
-            self._file_sf_atoms = fatoms
-            self._file_sf_irs   = firs
+        # fn_sf_atoms = "spectral_functions_atoms.dat"
+        # fn_sf_irs   = "spectral_functions_irs.dat"
+        # with open(fn_sf_atoms, "w") as fatoms, open(fn_sf_irs, "w") as firs:
+        #     self._file_sf_atoms = fatoms
+        #     self._file_sf_irs   = firs
 
+        #     self.run()
+
+        with h5py.File('point.hdf5', 'w') as f:
+            self._hdf5_file = f
             self.run()
 
     def run(self):
@@ -51,31 +56,22 @@ class SinglePoint(object):
 
         eigenstates = self._eigenstates
 
-        eigvals, eigvecs, pr_weights, rot_pr_weights = (
-            eigenstates.extract_eigenstates(qpoint))
-        frequencies = calculate_frequencies(eigvals, self._factor)
+        if True:
+            eigenstates.set_distance(distance)
+            eigenstates.extract_eigenstates(qpoint)
 
-        narms = eigenstates.get_narms()
+            eigenstates.write_hdf5(self._hdf5_file, group='')
 
-        num_irs = eigenstates.get_num_irs()
+            # # Print spectral functions
+            # density_extractor = self._density_extractor
 
-        # Print spectral functions
-        density_extractor = self._density_extractor
+            # density_extractor.calculate_density(
+            #     distance, narms, frequencies,
+            #     weights_data=pr_weights,
+            #     eigenvectors_data=eigvecs)
+            # density_extractor.print_partial_density(self._file_sf_atoms)
 
-        density_extractor.calculate_density(
-            distance, narms, frequencies,
-            weights_data=pr_weights,
-            eigenvectors_data=eigvecs)
-        density_extractor.print_partial_density(self._file_sf_atoms)
-
-        density_extractor.calculate_density(
-            distance, narms, frequencies,
-            weights_data=rot_pr_weights[:, :num_irs])
-        density_extractor.print_partial_density(self._file_sf_irs)
-
-        self.print_pointgroup_symbol()
-
-    def print_pointgroup_symbol(self):
-        pointgroup_symbol = self._eigenstates.get_pointgroup_symbol()
-        with open("pointgroup_symbol", "w") as f:
-            f.write("{}\n".format(pointgroup_symbol))
+            # density_extractor.calculate_density(
+            #     distance, narms, frequencies,
+            #     weights_data=rot_pr_weights[:, :num_irs])
+            # density_extractor.print_partial_density(self._file_sf_irs)
