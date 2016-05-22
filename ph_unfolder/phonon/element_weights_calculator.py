@@ -59,6 +59,9 @@ class ElementWeightsCalculator(object):
     def get_map_atoms_u2p(self):
         return self._map_atoms_u2p
 
+    def get_reduced_elements(self):
+        return self._reduced_elements
+
     def get_number_of_elements(self):
         return len(self._reduced_elements)
 
