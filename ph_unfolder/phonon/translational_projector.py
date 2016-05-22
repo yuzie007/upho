@@ -87,8 +87,7 @@ class TranslationalProjector(object):
         eye = np.eye(3, dtype=int)
         mappings = []
         for lv in lattice_vectors:
-            mapping, diff_positions = (
-                structure_analyzer.extract_mapping_for_symopr(eye, lv))
+            mapping = structure_analyzer.extract_mapping_for_symopr(eye, lv)
             mappings.append(mapping)
 
         mappings = np.array(mappings)

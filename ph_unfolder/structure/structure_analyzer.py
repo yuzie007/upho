@@ -481,10 +481,10 @@ class StructureAnalyzer(object):
         chemical_symbols = self._atoms.get_chemical_symbols()
         transformed_scaled_positions = (
             self.extract_transformed_scaled_positions(rotation, translation))
-        mapping, diff_positions = self.extract_mapping_for_atoms(
+        mapping = self.extract_mapping_for_atoms(
             chemical_symbols, transformed_scaled_positions, prec)
 
-        return mapping, diff_positions
+        return mapping
 
     def extract_mapping_for_atoms(self, symbols_new, positions_new, prec=1e-6):
         """
@@ -497,24 +497,21 @@ class StructureAnalyzer(object):
                 Indices are for new numbers and contents are for old ones.
         """
         natoms = self._atoms.get_number_of_atoms()
-        symbols_old = self._atoms.get_chemical_symbols()
+        symbols_old = np.array(self._atoms.get_chemical_symbols())
         positions_old = self._atoms.get_scaled_positions()
 
-        mapping = -1 * np.ones(natoms, dtype=int)
-        diff_positions = np.zeros((natoms, 3), dtype=int)
-        for iatoms, sp_trn in enumerate(positions_new):
-            for jatoms, sp_orig in enumerate(positions_old):
-                if symbols_new[iatoms] != symbols_old[jatoms]:
-                    continue
-                diff = sp_trn - sp_orig
-                wrapped_dpos = diff - np.rint(diff) 
+        diff = positions_new[:, None, :] - positions_old[None, :, :]
+        wrapped_dpos = diff - np.rint(diff)
+        tmp, mapping = np.where(np.all(np.abs(wrapped_dpos) < prec, axis=2))
 
-                if (np.abs(wrapped_dpos) < prec).all():
-                    mapping[iatoms] = jatoms
-                    diff_positions[iatoms] = np.rint(diff).astype(int)
-                    break
+        # Guarantee one-to-one correspondence
+        if not np.array_equal(tmp, np.arange(natoms, dtype=int)):
+            raise ValueError('Mapping is failed.')
 
-        return mapping, diff_positions
+        if not np.array_equal(symbols_new, symbols_old[mapping]):
+            raise ValueError('Symbols do not correspond.')
+
+        return mapping
 
 
 def _get_matrix(matrix):

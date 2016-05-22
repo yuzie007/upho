@@ -86,7 +86,7 @@ class RotationalProjector(object):
 
         mappings = []
         for r, t in zip(rotations, translations):
-            mapping = structure_analyzer.extract_mapping_for_symopr(r, t)[0]
+            mapping = structure_analyzer.extract_mapping_for_symopr(r, t)
             mappings.append(mapping)
         self._mappings = np.array(mappings)
         self._mappings_modifier = MappingsModifier(mappings)
