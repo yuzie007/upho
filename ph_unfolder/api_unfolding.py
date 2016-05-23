@@ -8,6 +8,8 @@ import numpy as np
 from phonopy import Phonopy
 from phonopy.structure.symmetry import Symmetry
 from phonopy.structure.cells import get_supercell, get_primitive
+from ph_unfolder.harmonic.dynamical_matrix import (
+        UnfolderDynamicalMatrix as DynamicalMatrix)
 from phonopy.units import VaspToTHz
 from ph_unfolder.phonon.band_structure import BandStructure
 from ph_unfolder.phonon.single_point import SinglePoint
@@ -218,6 +220,31 @@ class PhonopyUnfolding(Phonopy):
         total_dos.run()
         self._total_dos = total_dos
         return True
+
+    def _set_dynamical_matrix(self):
+        self._dynamical_matrix = None
+
+        if (self._supercell is None or self._primitive is None):
+            print("Bug: Supercell or primitive is not created.")
+            return False
+        elif self._force_constants is None:
+            print("Warning: Force constants are not prepared.")
+            return False
+        elif self._primitive.get_masses() is None:
+            print("Warning: Atomic masses are not correctly set.")
+            return False
+        else:
+            if self._nac_params is None:
+                self._dynamical_matrix = DynamicalMatrix(
+                    self._supercell,
+                    self._primitive,
+                    self._force_constants,
+                    decimals=self._dynamical_matrix_decimals,
+                    symprec=self._symprec)
+            else:
+                raise ValueError(
+                'Currently NAC is not available for unfolding.')
+            return True
 
     def _search_symmetry_ideal(self):
         self._symmetry = Symmetry(self._supercell_ideal,
