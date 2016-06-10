@@ -8,7 +8,7 @@ import h5py
 import numpy as np
 from ph_unfolder.analysis.smearing import Smearing
 from ph_unfolder.file_io import read_band_hdf5
-
+from ph_unfolder.irreps.character_tables import MAX_IRREPS
 
 class DensityExtractor(object):
     def __init__(self,
@@ -141,8 +141,17 @@ class DensityExtractor(object):
             file_output.write("{:12.6f}".format(x))
             file_output.write("{:12.6f}".format(np.sum(densities)))
             file_output.write("  ")
-            for ir_density in densities:
-                file_output.write("{:12.6f}".format(ir_density))
+
+            if len(densities) > MAX_IRREPS:
+                raise ValueError('# of IRREPS is larger than MAX_IRREPS.')
+
+            for i in range(MAX_IRREPS):
+                if i < len(densities):
+                    ir_density = densities[i]
+                    file_output.write("{:12.6f}".format(ir_density))
+                else:
+                    file_output.write("{:12.6f}".format(np.nan))
+
             file_output.write("\n")
         file_output.write("\n")
 
