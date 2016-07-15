@@ -440,7 +440,7 @@ class StructureAnalyzer(object):
         nopr = len(rotations)
         mappings = -1 * np.ones((nopr, natoms), dtype=int)
         for iopr, (r, t) in enumerate(zip(rotations, translations)):
-            mappings[iopr] = self.extract_mapping_for_symopr(r, t, prec)[0]
+            mappings[iopr] = self.extract_mapping_for_symopr(r, t, prec)
 
         if -1 in mappings:
             print("ERROR: {}".format(__name__))
