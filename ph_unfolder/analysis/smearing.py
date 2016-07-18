@@ -27,17 +27,27 @@ def histogram(x, positions, width):
     return tmp
 
 
+def create_points(xmin, xmax, xpitch):
+    n = int(round((xmax - xmin) / xpitch)) + 1
+    points = np.linspace(xmin, xmax, n)
+    return points
+
+
 class Smearing(object):
     def __init__(self,
                  function_name="gaussian",
                  sigma=0.1,
-                 xmin=0.0,
-                 xmax=1.0,
-                 xpitch=0.1):
+                 xmin=None,
+                 xmax=None,
+                 xpitch=None):
 
+        self._function_name = function_name
         self.set_smearing_function(function_name)
         self.set_sigma(sigma)
-        self.build_xs(xmin, xmax, xpitch)
+        if xmin is not None and xmax is not None and xpitch is not None:
+            self.build_xs(xmin, xmax, xpitch)
+        elif not (xmin is None and xmax is None and xpitch is None):
+            raise ValueError('Some of xmin, xmax, and xpitch are None')
 
     def set_smearing_function(self, function_name):
         if function_name == "gaussian":
@@ -51,8 +61,7 @@ class Smearing(object):
         return self
 
     def build_xs(self, xmin, xmax, xpitch):
-        n = int(round((xmax - xmin) / xpitch)) + 1
-        self._xs = np.linspace(xmin, xmax, n)
+        self.set_xs(create_points(xmin, xmax, xpitch))
         return self
 
     def set_xs(self, xs):
@@ -63,6 +72,12 @@ class Smearing(object):
 
     def set_sigma(self, sigma):
         self._sigma = sigma
+
+    def get_sigma(self):
+        return self._sigma
+
+    def get_function_name(self):
+        return self._function_name
 
     def run(self, peaks, weights=None):
         """Get smeared values.

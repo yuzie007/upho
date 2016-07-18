@@ -6,9 +6,15 @@ __author__ = "Yuji Ikeda"
 
 import h5py
 import numpy as np
-from ph_unfolder.analysis.smearing import Smearing
+from ph_unfolder.analysis.smearing import Smearing, create_points
 from ph_unfolder.file_io import read_band_hdf5
 from ph_unfolder.irreps.character_tables import MAX_IRREPS
+
+
+def square_frequencies(frequencies):
+    frequencies_2 = np.sign(frequencies) * frequencies ** 2
+    return frequencies_2
+
 
 class DensityExtractor(object):
     def __init__(self,
@@ -17,27 +23,34 @@ class DensityExtractor(object):
                  fmin=0.0,
                  fmax=10.0,
                  fpitch=0.05,
-                 sigma=1.0):
+                 sigma=1.0,
+                 is_squared=True):
 
-        print("# sigma:", sigma)
+        self._is_squared = is_squared
 
         self._smearing = Smearing(
             function_name=function,
             sigma=sigma,
-            xmin=fmin,
-            xmax=fmax,
-            xpitch=fpitch,
         )
+
+        frequencies = create_points(fmin, fmax, fpitch)
+        self.set_evaluated_energies(frequencies)
+
+        if is_squared:
+            energies = square_frequencies(frequencies)
+        else:
+            energies = frequencies
+        self._smearing.set_xs(energies)
 
         with h5py.File(filename, 'r') as f:
             self._band_data = f
             self._run()
 
-    def load_data(self, filename):
-        print("# Reading band.hdf5: ", end="")
-        self._band_data = read_band_hdf5(filename)
-        print("Finished")
-        return self
+    def set_evaluated_energies(self, evaluated_energies):
+        self._evaluated_energies = evaluated_energies
+
+    def get_evaluated_energies(self):
+        return np.copy(self._evaluated_energies)
 
     def _run(self):
         band_data = self._band_data
@@ -46,6 +59,8 @@ class DensityExtractor(object):
         fn_elements = 'sf_elements.dat'
         fn_irreps   = 'sf_irreps.dat'
         with open(fn_elements, 'w') as fe, open(fn_irreps, 'w') as fi:
+            self.print_header(fe)
+            self.print_header(fi)
             for ipath in range(npaths):
                 for ip in range(npoints):
                     print(ipath, ip)
@@ -57,11 +72,29 @@ class DensityExtractor(object):
 
                     self.set_distance(float(np.array(distance)))
 
-                    self.calculate_density(frequencies, element_weights)
+                    frequencies = np.array(frequencies)
+                    if self._is_squared:
+                        energies = square_frequencies(frequencies)
+                    else:
+                        energies = frequencies
+
+                    self.calculate_density(energies, element_weights)
                     self._print_sf_elements(fe)
 
-                    self.calculate_density(frequencies, rot_weights)
+                    self.calculate_density(energies, rot_weights)
                     self._print_sf_irreps(fi)
+
+    def print_header(self, file_output):
+        function_name = self._smearing.get_function_name()
+        sigma         = self._smearing.get_sigma()
+        is_squared = self._is_squared
+        if is_squared:
+            unit = 'THz^2'
+        else:
+            unit = 'THz'
+        file_output.write("# function: {}\n".format(function_name))
+        file_output.write("# sigma: {} {}\n".format(sigma, unit))
+        file_output.write("# is_squared: {}\n".format(is_squared))
 
     def calculate_density(self, frequencies, weights):
         """
@@ -69,7 +102,7 @@ class DensityExtractor(object):
         Parameters
         ----------
         frequencies : (num_arms, nbands) array
-        weights : (num_arms, nbands) array
+        weights : (num_arms, ... , nbands) array
         """
         density_data = []
         for f, w in zip(frequencies, weights):
@@ -118,7 +151,7 @@ class DensityExtractor(object):
         """
         distance = self._distance
         density_data = self._density_data
-        xs = self._smearing.get_xs()
+        xs = self.get_evaluated_energies()
         for x, density in zip(xs, density_data):
             file_output.write("{:12.6f}".format(distance))
             file_output.write("{:12.6f}".format(x))
@@ -135,7 +168,7 @@ class DensityExtractor(object):
         """
         distance = self._distance
         density_data = self._density_data
-        xs = self._smearing.get_xs()
+        xs = self.get_evaluated_energies()
         for x, densities in zip(xs, density_data):
             file_output.write("{:12.6f}".format(distance))
             file_output.write("{:12.6f}".format(x))
@@ -164,7 +197,7 @@ class DensityExtractor(object):
         """
         distance = self._distance
         density_data = self._density_data
-        xs = self._smearing.get_xs()
+        xs = self.get_evaluated_energies()
         for x, densities in zip(xs, density_data):
             file_output.write("{:12.6f}".format(distance))
             file_output.write("{:12.6f}".format(x))
@@ -229,6 +262,9 @@ def main():
                         default=0.1,
                         type=float,
                         help="Sigma for frequencies (THz).")
+    parser.add_argument("--nosquared", dest='is_squared',
+                        action='store_false',
+                        help="Squared frequencies are not considered.")
     args = parser.parse_args()
 
     DensityExtractor(
@@ -238,6 +274,7 @@ def main():
         fmin=args.fmin,
         fpitch=args.fpitch,
         sigma=args.sigma,
+        is_squared=args.is_squared,
     )
 
 
