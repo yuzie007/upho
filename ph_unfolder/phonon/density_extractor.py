@@ -188,26 +188,6 @@ class DensityExtractor(object):
             file_output.write("\n")
         file_output.write("\n")
 
-    def print_partial_density(self, file_output):
-        """
-
-        Parameters
-        ----------
-        file_output : A file object to print density.
-        """
-        distance = self._distance
-        density_data = self._density_data
-        xs = self.get_evaluated_energies()
-        for x, densities in zip(xs, density_data):
-            file_output.write("{:12.6f}".format(distance))
-            file_output.write("{:12.6f}".format(x))
-            file_output.write("{:12.6f}".format(np.sum(densities)))
-            file_output.write("  ")
-            for partial_density in densities:
-                file_output.write("{:12.6f}".format(partial_density))
-            file_output.write("\n")
-        file_output.write("\n")
-
     def _print_sf_elements(self, file_output):
         """
 
@@ -217,7 +197,7 @@ class DensityExtractor(object):
         """
         distance = self._distance
         density_data = self._density_data
-        xs = self._smearing.get_xs()
+        xs = self.get_evaluated_energies()
         for x, densities in zip(xs, density_data):
             file_output.write("{:12.6f}".format(distance))
             file_output.write("{:12.6f}".format(x))
