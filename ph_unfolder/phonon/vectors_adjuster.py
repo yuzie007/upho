@@ -9,17 +9,17 @@ import numpy as np
 
 
 class VectorsAdjuster(object):
-    def __init__(self, scaled_positions):
-        self.set_scaled_positions(scaled_positions)
-
-    def set_scaled_positions(self, scaled_positions):
+    def __init__(self, atoms):
         """
 
-        Args:
-            scaled_positions:
-                Scaled positions for the (disordered) cell.
+        Parameters
+        ----------
+        atoms : Phonopy Atoms object
+            Disordered supercell.
+            Eigenvectors must correspond to the size of the "atoms".
         """
-        self._scaled_positions = scaled_positions
+        self._scaled_positions = atoms.get_scaled_positions()
+        self._masses = atoms.get_masses()
 
     def set_q(self, q):
         """
@@ -90,3 +90,23 @@ class VectorsAdjuster(object):
         reduced_vectors *= np.sqrt(relative_size)
 
         return reduced_vectors
+
+    def apply_mass_weights(self, vectors, ndim=3):
+        """Multiply vectors by mass weights
+
+        Parameters
+        ----------
+        vectors : (ndim * natoms, nbands) array
+        masses : (natoms) array
+
+        Returns
+        -------
+        modified_vectors : (ndim * natoms, nbands) array
+            mass weights are multiplied.
+        """
+        masses = self._masses
+        modified_vectors = vectors / np.sqrt(np.repeat(masses, ndim))[:, None]
+        return modified_vectors
+
+    def get_masses(self):
+        return self._masses

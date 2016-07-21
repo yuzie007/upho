@@ -79,8 +79,7 @@ class Eigenstates(object):
     def _generate_vectors_adjuster(self):
         # Get the (disordered) unitcell.
         primitive = self._dynamical_matrix.get_primitive()
-        scaled_positions = primitive.get_scaled_positions()
-        self._vectors_adjuster = VectorsAdjuster(scaled_positions)
+        self._vectors_adjuster = VectorsAdjuster(primitive)
 
     def create_q_star(self, q):
         """
