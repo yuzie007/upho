@@ -122,6 +122,27 @@ class TestVectorsAdjuster(unittest.TestCase):
         exp *= np.sqrt(nexpansion)
         self.assertTrue(np.all(np.abs(reduced_vectors - exp) < 1e-6))
 
+    def test_reduce_vectors_to_primitive_for_multidimensional_vectors(self):
+        vectors_adjuster = self._vectors_adjuster
+        atoms = read_vasp("poscars/POSCAR_fcc")
+        primitive_matrix = [
+            [0.0, 0.5, 0.5],
+            [0.5, 0.0, 0.5],
+            [0.5, 0.5, 0.0],
+        ]
+        primitive = get_primitive(atoms, primitive_matrix)
+        vectors = self.get_eigvec_0()[None, :, None]
+        reduced_vectors = vectors_adjuster.reduce_vectors_to_primitive(
+            vectors, primitive)
+        nexpansion = 4
+        exp = np.array([
+            0.5,
+            0.0,
+            0.0,
+        ])[None, :, None]
+        exp *= np.sqrt(nexpansion)
+        self.assertTrue(np.all(np.abs(reduced_vectors - exp) < 1e-6))
+
     def test_apply_mass_weights(self):
         vectors = self.get_eigvec_0().reshape((-1, 1))
         modified_vectors = self._vectors_adjuster.apply_mass_weights(vectors)

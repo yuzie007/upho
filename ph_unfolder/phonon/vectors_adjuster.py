@@ -6,6 +6,7 @@ from __future__ import (absolute_import, division,
 __author__ = "Yuji Ikeda"
 
 import numpy as np
+from ph_unfolder.analysis.mappings_modifier import MappingsModifier
 
 
 class VectorsAdjuster(object):
@@ -68,25 +69,23 @@ class VectorsAdjuster(object):
 
         Parameters
         ----------
-        vectors : array
+        vectors : (..., natoms_u * ndims, nbands) array
             Vectors which will be reduced.
             Phase factors must be removed in advance.
         primitive : Phonopy Primitive object.
 
         Returns
         -------
-        reduced_vectors : array
+        reduced_vectors : (..., natoms_p, ndims, nbands) array
             Reduced vectors.
         """
         ndim = 3
         p2s_map = primitive.get_primitive_to_supercell_map()
-        num_atoms = vectors.shape[0] // ndim
-        tmp = vectors.reshape(num_atoms, ndim, -1)
-        tmp = tmp[p2s_map, :, :]
-        reduced_vectors = tmp.reshape(ndim * len(p2s_map), -1)
+        indices = MappingsModifier(p2s_map).expand_mappings(ndim)
+        reduced_vectors = vectors[..., indices, :]
 
         # Renormalization of the reduced vectors
-        relative_size = num_atoms / len(p2s_map)
+        relative_size = vectors.shape[-2] / reduced_vectors.shape[-2]
         reduced_vectors *= np.sqrt(relative_size)
 
         return reduced_vectors
