@@ -201,12 +201,12 @@ class DensityExtractor(object):
         for x, densities in zip(xs, density_data):
             file_output.write("{:12.6f}".format(distance))
             file_output.write("{:12.6f}".format(x))
-            file_output.write("{:12.6f}".format(np.sum(densities)))
+            file_output.write("{:12.6f}".format(np.sum(densities).real))
             file_output.write("  ")
             for sf_elements in densities:
                 file_output.write("  ")
-                for sf_element in sf_elements:
-                    file_output.write("{:12.6f}".format(sf_element))
+                for sf_element in sf_elements.flatten():
+                    file_output.write("{:12.6f}".format(sf_element.real))
             file_output.write("\n")
         file_output.write("\n")
 

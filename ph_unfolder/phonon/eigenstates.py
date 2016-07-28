@@ -125,6 +125,7 @@ class Eigenstates(object):
         trans_weights_arms   = []  # (num_arms, nbands)
         rot_weights_arms     = []  # (num_arms, num_irreps, nbands)
         element_weights_arms = []  # (num_arms, natoms_p, nelements, nbands)
+        rot_elemental_weights_arms = []  # (num_arms, num_irreps, natoms_p, nelements, natoms_p, nelements, nbands)
         for i_star, (q, transformation_matrix) in enumerate(zip(q_star, transformation_matrices)):
             print("i_star:", i_star)
             print("q_pc:", q)
@@ -132,23 +133,27 @@ class Eigenstates(object):
              eigvecs,
              weights,
              rot_weights,
-             element_weights) = self._extract_eigenstates_for_q(
+             element_weights,
+             rot_elemental_weights) = self._extract_eigenstates_for_q(
                 q, transformation_matrix)
 
             eigvals_arms        .append(eigvals)
             trans_weights_arms  .append(weights)
             rot_weights_arms    .append(rot_weights)
             element_weights_arms.append(element_weights)
+            rot_elemental_weights_arms.append(rot_elemental_weights)
 
         frequencies_arms = calculate_frequencies(np.array(eigvals_arms), self._factor)
 
         trans_weights_arms   = np.array(trans_weights_arms  ) / len(q_star)
         rot_weights_arms     = np.array(rot_weights_arms    ) / len(q_star)
         element_weights_arms = np.array(element_weights_arms) / len(q_star)
+        rot_elemental_weights_arms = np.array(rot_elemental_weights_arms) / len(q_star)
 
         print("Sum of trans_weights_arms  :", np.nansum(trans_weights_arms  ))
         print("Sum of rot_weights_arms    :", np.nansum(rot_weights_arms    ))
         print("Sum of element_weights_arms:", np.nansum(element_weights_arms))
+        print("Sum of rot_elm_weights_arms:", np.nansum(rot_elemental_weights_arms))
 
         self._q_star = q_star
         self._point = q
@@ -157,6 +162,7 @@ class Eigenstates(object):
         self._trans_weights_arms   = trans_weights_arms
         self._rot_weights_arms     = rot_weights_arms
         self._element_weights_arms = element_weights_arms
+        self._rot_elemental_weights_arms = rot_elemental_weights_arms
 
     def get_point(self):
         return self._point
@@ -172,6 +178,9 @@ class Eigenstates(object):
 
     def get_element_weights_arms(self):
         return self._element_weights_arms
+
+    def get_rot_elemental_weights_arms(self):
+        return self._rot_elemental_weights_arms
 
     def get_narms(self):
         return len(self._q_star)
@@ -199,13 +208,17 @@ class Eigenstates(object):
     def _extract_eigenstates_for_q(self, q_pc, transformation_matrix):
         """Extract eigenstates with their weights.
 
-        Args:
-            q_pc: Reciprocal space point in fractional coordinatees for PC.
+        Parameters
+        ----------
+        q_pc : Reciprocal space point in fractional coordinatees for PC.
+        transformation_matrix
 
-        Returns:
-            eigvals: Eigenvalues of "SC".
-            eigvecs: Eigenvectors of "SC".
-            weights: Weights for the phonon modes of SC on PC.
+        Returns
+        -------
+        eigvals : Eigenvalues of "SC".
+        eigvecs : Eigenvectors of "SC".
+        weights : Weights for the phonon modes of SC on PC.
+        elemental_weights : (natoms_p, nelms, natoms_p, nelms, nbands) complex array
         """
         primitive_matrix = self._primitive.get_primitive_matrix()
         q_sc = get_q_sc_from_q_pc(q_pc, primitive_matrix)
@@ -224,9 +237,14 @@ class Eigenstates(object):
         # if __debug__:
         #     self._print_debug(eigvals, rot_weights)
 
-        element_weights = self._create_element_weights(eigvecs, weights)
+        elemental_weights, t_proj_elm_vecs = self._create_elemental_weights(
+            eigvecs, q_sc)
 
-        return eigvals, eigvecs, weights, rot_weights, element_weights
+        rot_elemental_weights, rot_proj_elm_vecs = self._create_rotational_weights_for_elements(
+            q_pc, transformation_matrix, t_proj_elm_vecs
+        )
+
+        return eigvals, eigvecs, weights, rot_weights, elemental_weights, rot_elemental_weights
 
     def _extract_weights(self, q, eigvecs):
         """Extract weights.
@@ -273,6 +291,36 @@ class Eigenstates(object):
 
         return rot_weights, rot_proj_vectors
 
+    def _create_rotational_weights_for_elements(self, kpoint, transformation_matrix, vectors):
+        """
+
+        Parameters
+        ----------
+        kpoint : 1d array
+            Reciprocal space point in fractional coordinates for PC.
+        vectors : (..., natoms_u * ndims, nbands) array
+            Vectors for SC after translational projection.
+        """
+        vectors_adjuster = self._vectors_adjuster
+
+        # Reduce vectors to the size for the primitive cell
+        reduced_vectors = vectors_adjuster.reduce_vectors_to_primitive(
+            vectors, self._primitive)
+
+        projected_vectors = self._rotational_projector.project_vectors(
+            reduced_vectors, kpoint, transformation_matrix)
+
+        nirreps, natoms_p, nelms, tmp, nbands = projected_vectors.shape
+
+        shape = (nirreps, natoms_p, nelms, natoms_p, nelms, nbands)
+        weights = np.zeros(shape, dtype=complex)
+        for i in range(nirreps):
+            for j in range(nbands):
+                weights[i, ..., j] = np.inner(
+                    np.conj(projected_vectors[i, ..., j]), projected_vectors[i, ..., j])
+
+        return weights, projected_vectors
+
     def check_rotational_projected_vectors(self, rot_proj_vectors, vectors):
         sum_rot_proj_vectors = np.sum(rot_proj_vectors, axis=0)
         diff = sum_rot_proj_vectors - vectors
@@ -292,24 +340,36 @@ class Eigenstates(object):
             print("".join("{:12.6f}".format(v) for v in values[:num_irs]), end="")
             print()
 
-    def _create_element_weights(self, eigenvectors, trans_proj_weights):
+    def _create_elemental_weights(self, vectors, kpoint):
         """
 
         Parameters
         ----------
-        eigenvectors : (natoms_u * ndims, nbands) array
-        trans_proj_weights : nbands array
+        vectors : (natoms_u * ndims, nbands) array
+        kpoint : Reciprocal space point in fractional coordinates for SC.
 
         Returns
         -------
-        element_weights : (natoms_p, nelements, nbands) array
+        weights : (natoms_p, nelms, natoms_p, nelms, nbands) array
+            Elemental weights.
+        projected_vectors : (natoms_p, nelms, natoms_u * ndims, nbands) array
+            Elemental projected vectors.
         """
-        element_weights_calculator = self._element_weights_calculator
+        elemental_projector = self._element_weights_calculator
+        translational_projector = self._translational_projector
 
-        tmp_weights = element_weights_calculator.run(eigenvectors)
-        element_weights = tmp_weights * trans_proj_weights
+        elemental_vectors = elemental_projector.project_vectors(vectors)
+        projected_vectors = translational_projector.project_vectors(
+            vectors=elemental_vectors, kpoint=kpoint)
 
-        return element_weights
+        natoms_p, nelms, tmp, nbands = projected_vectors.shape
+        print(projected_vectors.shape)
+        weights = np.zeros((natoms_p, nelms, natoms_p, nelms, nbands), dtype=complex)
+        for i in range(nbands):
+            weights[..., i] = np.inner(
+                np.conj(projected_vectors[..., i]), projected_vectors[..., i])
+
+        return weights, projected_vectors
 
     def get_distance(self):
         return self._distance
@@ -344,6 +404,7 @@ class Eigenstates(object):
             'trans_weights'    : self.get_trans_weights_arms(),
             'rot_weights'      : self.get_rot_weights_arms(),
             'element_weights'  : self.get_element_weights_arms(),
+            'rot_elemental_weights': self.get_rot_elemental_weights_arms(),
         }
 
         for k, v in data_dict.items():
