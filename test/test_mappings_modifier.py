@@ -61,6 +61,33 @@ class TestMappingsInverter(unittest.TestCase):
         self.assertTrue(
             np.all(expanded_mappings_inv == expanded_mappings_inv_expected))
 
+    def test_expand_mappings2(self):
+        mappings = [
+            [
+                [0, 1, 2, 3],
+                [0, 2, 1, 3],
+            ],
+            [
+                [1, 2, 3, 0],
+                [2, 3, 0, 1],
+            ],
+        ]
+        n = 3
+        expanded_mappings_expected = [
+            [
+                [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                [0, 1, 2, 6, 7, 8, 3, 4, 5, 9, 10, 11],
+            ],
+            [
+                [3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2],  # Good
+                [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5],  # Good
+            ],
+        ]
+
+        expanded_mappings = MappingsModifier(mappings).expand_mappings(n)
+        self.assertTrue(
+            np.all(expanded_mappings == expanded_mappings_expected))
+
 
 if __name__ == "__main__":
     unittest.main()

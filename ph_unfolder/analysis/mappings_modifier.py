@@ -32,13 +32,14 @@ class MappingsModifier(object):
         return mapping_inverse
 
     def expand_mappings(self, n, is_inverse=False):
+        """Expand the last dimension of mappings by n"""
         if is_inverse:
             mappings = self.invert_mappings()
         else:
             mappings = self._mappings
 
-        expanded_mappings = np.repeat(mappings, n, axis=1)
+        expanded_mappings = np.repeat(mappings, n, axis=-1)
         expanded_mappings *= n
         for i in range(n):
-            expanded_mappings[:, i::n] += i
+            expanded_mappings[..., i::n] += i
         return expanded_mappings
