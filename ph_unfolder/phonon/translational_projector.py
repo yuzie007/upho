@@ -100,14 +100,14 @@ class TranslationalProjector(object):
 
         Parameters
         ----------
-        vectors : (natoms * ndim, nbands) array
+        vectors : (..., natoms * ndim, nbands) array
             Vectors for SC at kpoint.  Each "column" vector is an eigenvector.
         kpoint : (ndim) array
             Reciprocal space point in fractional coordinates for SC.
 
         Returns
         -------
-        projected_vectors : (natoms * ndim, nbands) array
+        projected_vectors : (..., natoms * ndim, nbands) array
             Projection of the given vectors.
         """
         ncells = self._ncells
@@ -117,7 +117,7 @@ class TranslationalProjector(object):
 
         projected_vectors = np.zeros_like(vectors)
         for expanded_mapping in expanded_mappings:
-            projected_vectors += vectors.take(expanded_mapping, axis=0)
+            projected_vectors += vectors.take(expanded_mapping, axis=-2)
 
         projected_vectors /= ncells
 

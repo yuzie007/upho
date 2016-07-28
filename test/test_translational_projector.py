@@ -148,7 +148,24 @@ class TestTranslationalProjector(unittest.TestCase):
         is_same = (
             np.abs(projected_eigvec - projected_eigvec_expected) < self._prec).all()
         self.assertTrue(is_same)
-        
+
+    def test_2_2_as_multidimensional_vectors(self):
+        eigvec = self.get_eigvec_2()[None]
+        q = self.get_q_2()
+
+        translational_projector = self._translational_projector
+        projected_eigvec = translational_projector.project_vectors(eigvec, q)
+
+        projected_eigvec_expected = np.array([
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0,
+        ], dtype=complex)[None, None, :]
+        is_same = (
+            np.abs(projected_eigvec - projected_eigvec_expected) < self._prec).all()
+        self.assertTrue(is_same)
+
     def get_eigvec_0(self):
         eigvec = np.array([
             0.5, 0.0, 0.0,
