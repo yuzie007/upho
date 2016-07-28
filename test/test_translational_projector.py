@@ -10,6 +10,31 @@ import numpy as np
 from ph_unfolder.phonon.translational_projector import TranslationalProjector
 
 
+class DummyPrimitive(object):
+    def get_primitive_matrix(self):
+        primitive_matrix = np.array(
+            [[0.25, 0.0, 0.0],
+             [0.00, 1.0, 0.0],
+             [0.00, 0.0, 1.0]])
+        return primitive_matrix
+
+
+class DummyAtoms(object):
+    def get_scaled_positions(self):
+        scaled_positions = np.array(
+            [[0.00, 0.0, 0.0],
+             [0.25, 0.0, 0.0],
+             [0.50, 0.0, 0.0],
+             [0.75, 0.0, 0.0]])
+        return scaled_positions
+
+    def get_chemical_symbols(self):
+        chemical_symbols = ['H', 'H', 'H', 'H']
+        return chemical_symbols
+
+    def get_number_of_atoms(self):
+        return 4
+
 class TestTranslationalProjector(unittest.TestCase):
     """
 
@@ -17,24 +42,9 @@ class TestTranslationalProjector(unittest.TestCase):
     """
     # TODO(ikeda): Test this test!
     def setUp(self):
-        lattice_vectors = np.array(
-            [[0.00, 0.0, 0.0],
-             [0.25, 0.0, 0.0],
-             [0.50, 0.0, 0.0],
-             [0.75, 0.0, 0.0]])
-        mappings = np.array([
-            [0, 1, 2, 3],
-            [1, 2, 3, 0],
-            [2, 3, 0, 1],
-            [3, 0, 1, 2],
-        ])
-        scaled_positions = np.array(
-            [[0.00, 0.0, 0.0],
-             [0.25, 0.0, 0.0],
-             [0.50, 0.0, 0.0],
-             [0.75, 0.0, 0.0]])
         self._translational_projector = TranslationalProjector(
-            mappings, scaled_positions)
+            DummyPrimitive(), DummyAtoms())
+            # mappings, scaled_positions)
         self._prec = 1e-12
 
     def test_0_0(self):
