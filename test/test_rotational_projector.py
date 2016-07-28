@@ -13,9 +13,9 @@ from phonopy.interface.vasp import read_vasp
 
 class TestRotationalProjector(unittest.TestCase):
     def setUp(self):
-        # self._vectors = np.random.rand(3, 100) + 1.0j * np.random.rand(3, 100)
-        self._vectors     = np.load("/Users/ikeda/tmp_t.npy")
-        self._vectors_exp = np.load("/Users/ikeda/tmp_r.npy")
+        self._vectors = np.random.rand(3, 100) + 1.0j * np.random.rand(3, 100)
+        # self._vectors     = np.load("/Users/ikeda/tmp_t.npy")
+        # self._vectors_exp = np.load("/Users/ikeda/tmp_r.npy")
 
     def load_sc(self):
         atoms = read_vasp("poscars/POSCAR_sc")
@@ -70,15 +70,16 @@ class TestRotationalProjector(unittest.TestCase):
         prec = 1e-6
         kpoint = self._kpoint
         vectors = self._vectors
-        self._rotational_projector.create_standard_rotations(kpoint)
-        r_proj_vectors, ir_labels = self._rotational_projector.project_vectors(
+        rotational_projector = self._rotational_projector
+        rotational_projector.create_standard_rotations(kpoint)
+        r_proj_vectors = rotational_projector.project_vectors(
             vectors, kpoint, np.eye(3, dtype=int))
+        ir_labels = rotational_projector.get_ir_labels()
         print(ir_labels)
 
         sum_r_proj_vectors = np.sum(r_proj_vectors, axis=0)
         self.assertTrue(np.all(np.abs(sum_r_proj_vectors - vectors) < prec))
 
-        print(sum_r_proj_vectors - self._vectors_exp)
 
 if __name__ == "__main__":
     unittest.main()
