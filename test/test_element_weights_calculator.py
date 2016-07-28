@@ -35,6 +35,11 @@ class TestElementWeightsCalculator(unittest.TestCase):
         self.check(unitcell, primitive)
 
     def test_L1_2(self):
+        unitcell, unitcell_ideal, primitive_matrix = self.prepare_L1_2()
+        primitive = get_primitive(unitcell_ideal, primitive_matrix)
+        self.check(unitcell, primitive)
+
+    def prepare_L1_2(self):
         unitcell = read_vasp("poscars/POSCAR_L1_2")
         primitive_matrix = [
             [0.0, 0.5, 0.5],
@@ -42,8 +47,7 @@ class TestElementWeightsCalculator(unittest.TestCase):
             [0.5, 0.5, 0.0],
         ]
         unitcell_ideal = read_vasp("poscars/POSCAR_fcc")
-        primitive = get_primitive(unitcell_ideal, primitive_matrix)
-        self.check(unitcell, primitive)
+        return unitcell, unitcell_ideal, primitive_matrix
 
     def check(self, unitcell, primitive):
         ews_calculator = ElementWeightsCalculator(
@@ -65,6 +69,56 @@ class TestElementWeightsCalculator(unittest.TestCase):
         prec = 1e-9
         self.assertTrue(np.all(np.abs(weights_sum - weights_all) < prec))
         print(weights)
+
+    def test_project_vectors(self):
+        unitcell, unitcell_ideal, primitive_matrix = self.prepare_L1_2()
+        primitive = get_primitive(unitcell_ideal, primitive_matrix)
+
+        natoms_u = unitcell.get_number_of_atoms()
+        natoms_p = primitive.get_number_of_atoms()
+
+        num_elements = 2
+        ndims = 3
+        nbands = 4
+        vectors = np.arange(ndims * natoms_u * nbands).reshape(-1, nbands)
+
+        elemental_projector = ElementWeightsCalculator(unitcell, primitive)
+        projected_vectors = elemental_projector.project_vectors(vectors)
+        print(projected_vectors)
+
+        projected_vectors_expected = [
+            [
+                [0, 1, 2, 3],
+                [4, 5, 6, 7],
+                [8, 9, 10, 11],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [12, 13, 14, 15],
+                [16, 17, 18, 19],
+                [20, 21, 22, 23],
+                [24, 25, 26, 27],
+                [28, 29, 30, 31],
+                [32, 33, 34, 35],
+                [36, 37, 38, 39],
+                [40, 41, 42, 43],
+                [44, 45, 46, 47],
+            ],
+        ]
+
+        self.assertTrue(
+            np.all(projected_vectors == projected_vectors_expected))
 
 if __name__ == "__main__":
     unittest.main()

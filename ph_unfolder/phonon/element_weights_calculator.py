@@ -6,6 +6,7 @@ from __future__ import (absolute_import, division,
 __author__ = "Yuji Ikeda"
 
 import numpy as np
+from ph_unfolder.analysis.mappings_modifier import MappingsModifier
 
 
 class ElementWeightsCalculator(object):
@@ -114,3 +115,22 @@ class ElementWeightsCalculator(object):
                 weights[ip, ie] = np.sum(weights_atoms[indices], axis=0)
 
         return weights
+
+    def project_vectors(self, vectors, ndims=3):
+        map_atoms_u2p = self._map_atoms_u2p
+        map_elements = self._map_elements
+
+        natoms_p = len(map_atoms_u2p)
+        num_elements = len(map_elements)
+
+        tmp = np.zeros_like(vectors[None, None])  # Add two dimensions
+        projected_vectors = (
+            np.repeat(np.repeat(tmp, natoms_p, axis=0), num_elements, axis=1))
+
+        for ip, lp in enumerate(map_atoms_u2p):
+            for ie, le in enumerate(map_elements):
+                indices_tmp = sorted(set(lp) & set(le))
+                indices = MappingsModifier(indices_tmp).expand_mappings(ndims)
+                projected_vectors[ip, ie, indices] = vectors[indices]
+
+        return projected_vectors
