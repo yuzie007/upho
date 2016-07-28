@@ -14,8 +14,7 @@ from phonopy.interface.vasp import read_vasp
 class TestRotationalProjector(unittest.TestCase):
     def setUp(self):
         self._vectors = np.random.rand(3, 100) + 1.0j * np.random.rand(3, 100)
-        # self._vectors     = np.load("/Users/ikeda/tmp_t.npy")
-        # self._vectors_exp = np.load("/Users/ikeda/tmp_r.npy")
+        self._vectors = self._vectors[None]  # Tests for arbitrary number of dimensions
 
     def load_sc(self):
         atoms = read_vasp("poscars/POSCAR_sc")

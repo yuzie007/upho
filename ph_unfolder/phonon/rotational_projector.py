@@ -153,17 +153,18 @@ class RotationalProjector(object):
         shape = (len(ir_dimensions), ) + vectors.shape
         projected_vectors = np.zeros(shape, dtype=vectors.dtype)
         for i, (r, expanded_mapping_inv) in enumerate(zip(rotations_cart, expanded_mappings_inv)):
-            tmp = vectors[expanded_mapping_inv]
+            tmp = vectors[..., expanded_mapping_inv, :]
 
             tmp2 = np.zeros_like(vectors)
             for iatom in range(natoms):
-                tmp2[(3 * iatom):(3 * (iatom + 1))] = np.dot(
-                    r, tmp[(3 * iatom):(3 * (iatom + 1))])
+                tmp2[..., (3 * iatom):(3 * (iatom + 1)), :] = np.einsum(
+                    'ij,...jk->...ik', r, tmp[..., (3 * iatom):(3 * (iatom + 1)), :]
+                )
 
-            projected_vectors += np.conj(characters[i, :, None, None]) * tmp2[None, :, :]
+            projected_vectors += (tmp2[None].T * np.conj(characters[i, :])).T
 
         # projected_vectors *= phases[None, :, None]
-        projected_vectors *= ir_dimensions[:, None, None]
+        projected_vectors = (projected_vectors.T * ir_dimensions[:]).T
         projected_vectors /= order
 
         return projected_vectors
