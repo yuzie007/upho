@@ -7,8 +7,6 @@ __author__ = "Yuji Ikeda"
 import h5py
 import numpy as np
 from ph_unfolder.analysis.smearing import Smearing, create_points
-from ph_unfolder.file_io import read_band_hdf5
-from ph_unfolder.irreps.character_tables import MAX_IRREPS
 
 
 def square_frequencies(frequencies):
@@ -56,21 +54,18 @@ class DensityExtractor(object):
         band_data = self._band_data
 
         npaths, npoints = band_data['paths'].shape[:2]
-        fn_elements = 'sf_elements.dat'
-        fn_irreps   = 'sf_irreps.dat'
-        with open(fn_elements, 'w') as fe, open(fn_irreps, 'w') as fi:
-            self.print_header(fe)
-            self.print_header(fi)
+        filename_sf = 'sf.hdf5'
+        with h5py.File(filename_sf, 'w') as f:
+            self.print_header(f)
             for ipath in range(npaths):
                 for ip in range(npoints):
                     print(ipath, ip)
                     group = '{}/{}/'.format(ipath, ip)
-                    distance        = band_data[group + 'distance'       ]
                     frequencies     = band_data[group + 'frequencies'    ]
-                    rot_weights     = band_data[group + 'rot_weights'    ]
+                    trans_weights   = band_data[group + 'trans_weights'  ]
                     element_weights = band_data[group + 'element_weights']
-
-                    self.set_distance(float(np.array(distance)))
+                    rot_weights     = band_data[group + 'rot_weights'    ]
+                    rot_elemental_weights = band_data[group + 'rot_elemental_weights']
 
                     frequencies = np.array(frequencies)
                     if self._is_squared:
@@ -78,11 +73,49 @@ class DensityExtractor(object):
                     else:
                         energies = frequencies
 
-                    self.calculate_density(energies, element_weights)
-                    self._print_sf_elements(fe)
+                    total_sf = self.calculate_density(
+                        energies, trans_weights)
+                    partial_sf_e = self.calculate_density(
+                        energies, element_weights)
+                    partial_sf_s = self.calculate_density(
+                        energies, rot_weights)
+                    partial_sf_s_e = self.calculate_density(
+                        energies, rot_elemental_weights)
 
-                    self.calculate_density(energies, rot_weights)
-                    self._print_sf_irreps(fi)
+                    self._write(
+                        f,
+                        group,
+                        total_sf,
+                        partial_sf_e,
+                        partial_sf_s,
+                        partial_sf_s_e,
+                    )
+
+    def _write(self,
+               file_out,
+               group,
+               total_sf,
+               partial_sf_e,
+               partial_sf_s,
+               partial_sf_s_e):
+
+        keys = [
+            'natoms_primitive',
+            'elements',
+            'distance',
+            'pointgroup_symbol',
+            'num_irreps',
+            'ir_labels',
+        ]
+
+        for k in keys:
+            file_out.create_dataset(
+                group + k, data=np.array(self._band_data[group + k])
+            )
+        file_out.create_dataset(group + 'total_sf'      , data=total_sf      )
+        file_out.create_dataset(group + 'partial_sf_e'  , data=partial_sf_e  )
+        file_out.create_dataset(group + 'partial_sf_s'  , data=partial_sf_s  )
+        file_out.create_dataset(group + 'partial_sf_s_e', data=partial_sf_s_e)
 
     def print_header(self, file_output):
         function_name = self._smearing.get_function_name()
@@ -92,9 +125,13 @@ class DensityExtractor(object):
             unit = 'THz^2'
         else:
             unit = 'THz'
-        file_output.write("# function: {}\n".format(function_name))
-        file_output.write("# sigma: {} {}\n".format(sigma, unit))
-        file_output.write("# is_squared: {}\n".format(is_squared))
+        frequencies = self._evaluated_energies
+
+        file_output.create_dataset('function', data=function_name)
+        file_output.create_dataset('sigma', data=sigma)  # For THz^2 or THz
+        file_output.create_dataset('is_squared', data=is_squared)
+        file_output.create_dataset('frequencies', data=frequencies)
+        file_output.create_dataset('paths', data=self._band_data['paths'])
 
     def calculate_density(self, frequencies, weights):
         """
@@ -108,7 +145,7 @@ class DensityExtractor(object):
         for f, w in zip(frequencies, weights):
             density_data.append(self._smearing.run(f, w))
         density_data = np.sum(density_data, axis=0)  # Sum over arms
-        self._density_data = density_data
+        return density_data
 
     def _create_atom_weights(self, weights, vectors, ndim=3):
         """
@@ -141,77 +178,6 @@ class DensityExtractor(object):
     def _create_cartesian_weights(self, weights, vectors):
         cartesian_weights = (np.abs(vectors) ** 2) * weights
         return cartesian_weights
-
-    def print_total_density(self, file_output):
-        """
-
-        Parameters
-        ----------
-        file_output : A file object to print density.
-        """
-        distance = self._distance
-        density_data = self._density_data
-        xs = self.get_evaluated_energies()
-        for x, density in zip(xs, density_data):
-            file_output.write("{:12.6f}".format(distance))
-            file_output.write("{:12.6f}".format(x))
-            file_output.write("{:12.6f}".format(density))
-            file_output.write("\n")
-        file_output.write("\n")
-
-    def _print_sf_irreps(self, file_output):
-        """
-
-        Parameters
-        ----------
-        file_output : A file object to print density.
-        """
-        distance = self._distance
-        density_data = self._density_data
-        xs = self.get_evaluated_energies()
-        for x, densities in zip(xs, density_data):
-            file_output.write("{:12.6f}".format(distance))
-            file_output.write("{:12.6f}".format(x))
-            file_output.write("{:12.6f}".format(np.sum(densities)))
-            file_output.write("  ")
-
-            if len(densities) > MAX_IRREPS:
-                raise ValueError('# of IRREPS is larger than MAX_IRREPS.')
-
-            for i in range(MAX_IRREPS):
-                if i < len(densities):
-                    ir_density = densities[i]
-                    file_output.write("{:12.6f}".format(ir_density))
-                else:
-                    file_output.write("{:12.6f}".format(np.nan))
-
-            file_output.write("\n")
-        file_output.write("\n")
-
-    def _print_sf_elements(self, file_output):
-        """
-
-        Parameters
-        ----------
-        file_output : A file object to print density.
-        """
-        distance = self._distance
-        density_data = self._density_data
-        xs = self.get_evaluated_energies()
-        for x, densities in zip(xs, density_data):
-            file_output.write("{:12.6f}".format(distance))
-            file_output.write("{:12.6f}".format(x))
-            file_output.write("{:12.6f}".format(np.sum(densities).real))
-            file_output.write("  ")
-            for sf_elements in densities:
-                file_output.write("  ")
-                for sf_element in sf_elements.flatten():
-                    file_output.write("{:12.6f}".format(sf_element.real))
-            file_output.write("\n")
-        file_output.write("\n")
-
-    def set_distance(self, distance):
-        self._distance = distance
 
 
 def main():
