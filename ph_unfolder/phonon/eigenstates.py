@@ -401,10 +401,10 @@ class Eigenstates(object):
             'num_irreps'       : self.get_num_irreps(),
             'ir_labels'        : self.get_ir_labels(),
             'frequencies'      : self.get_frequencies_arms(),
-            'trans_weights'    : self.get_trans_weights_arms(),
-            'rot_weights'      : self.get_rot_weights_arms(),
-            'element_weights'  : self.get_element_weights_arms(),
-            'rot_elemental_weights': self.get_rot_elemental_weights_arms(),
+            'weights_t'        : self.get_trans_weights_arms(),
+            'weights_e'        : self.get_element_weights_arms(),
+            'weights_s'        : self.get_rot_weights_arms(),
+            'weights_s_e'      : self.get_rot_elemental_weights_arms(),
         }
 
         for k, v in data_dict.items():

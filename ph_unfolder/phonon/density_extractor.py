@@ -61,11 +61,11 @@ class DensityExtractor(object):
                 for ip in range(npoints):
                     print(ipath, ip)
                     group = '{}/{}/'.format(ipath, ip)
-                    frequencies     = band_data[group + 'frequencies'    ]
-                    trans_weights   = band_data[group + 'trans_weights'  ]
-                    element_weights = band_data[group + 'element_weights']
-                    rot_weights     = band_data[group + 'rot_weights'    ]
-                    rot_elemental_weights = band_data[group + 'rot_elemental_weights']
+                    frequencies = band_data[group + 'frequencies']
+                    weights_t   = band_data[group + 'weights_t'  ]
+                    weights_e   = band_data[group + 'weights_e'  ]
+                    weights_s   = band_data[group + 'weights_s'  ]
+                    weights_s_e = band_data[group + 'weights_s_e']
 
                     frequencies = np.array(frequencies)
                     if self._is_squared:
@@ -73,14 +73,10 @@ class DensityExtractor(object):
                     else:
                         energies = frequencies
 
-                    total_sf = self.calculate_density(
-                        energies, trans_weights)
-                    partial_sf_e = self.calculate_density(
-                        energies, element_weights)
-                    partial_sf_s = self.calculate_density(
-                        energies, rot_weights)
-                    partial_sf_s_e = self.calculate_density(
-                        energies, rot_elemental_weights)
+                    total_sf       = self.calculate_density(energies, weights_t  )
+                    partial_sf_e   = self.calculate_density(energies, weights_e  )
+                    partial_sf_s   = self.calculate_density(energies, weights_s  )
+                    partial_sf_s_e = self.calculate_density(energies, weights_s_e)
 
                     self._write(
                         f,
