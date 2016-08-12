@@ -13,7 +13,7 @@ def lorentzian(x, position, width):
 
 
 def lorentzian_unnormalized(x, position, width, norm):
-    return norm * lorentzian(position, width)
+    return norm * lorentzian(x, position, width)
 
 
 def gaussian(x, position, width):
