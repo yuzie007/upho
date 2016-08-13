@@ -6,7 +6,7 @@ from __future__ import (absolute_import, division,
 __author__ = "Yuji Ikeda"
 
 
-from ph_unfolder.phonon.fitting import SFFitter
+from ph_unfolder.phonon.sf_fitter import SFFitter
 
 def main():
     import argparse
