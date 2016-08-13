@@ -1,147 +1,140 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-import sys
-import os
-import argparse
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
+__author__ = "Yuji Ikeda"
+
+import h5py
 import numpy as np
-from functions import lorentzian, gaussian
 from scipy.optimize import curve_fit
+from ph_unfolder.analysis.functions import lorentzian_unnormalized
+from ph_unfolder.irreps.irreps import extract_degeneracy_from_ir_label
 
 
-class Fitting(object):
-    def __init__(self, function_name=None):
-        if function_name is not None:
-            self.set_function(functions[function_name])
+class SFFitter(object):
+    def __init__(self, filename='sf.hdf5'):
 
-    def set_function(self, function):
-        self._function = function
+        with h5py.File(filename, 'r') as f:
+            self._band_data = f
+            self._run()
 
-    def get_function(self):
-        return self._function
+    def _run(self):
+        band_data = self._band_data
 
-    def run(self, xs, ys_list):
-        """Fitting for each band.
-        """
-        fit_params_list = []
-        for ys in ys_list:
-            position_ini = xs[np.argmax(ys)]
-            # "curve_fit" does not work well for extremely small initial guess.
-            # To avoid this problem, "position_ini" is rounded.
-            # See also "http://stackoverflow.com/questions/15624070"
-            prec = 1.0e-12
-            if abs(position_ini) < prec:
-                position_ini = 0.0
-            width_ini = 0.1
-            p0 = [position_ini, width_ini]
-            fit_params, pcov = curve_fit(
-                self._fitting_function, xs, ys, p0=p0)
-            fit_params_list.append(fit_params)
-        fit_params_list = np.array(fit_params_list)
-        return fit_params_list
+        npaths, npoints = band_data['paths'].shape[:2]
+        frequencies = band_data['frequencies']
+        frequencies = np.array(frequencies)
+        self._is_squared = np.array(band_data['is_squared'])
 
+        filename_sf = 'sf_fitted.hdf5'
+        with h5py.File(filename_sf, 'w') as f:
+            self.print_header(f)
+            for ipath in range(npaths):
+                for ip in range(npoints):
+                    print(ipath, ip)
+                    group = '{}/{}/'.format(ipath, ip)
 
-def test():
-    dx = 0.00001
-    width = 0.001
+                    peak_positions, widths, norms = (
+                        self._fit_spectral_functions(
+                            frequencies,
+                            point_data=band_data[group],
+                        )
+                    )
 
-    xmax = 1000
-    xs = np.linspace(-xmax, xmax, int(np.rint(2 * xmax / dx)) + 1)
-    print(len(xs))
-    vs = lorentzian(xs, 0.0, width)
+                    self._write(f, group, peak_positions, widths, norms)
 
-    print(np.sum(vs) * dx)
+    def _fit_spectral_functions(self, frequencies, point_data, prec=1e-6):
+        partial_sf_s = point_data['partial_sf_s']
+        num_irreps = np.array(point_data['num_irreps'])
 
+        peak_positions = []
+        widths         = []
+        norms          = []
+        for i in range(num_irreps):
+            sf = partial_sf_s[:, i]
+            if np.sum(sf) < prec:
+                peak_position = np.nan
+                width         = np.nan
+                norm          = np.nan
+            else:
+                peak_position = self._create_initial_peak_position(frequencies, sf)
+                width         = self._create_initial_width()
+                if self._is_squared:
+                    norm = self._create_initial_norm(frequencies, sf)
 
-def print_fitted_values(fitting_function, xs, fit_params, f):
-    for i, e in enumerate(fit_params[::2]):
-        f.write("# eigvals_effective     ")
-        f.write("{:6d}".format(i))
-        f.write("{:12.6f}".format(e))
-        f.write("\n")
-    for x in xs:
-        f.write("{:12.6f}{:12.6f}".format(x, fitting_function(x, *fit_params)))
-        f.write("\n")
+                    function = lorentzian_unnormalized
 
+                    p0 = [peak_position, width, norm]
+                    fit_params, pcov = curve_fit(function, frequencies, sf, p0=p0)
+                    peak_position = fit_params[0]
+                    width         = fit_params[1]
+                    norm          = fit_params[2]
+                else:
+                    ir_label = point_data['ir_labels'][i]
+                    norm = float(extract_degeneracy_from_ir_label(ir_label))
 
-def lorentzians_3(x, position0, width0, position1, width1, position2, width2):
-    return (
-        lorentzian(x, position0, width0) +
-        lorentzian(x, position1, width1) +
-        lorentzian(x, position2, width2))
+                    def lorentzian(x, p, w):
+                        return lorentzian_unnormalized(x, p, w, norm)
 
+                    p0 = [peak_position, width]
+                    fit_params, pcov = curve_fit(lorentzian, frequencies, sf, p0=p0)
+                    peak_position = fit_params[0]
+                    width         = fit_params[1]
 
-def run_band(filenames):
-    for filename in filenames:
-        print(filename)
-        data = np.loadtxt(filename).T
-        frequencies = data[0]
-        probabilities = data[3:]
-        values = []
-        peaks = []
-        for probability in probabilities:
-            position = frequencies[np.argsort(probability)[-1]]
-            p0 = [position, 0.1]
-            fit_params, fit_covariances = curve_fit(
-                lorentzian,
-                frequencies,
-                probability,
-                p0=p0)
-            values.append(lorentzian(frequencies, *fit_params))
-            peaks.append(fit_params[0])
+            peak_positions.append(peak_position)
+            widths        .append(width        )
+            norms         .append(norm         )
 
-        filename_write = filename.replace(".sdat", ".sfbdat")
-        with open(filename_write, "w") as f:
-            print_fitted_values_band(peaks, frequencies, values, f)
+        peak_positions = np.array(peak_positions)
+        widths         = np.array(widths)
+        norms          = np.array(norms)
 
+        return peak_positions, widths, norms
 
-def print_fitted_values_band(peaks, xs, values, f):
-    for i, e in enumerate(peaks):
-        f.write("# eigvals_effective     ")
-        f.write("{:6d}".format(i))
-        f.write("{:12.6f}".format(e))
-        f.write("\n")
-    for i, x in enumerate(xs):
-        f.write("{:12.6f}".format(x))
-        for v in values:
-            f.write("{:12.6f}".format(v[i]))
-        f.write("\n")
+    def _create_initial_peak_position(self, frequencies, sf, prec=1e-12):
+        position = frequencies[np.argmax(sf)]
+        # "curve_fit" does not work well for extremely small initial guess.
+        # To avoid this problem, "position" is rounded.
+        # See also "http://stackoverflow.com/questions/15624070"
+        if abs(position) < prec:
+            position = 0.0
+        return position
 
+    def _create_initial_width(self):
+        width = 0.1
+        return width
 
-def run_total(filenames):
-    for filename in filenames:
-        filename_write = filename.replace(".sdat", ".sfdat")
-        with open(filename_write, "w") as f:
-            frequencies, probabilities = np.loadtxt(
-                filename, usecols=(0, 1), unpack=True)
-            (position0, position1, position2) = (
-                frequencies[np.argsort(probabilities)[-3:]])
-            p0 = [position0, 1.0, position1, 1.0, position2, 1.0]
-            fit_params, fit_covariances = curve_fit(
-                lorentzians_3,
-                frequencies,
-                probabilities,
-                p0=p0)
-            print_fitted_values(lorentzians_3, frequencies, fit_params, f)
+    def _create_initial_norm(self, frequencies, sf):
+        dfreq = frequencies[1] - frequencies[0]
+        norm = np.sum(sf) * dfreq
+        return norm
 
+    def print_header(self, file_output):
+        if self._is_squared:
+            function_name = 'lorentzian_unnormalized'
+        else:
+            function_name = 'lorentzian'
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--filenames",
-                        nargs="+",
-                        type=str,
-                        required=True,
-                        help="filenames for fitting")
-    parser.add_argument("--mode_band",
-                        action="store_true",
-                        help="Fitting for each band")
-    args = parser.parse_args()
+        file_output.create_dataset('function'  , data=function_name)
+        file_output.create_dataset('is_squared', data=self._is_squared)
+        file_output.create_dataset('paths'     , data=self._band_data['paths'])
 
-    if args.mode_band:
-        run_band(filenames=args.filenames)
-    else:
-        run_total(filenames=args.filenames)
+    def _write(self, file_out, group, peak_positions_s, widths_s, norms_s):
 
+        keys = [
+            'natoms_primitive',
+            'elements',
+            'distance',
+            'pointgroup_symbol',
+            'num_irreps',
+            'ir_labels',
+        ]
 
-if __name__ == "__main__":
-    main()
+        for k in keys:
+            file_out.create_dataset(
+                group + k, data=np.array(self._band_data[group + k])
+            )
+        file_out.create_dataset(group + 'peaks_s' , data=peak_positions_s)
+        file_out.create_dataset(group + 'widths_s', data=widths_s        )
+        file_out.create_dataset(group + 'norms_s' , data=norms_s         )
