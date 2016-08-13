@@ -66,7 +66,9 @@ class SFFitter(object):
                     function = lorentzian_unnormalized
 
                     p0 = [peak_position, width, norm]
-                    fit_params, pcov = curve_fit(function, frequencies, sf, p0=p0)
+                    maxfev = create_maxfev(p0)
+                    fit_params, pcov = curve_fit(
+                        function, frequencies, sf, p0=p0, maxfev=maxfev)
                     peak_position = fit_params[0]
                     width         = fit_params[1]
                     norm          = fit_params[2]
@@ -78,7 +80,9 @@ class SFFitter(object):
                         return lorentzian_unnormalized(x, p, w, norm)
 
                     p0 = [peak_position, width]
-                    fit_params, pcov = curve_fit(lorentzian, frequencies, sf, p0=p0)
+                    maxfev = create_maxfev(p0)
+                    fit_params, pcov = curve_fit(
+                        lorentzian, frequencies, sf, p0=p0, maxfev=maxfev)
                     peak_position = fit_params[0]
                     width         = fit_params[1]
 
@@ -138,3 +142,8 @@ class SFFitter(object):
         file_out.create_dataset(group + 'peaks_s' , data=peak_positions_s)
         file_out.create_dataset(group + 'widths_s', data=widths_s        )
         file_out.create_dataset(group + 'norms_s' , data=norms_s         )
+
+
+def create_maxfev(p0):
+    maxfev = 2000 * (len(p0) + 1)
+    return maxfev
