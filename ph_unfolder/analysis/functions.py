@@ -8,8 +8,13 @@ __author__ = "Yuji Ikeda"
 import numpy as np
 
 
-def lorentzian(x, position, width):
+def lorentzian_old(x, position, width):
     return 1.0 / (np.pi * width * (1.0 + ((x - position) / width) ** 2))
+
+
+def lorentzian(x, position, width):
+    """This is faster than lorentzian_old"""
+    return width / (np.pi * (width ** 2 + (x - position) ** 2))
 
 
 def lorentzian_unnormalized(x, position, width, norm):
