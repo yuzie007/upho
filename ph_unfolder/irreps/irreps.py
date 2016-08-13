@@ -16,6 +16,16 @@ from ph_unfolder.irreps.character_tables import character_tables
 from group.mathtools import similarity_transformation
 
 
+def extract_degeneracy_from_ir_label(ir_label):
+    if ir_label[0] == 'E':
+        degeneracy = 2
+    elif ir_label[0] == 'T':
+        degeneracy = 3
+    else:
+        degeneracy = 1
+    return degeneracy
+
+
 class Irreps(object):
     """
 
