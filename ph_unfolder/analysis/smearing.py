@@ -13,7 +13,7 @@ def gaussian(x, mu, sigma):
     return 1.0 / np.sqrt(2.0 * np.pi) / sigma * tmp
 
 
-def histogram(x, positions, width):
+def histogram_old(x, positions, width):
     tmp = np.zeros((x.shape[0], positions.shape[-1]))
     x_tmp = np.zeros(x.shape[0] + 1)
     x_tmp[:-1] = x[:, 0] - width * 0.5
@@ -21,6 +21,20 @@ def histogram(x, positions, width):
     for i, p in enumerate(positions.T):  # only one value for each loop
         tmp[:, i] = np.histogram(p, x_tmp)[0]
     tmp /= width
+    return tmp
+
+
+def histogram(x, positions, width):
+    """
+
+    Note
+    ----
+    'x' must have the same intervals that is the same as 'width'.
+    """
+    lower = x - width * 0.5
+    upper = x + width * 0.5
+    tmp = np.where(np.logical_and(positions >= lower, positions < upper), 1.0, 0.0)
+    tmp = np.array(tmp) / width
     return tmp
 
 
