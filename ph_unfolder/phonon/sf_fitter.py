@@ -145,5 +145,5 @@ class SFFitter(object):
 
 
 def create_maxfev(p0):
-    maxfev = 2000 * (len(p0) + 1)
+    maxfev = 20000 * (len(p0) + 1)
     return maxfev
