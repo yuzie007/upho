@@ -94,7 +94,7 @@ class TranslationalProjector(object):
 
         return mappings
 
-    def project_vectors(self, vectors, kpoint):
+    def project_vectors_old(self, vectors, kpoint):
         """
         Project vectors onto kpoint
 
@@ -122,3 +122,37 @@ class TranslationalProjector(object):
         projected_vectors /= ncells
 
         return projected_vectors
+
+    def project_vectors(self, vectors, kpoint):
+        # TODO(ikeda): None should be replaced
+        PO_creator = POCreator(self._expanded_mappings, None, kpoint)
+        PO_creator.create_projection_operator()
+        projection_operator = PO_creator.get_projection_operator()
+        projected_vectors = np.einsum('ij,...jk->...ik', projection_operator, vectors)
+        print(projected_vectors.shape)
+
+        return projected_vectors
+
+
+class POCreator(object):
+    def __init__(self, expanded_mappings, lattice_vectors, kpoint):
+        self._expanded_mappings = expanded_mappings
+        self._lattice_vectors = lattice_vectors
+        self._kpoint = kpoint
+
+    def create_projection_operator(self):
+        expanded_mappings = self._expanded_mappings
+        lattice_vectors = self._lattice_vectors
+        kpoint = self._kpoint
+
+        noprs, nelms = expanded_mappings.shape
+        projection_operator = np.zeros((nelms, nelms), dtype=complex)
+        for expanded_mapping in expanded_mappings:
+            for i, j in enumerate(expanded_mapping):
+                projection_operator[i, j] += 1.0
+        projection_operator /= noprs
+
+        self._projection_operator = projection_operator
+
+    def get_projection_operator(self):
+        return self._projection_operator
