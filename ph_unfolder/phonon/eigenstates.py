@@ -272,15 +272,9 @@ class Eigenstates(object):
         ----------
         kpoint : 1d array
             Reciprocal space point in fractional coordinates for PC.
-        t_proj_vectors : array
+        t_proj_vectors : (natoms_p * ndims, nbands) array
             Vectors for SC after translational projection.
         """
-        vectors_adjuster = self._vectors_adjuster
-
-        # Reduce vectors to the size for the primitive cell
-        t_proj_vectors = vectors_adjuster.reduce_vectors_to_primitive(
-            t_proj_vectors, self._primitive)
-
         rot_proj_vectors = self._rotational_projector.project_vectors(
             t_proj_vectors, kpoint, transformation_matrix)
 
@@ -298,17 +292,11 @@ class Eigenstates(object):
         ----------
         kpoint : 1d array
             Reciprocal space point in fractional coordinates for PC.
-        vectors : (..., natoms_u * ndims, nbands) array
+        vectors : (..., natoms_p * ndims, nbands) array
             Vectors for SC after translational projection.
         """
-        vectors_adjuster = self._vectors_adjuster
-
-        # Reduce vectors to the size for the primitive cell
-        reduced_vectors = vectors_adjuster.reduce_vectors_to_primitive(
-            vectors, self._primitive)
-
         projected_vectors = self._rotational_projector.project_vectors(
-            reduced_vectors, kpoint, transformation_matrix)
+            vectors, kpoint, transformation_matrix)
 
         nirreps, natoms_p, nelms, tmp, nbands = projected_vectors.shape
 

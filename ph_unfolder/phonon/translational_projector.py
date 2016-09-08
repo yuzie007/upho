@@ -23,9 +23,10 @@ class TranslationalProjector(object):
 
         Parameters
         ----------
-        mappings :
-        scaled_positions :
-            Atomic positions in fractional coordinates for ideal unit cell.
+        primitive : Phonopy Primitive object
+            Primitive w.r.t. ideal unit cell
+        unitcell_ideal : Phonopy Atoms object
+            Ideal (or average) unit cell
         ndim : Integer
             The number of dimensions of space
         """
@@ -95,6 +96,48 @@ class TranslationalProjector(object):
         return mappings
 
     def project_vectors(self, vectors, kpoint):
+        """Project vectors onto kpoint
+
+        Parameters
+        ----------
+        vectors : (..., natoms * ndim, nbands) array
+            Vectors for SC at kpoint.  Each "column" vector is an eigenvector.
+        kpoint : (ndim) array
+            Reciprocal space point in fractional coordinates for SC.
+
+        Returns
+        -------
+        projected_vectors : (..., natoms_primitive * ndim, nbands) array
+            Projection of the given vectors.
+            This is reduced into the primitive cell.
+        """
+        ncells = self._ncells
+        ndim = self._ndim
+        primitive = self._primitive
+
+        p2s_map = primitive.get_primitive_to_supercell_map()
+        indices = MappingsModifier(p2s_map).expand_mappings(ndim)
+
+        expanded_mappings = self._expanded_mappings
+
+        shape = list(vectors.shape)
+        shape[-2] //= ncells
+        projected_vectors = np.zeros(shape, dtype=vectors.dtype)
+
+        for expanded_mapping in expanded_mappings:
+            jndices = expanded_mapping.take(indices)
+            projected_vectors += vectors.take(jndices, axis=-2)
+
+        # The following intend;
+        #     # Definition of projection operators
+        #     projected_vectors /= ncells
+        #     # Reduction into primitive
+        #     projected_vectors *= np.sqrt(ncells)
+        projected_vectors /= np.sqrt(ncells)
+
+        return projected_vectors
+
+    def project_vectors_full(self, vectors, kpoint):
         """
         Project vectors onto kpoint
 
