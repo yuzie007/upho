@@ -94,7 +94,7 @@ class TranslationalProjector(object):
 
         return mappings
 
-    def project_vectors_old(self, vectors, kpoint):
+    def project_vectors(self, vectors, kpoint):
         """
         Project vectors onto kpoint
 
@@ -123,12 +123,14 @@ class TranslationalProjector(object):
 
         return projected_vectors
 
-    def project_vectors(self, vectors, kpoint):
+    # TODO(ikeda): It is not tested!
+    def project_vectors_by_matrix(self, vectors, kpoint):
         # TODO(ikeda): None should be replaced
-        PO_creator = POCreator(self._expanded_mappings, None, kpoint)
-        PO_creator.create_projection_operator()
-        projection_operator = PO_creator.get_projection_operator()
-        projected_vectors = np.einsum('ij,...jk->...ik', projection_operator, vectors)
+        po_creator = POCreator(self._expanded_mappings, None, kpoint)
+        po_creator.create_projection_operator()
+        projection_operator = po_creator.get_projection_operator()
+        projected_vectors = np.dot(projection_operator, vectors)  # Slow
+        projected_vectors = np.moveaxis(projected_vectors, 0, -2)
         print(projected_vectors.shape)
 
         return projected_vectors
