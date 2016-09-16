@@ -13,6 +13,7 @@ from ph_unfolder.phonon.rotational_projector import RotationalProjector
 from ph_unfolder.phonon.vectors_adjuster import VectorsAdjuster
 from ph_unfolder.phonon.element_weights_calculator import (
     ElementWeightsCalculator)
+from ph_unfolder.analysis.time_measurer import TimeMeasurer
 
 
 class Eigenstates(object):
@@ -227,9 +228,11 @@ class Eigenstates(object):
 
         self._dynamical_matrix.set_dynamical_matrix(q_sc)
         dm = self._dynamical_matrix.get_dynamical_matrix()
-        eigvals, eigvecs = np.linalg.eigh(dm)
+        with TimeMeasurer('Solve eigenproblem'):
+            eigvals, eigvecs = np.linalg.eigh(dm)
 
-        weights, t_proj_eigvecs = self._extract_weights(q_sc, eigvecs)
+        with TimeMeasurer('Calculate weights for wavevectors'):
+            weights, t_proj_eigvecs = self._extract_weights(q_sc, eigvecs)
 
         rot_weights, rot_proj_vectors = self._create_rot_projection_weights(
             q_pc, transformation_matrix, t_proj_eigvecs)
@@ -351,7 +354,7 @@ class Eigenstates(object):
             vectors=elemental_vectors, kpoint=kpoint)
 
         natoms_p, nelms, tmp, nbands = projected_vectors.shape
-        print(projected_vectors.shape)
+
         weights = np.zeros((natoms_p, nelms, natoms_p, nelms, nbands), dtype=complex)
         for i in range(nbands):
             weights[..., i] = np.inner(

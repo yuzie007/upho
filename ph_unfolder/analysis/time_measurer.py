@@ -27,4 +27,4 @@ class TimeMeasurer(object):
         self._finish = time.time()
         interval = self._finish - self._start
 
-        print('{:20s} (sec.):  {:12.4f}'.format(time_string, interval))
+        print('{:36s} (sec.):  {:12.4f}'.format(time_string, interval))
