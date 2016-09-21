@@ -43,8 +43,9 @@ class StarCreator(object):
         return self._symmetry.get_dataset()["rotations"]
 
     def create_star(self, kpoint):
-        """
-        Create the star of the given kpoint
+        """Create the star of the given kpoint
+
+        Definition of the star of k follows that in ITB 2010 Chap. 1.5.
 
         Parameters
         ----------
@@ -62,7 +63,7 @@ class StarCreator(object):
 
         def get_dist(tmp, arm):
             diff = tmp - arm
-            # diff -= np.rint(diff)  # TODO(ikeda): Check definition.
+            diff -= np.rint(diff)
             dist = np.linalg.norm(np.dot(np.linalg.inv(lattice), diff))
             return dist
 
