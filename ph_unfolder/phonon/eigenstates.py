@@ -384,6 +384,7 @@ class Eigenstates(object):
 
         data_dict = {
             'point'            : self.get_point(),
+            'q_star'           : self._q_star,
             'distance'         : self.get_distance(),
             'natoms_primitive' : natoms_primitive,
             'elements'         : self.get_reduced_elements(),
