@@ -44,6 +44,52 @@ class RotationalProjector(object):
         self._create_irreps(rotations)
         self._standard_rotations = rotations
 
+        # self.print_symmetry_operations(rotations, translations)
+
+    @staticmethod
+    def calculate_factor_system(rotations, translations, kpoint):
+        """Calculate factor system
+
+        Here the factor system is defined as
+
+        .. math::
+            e^{-i (\mathbf{R}_i^T \mathbf{k} - \mathbf{k}) \cdot \mathbf{w}_j,
+
+        """
+        nsyms = len(rotations)
+        factor_system = np.zeros((nsyms, nsyms), dtype=complex)
+        for i, rotation in enumerate(rotations):
+            for j, translation in enumerate(translations):
+                kdiff = np.dot(rotation.T, kpoint) - kpoint
+                factor_system[i, j] = np.exp(-2.0j * np.pi * np.dot(kdiff, translation))
+        return factor_system
+
+    @staticmethod
+    def print_factor_system(factor_system):
+        nsyms = factor_system.shape[0]
+        print('Factor system:')
+        for i in range(nsyms):
+            for j in range(nsyms):
+                v = factor_system[i, j]
+                print('({:10.6f}{:+10.6f}i) '.format(v.real, v.imag), end='')
+            print()
+
+    @staticmethod
+    def is_trivial_factor_system(factor_system, prec=1e-6):
+        if np.any(np.abs(factor_system - 1.0) > prec):
+            return False
+        return True
+
+    @staticmethod
+    def print_symmetry_operations(rotations, translations):
+        print('Symmetry operations:')
+        for r, t in zip(rotations, translations):
+            for i in range(3):
+                for j in range(3):
+                    print('{:10.6f}'.format(r[i, j]), end='')
+                print('  {:10.6f}'.format(t[i]))
+            print()
+
     def _assign_characters_to_rotations(self, rotations, arm_transformation):
         irreps = self._irreps
 
@@ -129,7 +175,16 @@ class RotationalProjector(object):
         To be modified for nonsymmorphic space groups.
         """
         rotations, translations = self._symmetry.get_group_of_wave_vector(kpoint)
-        print("len(rotations):", len(rotations))
+
+        factor_system = self.calculate_factor_system(rotations, translations, kpoint)
+        if not self.is_trivial_factor_system(factor_system):
+            errmsg = (
+                "The current factor system is not trivial.\n"
+                "So far the code cannot treat nontrivial factor system correctly\n"
+                "(even if it is p-equivalent to the trivial system)."
+            )
+            raise ValueError(errmsg)
+
         self._create_mappings(rotations, translations)
 
         characters = self._assign_characters_to_rotations(
