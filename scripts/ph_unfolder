@@ -99,6 +99,9 @@ def main():
     parser.add_argument("-i", "--input_file",
                         type=str,
                         help="Input file for unfolding.")
+    parser.add_argument("--average_masses",
+                        action="store_true",
+                        help="Atomic masses are averaged.")
     parser.add_argument("conf_file",
                         type=str,
                         help="Phonopy conf file")
@@ -159,6 +162,10 @@ def main():
                               mode=projection,
                               symprec=args.symprec,
                               log_level=log_level)
+
+    if args.average_masses:
+        phonon.average_masses()
+        print('Atomic masses are averaged.')
 
 # Print cells
     print_cells(phonon, unitcell_filename)

@@ -289,3 +289,21 @@ class PhonopyUnfolding(Phonopy):
             return True
         else:
             return False
+
+    def average_masses(self):
+        # TODO(ikeda): Now atomic order is supposed to be the same, which should be modified.
+        symbols_ideal = self._unitcell_ideal.get_chemical_symbols()
+        reduced_symbols_ideal = sorted(set(symbols_ideal), key=symbols_ideal.index)
+        masses = self._unitcell.get_masses()
+        masses_average = np.zeros_like(masses)
+        for rs in reduced_symbols_ideal:
+            indices = np.char.strip((symbols_ideal)) == np.char.strip(rs)
+            mass_average = np.average(masses[indices])
+            masses_average[indices] = mass_average
+        self._unitcell.set_masses(masses_average)
+
+        self._build_supercell()
+        self._build_primitive_cell()
+
+        self._search_symmetry()
+        self._search_primitive_symmetry()
