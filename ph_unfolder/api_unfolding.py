@@ -17,6 +17,7 @@ from ph_unfolder.phonon.mesh_unfolding import MeshUnfolding
 # from ph_unfolder.dos_unfolding import TotalDos, PartialDos
 from ph_unfolder.phonon.dos_unfolding import TotalDosUnfolding
 from ph_unfolder.phonon.density_extractor import DensityExtractor
+from .analysis.fc_symmetrizer_spg import FCSymmetrizerSPG
 
 class PhonopyUnfolding(Phonopy):
     """
@@ -307,3 +308,15 @@ class PhonopyUnfolding(Phonopy):
 
         self._search_symmetry()
         self._search_primitive_symmetry()
+
+    def average_force_constants(self):
+        fc_symmetrizer_spg = FCSymmetrizerSPG(
+            force_constants=self._force_constants,
+            atoms=self._unitcell,
+            atoms_ideal=self._unitcell_ideal,
+            supercell_matrix=self._supercell_matrix,
+        )
+        fc_symmetrizer_spg.average_force_constants_spg()
+        fc_symmetrizer_spg.write_force_constants_symmetrized()
+        fc_average = fc_symmetrizer_spg.get_force_constants_symmetrized()
+        self.set_force_constants(fc_average)  # Dynamical matrices are also prepared inside.
