@@ -178,35 +178,38 @@ class DensityExtractor(object):
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser()
+    RawTextFormatter = argparse.RawTextHelpFormatter
+    parser = argparse.ArgumentParser(formatter_class=RawTextFormatter)
     parser.add_argument("-f", "--filename",
                         default="band.hdf5",
                         type=str,
-                        help="Filename for band.hdf5.")
+                        help="Filename for the weights data.")
     parser.add_argument("--function",
                         default="gaussian",
                         type=str,
                         choices=["gaussian", "lorentzian", "histogram"],
-                        help="Maximum plotted frequency (THz).")
-    parser.add_argument("--fmax",
-                        default=10.0,
-                        type=float,
-                        help="Maximum plotted frequency (THz).")
-    parser.add_argument("--fmin",
-                        default=-2.5,
-                        type=float,
-                        help="Minimum plotted frequency (THz).")
-    parser.add_argument("--fpitch",
-                        default=0.05,
-                        type=float,
-                        help="Pitch for frequencies (THz).")
+                        help="Function used for the smearing.")
     parser.add_argument("-s", "--sigma",
                         default=0.1,
                         type=float,
-                        help="Sigma for frequencies (THz).")
+                        help="Paramter for the smearing function (THz).\n"
+                             "For Gaussian, this is the standard deviation.\n"
+                             "For Lorentzian, this is the HWHM (gamma).")
+    parser.add_argument("--fmax",
+                        default=10.0,
+                        type=float,
+                        help="Maximum frequency (THz).")
+    parser.add_argument("--fmin",
+                        default=-2.5,
+                        type=float,
+                        help="Minimum frequency (THz).")
+    parser.add_argument("--fpitch",
+                        default=0.05,
+                        type=float,
+                        help="Frequency pitch (THz).")
     parser.add_argument("--nosquared", dest='is_squared',
                         action='store_false',
-                        help="Squared frequencies are not considered.")
+                        help="Use raw frequencies instead of Squared frequencies.")
     args = parser.parse_args()
 
     DensityExtractor(
