@@ -15,7 +15,9 @@ Install
 
 1.  Download the latest version from <https://github.com/yuzie007/ph_unfolder/releases>
 
-2.  Run setup.py.
+2.  Run setup.py like::
+
+        python setup.py install --home=.
 
 3.  Put 'upho/lib/python' into ``$PYTHONPATH``.
 
@@ -42,7 +44,7 @@ of the A1 (fcc) structure.
     ``DIM`` must be the same as that what you used to get FORCE_SETS.
 
 3.  Prepare two VASP-POSCAR-type files, "POSCAR" and "POSCAR_ideal".
-    POSCAR includes the original chemical configuration, which may be disordered".::
+    POSCAR includes the original chemical configuration, which may be disordered.::
 
         Cu Au
            1.00000000000000
@@ -57,7 +59,8 @@ of the A1 (fcc) structure.
           0.5000000000000000  0.5000000000000000  0.0000000000000000
           0.0000000000000000  0.0000000000000000  0.0000000000000000
 
-    Note that FORCE_CONSTANTS may be obtained using relaxed atomic positions, here the positions must be the ideal ones so far.
+    Note that although FORCE_CONSTANTS may be obtained using relaxed atomic positions,
+    here the positions must be the ideal ones.
 
     POSCAR_ideal is the ideal configuration, from which the crystallographic symmetry is extracted.::
 
