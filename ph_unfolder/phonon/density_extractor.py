@@ -51,12 +51,63 @@ class DensityExtractor(object):
         return np.copy(self._evaluated_energies)
 
     def _run(self):
+        raise NotImplementedError
+
+    def calculate_density(self, frequencies, weights):
+        """
+
+        Parameters
+        ----------
+        frequencies : (num_arms, nbands) array
+        weights : (num_arms, ... , nbands) array
+        """
+        density_data = []
+        for f, w in zip(frequencies, weights):
+            density_data.append(self._smearing.run(f, w))
+        density_data = np.sum(density_data, axis=0)  # Sum over arms
+        return density_data
+
+    def _create_atom_weights(self, weights, vectors, ndim=3):
+        """
+
+        Parameters
+        ----------
+        weights : (nbands) array
+            Original weights on mode eigenvectors.
+        vectors : (nbands, nbands) array
+            Original mode eigenvectors.
+        ndim : Integer
+            # of dimensions of the considered space.
+
+        Returns
+        -------
+        atom_weights : (natoms, nbands) array
+            natoms should be equal to nbands // ndim.
+
+        Note
+        ----
+        This method is used to not care Cartesian coordinates.
+        This is because it can be confusing when we average contributions
+        from arms of the star.
+        """
+        shape = vectors.shape
+        tmp = vectors.reshape(shape[0] // ndim, ndim, shape[1])
+        atom_weights = (np.linalg.norm(tmp, axis=1) ** 2) * weights
+        return atom_weights
+
+    def _create_cartesian_weights(self, weights, vectors):
+        cartesian_weights = (np.abs(vectors) ** 2) * weights
+        return cartesian_weights
+
+
+class DensityExtractorHDF5(DensityExtractor):
+    def _run(self):
         band_data = self._band_data
 
         npaths, npoints = band_data['paths'].shape[:2]
         filename_sf = 'sf.hdf5'
         with h5py.File(filename_sf, 'w') as f:
-            self.print_header(f)
+            self._print_header(f)
             for ipath in range(npaths):
                 for ip in range(npoints):
                     print(ipath, ip)
@@ -113,7 +164,7 @@ class DensityExtractor(object):
         file_out.create_dataset(group + 'partial_sf_s'  , data=partial_sf_s  )
         file_out.create_dataset(group + 'partial_sf_s_e', data=partial_sf_s_e)
 
-    def print_header(self, file_output):
+    def _print_header(self, file_output):
         function_name = self._smearing.get_function_name()
         sigma         = self._smearing.get_sigma()
         is_squared = self._is_squared
@@ -129,48 +180,55 @@ class DensityExtractor(object):
         file_output.create_dataset('frequencies', data=frequencies)
         file_output.create_dataset('paths', data=self._band_data['paths'])
 
-    def calculate_density(self, frequencies, weights):
-        """
 
-        Parameters
-        ----------
-        frequencies : (num_arms, nbands) array
-        weights : (num_arms, ... , nbands) array
-        """
-        density_data = []
-        for f, w in zip(frequencies, weights):
-            density_data.append(self._smearing.run(f, w))
-        density_data = np.sum(density_data, axis=0)  # Sum over arms
-        return density_data
+class DensityExtractorText(DensityExtractor):
+    def _run(self):
+        band_data = self._band_data
+        npaths, npoints = band_data['paths'].shape[:2]
+        filename_sf = 'sf.dat'
+        with open(filename_sf, 'w') as f:
+            self._print_header(f)
+            for ipath in range(npaths):
+                for ip in range(npoints):
+                    print(ipath, ip)
+                    group = '{}/{}/'.format(ipath, ip)
+                    frequencies = band_data[group + 'frequencies']
+                    weights_t   = band_data[group + 'weights_t'  ]
 
-    def _create_atom_weights(self, weights, vectors, ndim=3):
-        """
+                    distance    = float(np.array(band_data[group + 'distance'   ]))
 
-        Parameters
-        ----------
-        weights : (nbands) array
-            Original weights on mode eigenvectors.
-        vectors : (nbands, nbands) array
-            Original mode eigenvectors.
-        ndim : Integer
-            # of dimensions of the considered space.
+                    frequencies = np.array(frequencies)
+                    if self._is_squared:
+                        energies = square_frequencies(frequencies)
+                    else:
+                        energies = frequencies
 
-        Returns
-        -------
-        atom_weights : (natoms, nbands) array
-            natoms should be equal to nbands // ndim.
+                    total_sf       = self.calculate_density(energies, weights_t  )
 
-        Note
-        ----
-        This method is used to not care Cartesian coordinates.
-        This is because it can be confusing when we average contributions
-        from arms of the star.
-        """
-        shape = vectors.shape
-        tmp = vectors.reshape(shape[0] // ndim, ndim, shape[1])
-        atom_weights = (np.linalg.norm(tmp, axis=1) ** 2) * weights
-        return atom_weights
+                    self._write(
+                        f,
+                        distance,
+                        total_sf,
+                    )
 
-    def _create_cartesian_weights(self, weights, vectors):
-        cartesian_weights = (np.abs(vectors) ** 2) * weights
-        return cartesian_weights
+    def _write(self,
+               file_out,
+               distance,
+               total_sf):
+
+        frequencies = self._evaluated_energies
+        for i, frequency in enumerate(frequencies):
+            file_out.write('{:12.6f}'.format(distance))
+            file_out.write('{:12.6f}'.format(frequency))
+            file_out.write('{:12.6f}'.format(total_sf[i]))
+            file_out.write('\n')
+        file_out.write('\n')
+
+    def _print_header(self, file_output):
+        function_name = self._smearing.get_function_name()
+        sigma         = self._smearing.get_sigma()
+        is_squared = self._is_squared
+
+        file_output.write('# function: {}\n'.format(function_name))
+        file_output.write('# sigma: {}\n'.format(sigma))  # For THz^2 or THz
+        file_output.write('# is_squared: {}\n'.format(is_squared))

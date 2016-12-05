@@ -3,7 +3,6 @@
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 import argparse
-from ph_unfolder.phonon.density_extractor import DensityExtractor
 
 
 _author__ = "Yuji Ikeda"
@@ -15,6 +14,11 @@ def main():
                         default="band.hdf5",
                         type=str,
                         help="Filename for the weights data.")
+    parser.add_argument('--format',
+                        default='hdf5',
+                        type=str,
+                        choices=['hdf5', 'text'],
+                        help='Output file format.')
     parser.add_argument("--function",
                         default="gaussian",
                         type=str,
@@ -42,6 +46,15 @@ def main():
                         action='store_false',
                         help="Use raw frequencies instead of Squared frequencies.")
     args = parser.parse_args()
+
+    if args.format == 'hdf5':
+        from ph_unfolder.phonon.density_extractor \
+            import DensityExtractorHDF5 as DensityExtractor
+    elif args.format == 'text':
+        from ph_unfolder.phonon.density_extractor \
+            import DensityExtractorText as DensityExtractor
+    else:
+        raise ValueError('Invalid format {}'.format(args.format))
 
     DensityExtractor(
         filename=args.filename,
