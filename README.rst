@@ -170,3 +170,13 @@ symmetry operations are not equal to zero.
 Author(s)
 ---------
 Yuji IKEDA (Kyoto University, Japan)
+
+How to cite
+-----------
+
+When using this code, please cite the following article.
+
+    *Mode decomposition based on crystallographic symmetry in the band-unfolding method*,
+    Yuji Ikeda, Abel Carreras, Atsuto Seko, Atsushi Togo, and Isao Tanaka,
+    Phys. Rev. B **95**, 024305 (2017).
+    http://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.024305
