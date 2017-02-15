@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Visualization of obtained spectral functions &#8212; upho 0.4.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="upho 0.4.0 documentation" href="index.html" />
+    <link rel="prev" title="Welcome to upho&#39;s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to upho&#39;s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">upho 0.4.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to upho's documentation!</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/visualization.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="visualization-of-obtained-spectral-functions">
+<h1>Visualization of obtained spectral functions<a class="headerlink" href="#visualization-of-obtained-spectral-functions" title="Permalink to this headline">¶</a></h1>
+<p>You may be able to use the plotting tools in
+<a class="reference external" href="https://github.com/yuzie007/ph_plotter/releases">https://github.com/yuzie007/ph_plotter/releases</a>.
+Please download the latest one.
+To use the tools, you need to run upho_sf with the option <strong>--format hdf5</strong>
+and obtain <strong>sf.hdf5</strong>.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">upho</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">upho_sf</span> <span class="o">--</span><span class="n">fpitch</span> <span class="mf">0.01</span> <span class="o">-</span><span class="n">s</span> <span class="mf">0.05</span> <span class="o">--</span><span class="n">function</span> <span class="n">lorentzian</span> <span class="o">--</span><span class="n">nosquared</span> <span class="o">--</span><span class="nb">format</span> <span class="n">hdf5</span>
+</pre></div>
+</div>
+<p>Then run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">DOWNLOADED_PATH</span><span class="o">/</span><span class="n">ph_plotter</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">band_sf</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">sf_with</span> <span class="n">irreps</span> <span class="o">--</span><span class="n">plot_style</span> <span class="n">mesh</span> <span class="o">--</span><span class="n">sf_max</span> <span class="mf">0.8</span> <span class="o">--</span><span class="n">sf_min</span> <span class="mi">0</span> <span class="o">--</span><span class="n">d_sf</span> <span class="mf">0.2</span> <span class="o">--</span><span class="n">f_max</span> <span class="mi">10</span> <span class="o">--</span><span class="n">f_min</span> <span class="mi">0</span> <span class="o">--</span><span class="n">d_freq</span> <span class="mi">2</span> <span class="o">--</span><span class="n">colormap_p</span> <span class="n">r</span>
+</pre></div>
+</div>
+<p>Then the total spectral functions may be plotted as <strong>band_sf_THz_w_bar.pdf</strong>.</p>
+<p>To plot decomposed spectral functions according to small representations,
+we first need to know <strong>pointgroup_symbol</strong> and <strong>ir_labels</strong>.
+For example, if you would like to focus on the point 2 on the band path 1,
+The pointgroup_symbol of this point is found from the following command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">h5dump</span> <span class="o">-</span><span class="n">d</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="n">pointgroup_symbol</span> <span class="n">sf</span><span class="o">.</span><span class="n">hdf5</span>
+<span class="n">HDF5</span> <span class="s2">&quot;sf.hdf5&quot;</span> <span class="p">{</span>
+<span class="n">DATASET</span> <span class="s2">&quot;1/2/pointgroup_symbol&quot;</span> <span class="p">{</span>
+   <span class="n">DATATYPE</span>  <span class="n">H5T_STRING</span> <span class="p">{</span>
+      <span class="n">STRSIZE</span> <span class="mi">3</span><span class="p">;</span>
+      <span class="n">STRPAD</span> <span class="n">H5T_STR_NULLPAD</span><span class="p">;</span>
+      <span class="n">CSET</span> <span class="n">H5T_CSET_ASCII</span><span class="p">;</span>
+      <span class="n">CTYPE</span> <span class="n">H5T_C_S1</span><span class="p">;</span>
+   <span class="p">}</span>
+   <span class="n">DATASPACE</span>  <span class="n">SCALAR</span>
+   <span class="n">DATA</span> <span class="p">{</span>
+   <span class="p">(</span><span class="mi">0</span><span class="p">):</span> <span class="s2">&quot;mm2&quot;</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Then we find the pointgroup_symbol for this point is “mm2”.
+The SRs for this point is found as,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">h5dump</span> <span class="o">-</span><span class="n">d</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="n">ir_labels</span> <span class="n">sf</span><span class="o">.</span><span class="n">hdf5</span>
+<span class="n">HDF5</span> <span class="s2">&quot;sf.hdf5&quot;</span> <span class="p">{</span>
+<span class="n">DATASET</span> <span class="s2">&quot;1/2/ir_labels&quot;</span> <span class="p">{</span>
+   <span class="n">DATATYPE</span>  <span class="n">H5T_STRING</span> <span class="p">{</span>
+      <span class="n">STRSIZE</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="n">STRPAD</span> <span class="n">H5T_STR_NULLPAD</span><span class="p">;</span>
+      <span class="n">CSET</span> <span class="n">H5T_CSET_ASCII</span><span class="p">;</span>
+      <span class="n">CTYPE</span> <span class="n">H5T_C_S1</span><span class="p">;</span>
+   <span class="p">}</span>
+   <span class="n">DATASPACE</span>  <span class="n">SIMPLE</span> <span class="p">{</span> <span class="p">(</span> <span class="mi">4</span> <span class="p">)</span> <span class="o">/</span> <span class="p">(</span> <span class="mi">4</span> <span class="p">)</span> <span class="p">}</span>
+   <span class="n">DATA</span> <span class="p">{</span>
+   <span class="p">(</span><span class="mi">0</span><span class="p">):</span> <span class="s2">&quot;A1&quot;</span><span class="p">,</span> <span class="s2">&quot;A2&quot;</span><span class="p">,</span> <span class="s2">&quot;B1&quot;</span><span class="p">,</span> <span class="s2">&quot;B2&quot;</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Then we find “A1”, “A2”, “B1”, and “B2” is the possible SRs for this point.
+Note that some of them can have no contribution to the spectral function.</p>
+<p>The decomposed spectral functions for B1 for the pointgroup_symbol of mm2 may be plotted by adding <strong>—selected_irreps '{&quot;mm2&quot;:[&quot;B1”]}’</strong> for the plotting command as,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">DOWNLOADED_PATH</span><span class="o">/</span><span class="n">ph_plotter</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">band_sf</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">sf_with</span> <span class="n">irreps</span> <span class="o">--</span><span class="n">plot_style</span> <span class="n">mesh</span> <span class="o">--</span><span class="n">sf_max</span> <span class="mf">0.8</span> <span class="o">--</span><span class="n">sf_min</span> <span class="mi">0</span> <span class="o">--</span><span class="n">d_sf</span> <span class="mf">0.2</span> <span class="o">--</span><span class="n">f_max</span> <span class="mi">10</span> <span class="o">--</span><span class="n">f_min</span> <span class="mi">0</span> <span class="o">--</span><span class="n">d_freq</span> <span class="mi">2</span> <span class="o">--</span><span class="n">colormap_p</span> <span class="n">r</span> <span class="o">--</span><span class="n">selected_irreps</span> <span class="s1">&#39;{&quot;mm2&quot;:[&quot;B1&quot;]}&#39;</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to upho&#39;s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">upho 0.4.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Yuji IKEDA.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>
