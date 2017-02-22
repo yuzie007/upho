@@ -5,6 +5,7 @@ from __future__ import (absolute_import, division,
 import unittest
 import numpy as np
 from phonopy.interface.vasp import read_vasp
+from phonopy.structure.symmetry import Symmetry
 from ph_unfolder.api_unfolding import calculate_average_masses
 
 
@@ -20,12 +21,13 @@ def create_msg(list1, list2):
 
 class TestAverageMasses(unittest.TestCase):
     def setUp(self):
-        self._unitcell_ideal = read_vasp('poscars/POSCAR_omega_ideal')
+        unitcell_ideal = read_vasp('poscars/POSCAR_omega_ideal')
+        self._symmetry = Symmetry(unitcell_ideal)
         self._prec = 1e-12
 
     def test_1(self):
         unitcell = read_vasp('poscars/POSCAR_omega_disordered_1')
-        calculate_average_masses(unitcell, self._unitcell_ideal)
+        calculate_average_masses(unitcell, self._symmetry)
 
         masses = unitcell.get_masses()
         masses_expected = np.array([47.867, 91.224, 91.224])
@@ -35,7 +37,7 @@ class TestAverageMasses(unittest.TestCase):
         
     def test_2(self):
         unitcell = read_vasp('poscars/POSCAR_omega_disordered_2')
-        calculate_average_masses(unitcell, self._unitcell_ideal)
+        calculate_average_masses(unitcell, self._symmetry)
 
         masses = unitcell.get_masses()
         masses_expected = np.array([47.867, 69.5455, 69.5455])

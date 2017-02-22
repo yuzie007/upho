@@ -294,7 +294,7 @@ class PhonopyUnfolding(Phonopy):
 
     def average_masses(self):
 
-        calculate_average_masses(self._unitcell, self._unitcell_ideal)
+        calculate_average_masses(self._unitcell, Symmetry(self._unitcell_ideal))
 
         self._build_supercell()
         self._build_primitive_cell()
@@ -315,14 +315,22 @@ class PhonopyUnfolding(Phonopy):
         self.set_force_constants(fc_average)  # Dynamical matrices are also prepared inside.
 
 
-def calculate_average_masses(unitcell, unitcell_ideal):
+def calculate_average_masses(unitcell, symmetry):
+    """Calculate avearge masses from the ideal structure
+
+    Parameters
+    ----------
+    unitcell : Cell
+    symmetry : Symmetry obtained from unitcell_ideal
+    """
     # TODO(ikeda): Now atomic order is supposed to be the same, which should be modified.
-    symbols_ideal = unitcell_ideal.get_chemical_symbols()
-    reduced_symbols_ideal = sorted(set(symbols_ideal), key=symbols_ideal.index)
+    map_atoms = symmetry.get_map_atoms()
+    independent_atoms = symmetry.get_independent_atoms()
+
     masses = unitcell.get_masses()
     masses_average = np.zeros_like(masses)
-    for rs in reduced_symbols_ideal:
-        indices = np.char.strip((symbols_ideal)) == np.char.strip(rs)
+    for ia in independent_atoms:
+        indices = (map_atoms == ia)
         mass_average = np.average(masses[indices])
         masses_average[indices] = mass_average
     unitcell.set_masses(masses_average)
