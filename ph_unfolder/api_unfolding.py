@@ -294,7 +294,9 @@ class PhonopyUnfolding(Phonopy):
 
     def average_masses(self):
 
-        calculate_average_masses(self._unitcell, Symmetry(self._unitcell_ideal))
+        masses_average = calculate_average_masses(
+            self._unitcell, Symmetry(self._unitcell_ideal))
+        self._unitcell.set_masses(masses_average)
 
         self._build_supercell()
         self._build_primitive_cell()
@@ -333,4 +335,4 @@ def calculate_average_masses(unitcell, symmetry):
         indices = (map_atoms == ia)
         mass_average = np.average(masses[indices])
         masses_average[indices] = mass_average
-    unitcell.set_masses(masses_average)
+    return masses_average

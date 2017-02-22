@@ -27,22 +27,20 @@ class TestAverageMasses(unittest.TestCase):
 
     def test_1(self):
         unitcell = read_vasp('poscars/POSCAR_omega_disordered_1')
-        calculate_average_masses(unitcell, self._symmetry)
+        masses_average = calculate_average_masses(unitcell, self._symmetry)
 
-        masses = unitcell.get_masses()
         masses_expected = np.array([47.867, 91.224, 91.224])
-        is_same = (np.abs(masses - masses_expected) < self._prec).all()
-        msg = create_msg(masses, masses_expected)
+        is_same = (np.abs(masses_average - masses_expected) < self._prec).all()
+        msg = create_msg(masses_average, masses_expected)
         self.assertTrue(is_same, msg=msg)
         
     def test_2(self):
         unitcell = read_vasp('poscars/POSCAR_omega_disordered_2')
-        calculate_average_masses(unitcell, self._symmetry)
+        masses_average = calculate_average_masses(unitcell, self._symmetry)
 
-        masses = unitcell.get_masses()
         masses_expected = np.array([47.867, 69.5455, 69.5455])
-        is_same = (np.abs(masses - masses_expected) < self._prec).all()
-        msg = create_msg(masses, masses_expected)
+        is_same = (np.abs(masses_average - masses_expected) < self._prec).all()
+        msg = create_msg(masses_average, masses_expected)
         self.assertTrue(is_same, msg=msg)
 
 
