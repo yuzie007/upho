@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
-
-__author__ = "Yuji Ikeda"
-
 import h5py
 import numpy as np
 from ph_unfolder.analysis.smearing import Smearing, create_points
+
+
+__author__ = "Yuji Ikeda"
 
 
 def square_frequencies(frequencies):
@@ -52,6 +52,35 @@ class DensityExtractor(object):
 
     def _run(self):
         raise NotImplementedError
+
+    def load_weights(self, group):
+        """
+
+        Parameters
+        ----------
+        group : string
+
+        Returns
+        -------
+
+        """
+        weights = {}
+        frequencies = self._band_data[group + 'frequencies']
+        weights['total'          ] = self._band_data[group + 'weights_t'  ]
+        weights['elements'       ] = self._band_data[group + 'weights_e'  ]
+        weights['irreps'         ] = self._band_data[group + 'weights_s'  ]
+        # weights['irreps_elements'] = self._band_data[group + 'weights_s_e']
+
+        distance                   = self._band_data[group + 'distance'   ]
+        distance = float(np.array(distance))
+
+        return distance, frequencies, weights
+
+    def calculate_spectral_functions(self, frequencies, weights):
+        spectral_functions = {}
+        for k, v in weights.items():
+            spectral_functions[k] = self.calculate_density(frequencies, v)
+        return spectral_functions
 
     def calculate_density(self, frequencies, weights):
         """
@@ -185,17 +214,16 @@ class DensityExtractorText(DensityExtractor):
     def _run(self):
         band_data = self._band_data
         npaths, npoints = band_data['paths'].shape[:2]
-        filename_sf = 'sf.dat'
-        with open(filename_sf, 'w') as f:
-            self._print_header(f)
+        fn_irreps   = 'sf_irreps.dat'
+        fn_elements = 'sf_elements.dat'
+        with open(fn_irreps, 'w') as fi, open(fn_elements, 'w') as fe:
+            self._print_header(fi)
+            self._print_header(fe)
             for ipath in range(npaths):
                 for ip in range(npoints):
                     print(ipath, ip)
                     group = '{}/{}/'.format(ipath, ip)
-                    frequencies = band_data[group + 'frequencies']
-                    weights_t   = band_data[group + 'weights_t'  ]
-
-                    distance    = float(np.array(band_data[group + 'distance'   ]))
+                    distance, frequencies, weights = self.load_weights(group)
 
                     frequencies = np.array(frequencies)
                     if self._is_squared:
@@ -203,24 +231,66 @@ class DensityExtractorText(DensityExtractor):
                     else:
                         energies = frequencies
 
-                    total_sf       = self.calculate_density(energies, weights_t  )
+                    spectral_functions = self.calculate_spectral_functions(
+                        energies, weights)
 
-                    self._write(
-                        f,
-                        distance,
-                        total_sf,
-                    )
+                    self._write_irreps  (fi, group, distance, spectral_functions)
+                    self._write_elements(fe, group, distance, spectral_functions)
 
-    def _write(self,
-               file_out,
-               distance,
-               total_sf):
+    def _write_irreps(self, file_out, group, distance, sf):
+        ir_labels = np.array(self._band_data[group + 'ir_labels'])
+
+        file_out.write('# {:10s}'.format('Dist.'))
+        file_out.write('{:12s}'.format('Freq.'))
+        file_out.write('{:12s}'.format('Total'))
+        for ir_label in ir_labels:
+            file_out.write('{:12s}'.format(ir_label))
+        file_out.write('\n')
 
         frequencies = self._evaluated_energies
+        sf_total   = sf['total']
+        sf_partial = sf['irreps']
+
         for i, frequency in enumerate(frequencies):
             file_out.write('{:12.6f}'.format(distance))
             file_out.write('{:12.6f}'.format(frequency))
-            file_out.write('{:12.6f}'.format(total_sf[i]))
+            file_out.write('{:12.6f}'.format(sf_total[i]))
+            for v in sf_partial[i, :]:
+                file_out.write('{:12.6f}'.format(v))
+            file_out.write('\n')
+        file_out.write('\n')
+
+    def _write_elements(self, file_out, group, distance, sf):
+        elements = np.array(self._band_data[group + 'elements'])
+        ne = len(elements)
+
+        file_out.write('# {:10s}'.format('Dist.'))
+        file_out.write('{:12s}'.format('Freq.'))
+        file_out.write('{:12s}'.format('Total'))
+        for ie in range(ne):
+            for je in range(ie, ne):
+                label = elements[ie] + '-' + elements[je]
+                file_out.write('{:12s}'.format(label))
+        file_out.write('\n')
+
+        frequencies = self._evaluated_energies
+        sf_total   = sf['total']
+        sf_partial = sf['elements']
+
+        for i, frequency in enumerate(frequencies):
+            file_out.write('{:12.6f}'.format(distance))
+            file_out.write('{:12.6f}'.format(frequency))
+            file_out.write('{:12.6f}'.format(sf_total[i]))
+            for ie in range(ne):
+                for je in range(ie, ne):
+                    if ie == je:
+                        v = np.real(np.sum(sf_partial[i, :, ie, :, je]))
+                    else:
+                        v = np.real(
+                            np.sum(sf_partial[i, :, ie, :, je]) +
+                            np.sum(sf_partial[i, :, je, :, ie])
+                        )
+                    file_out.write('{:12.6f}'.format(float(v)))
             file_out.write('\n')
         file_out.write('\n')
 
@@ -232,3 +302,4 @@ class DensityExtractorText(DensityExtractor):
         file_output.write('# function: {}\n'.format(function_name))
         file_output.write('# sigma: {}\n'.format(sigma))  # For THz^2 or THz
         file_output.write('# is_squared: {}\n'.format(is_squared))
+        file_output.write('#\n')
