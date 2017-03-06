@@ -22,9 +22,11 @@ class DensityExtractor(object):
                  fmax=10.0,
                  fpitch=0.05,
                  sigma=1.0,
-                 is_squared=True):
+                 is_squared=True,
+                 group=None):
 
         self._is_squared = is_squared
+        self._group = group
 
         self._smearing = Smearing(
             function_name=function,
@@ -219,29 +221,35 @@ class DensityExtractorText(DensityExtractor):
         with open(fn_irreps, 'w') as fi, open(fn_elements, 'w') as fe:
             self._print_header(fi)
             self._print_header(fe)
-            for ipath in range(npaths):
-                for ip in range(npoints):
-                    print(ipath, ip)
-                    group = '{}/{}/'.format(ipath, ip)
-                    distance, frequencies, weights = self.load_weights(group)
+            if self._group is None:
+                for ipath in range(npaths):
+                    for ip in range(npoints):
+                        print(ipath, ip)
+                        group = '{}/{}/'.format(ipath, ip)
+                        self._run_point(group, fi, fe)
+            else:
+                self._run_point(self._group, fi, fe)
 
-                    frequencies = np.array(frequencies)
-                    if self._is_squared:
-                        energies = square_frequencies(frequencies)
-                    else:
-                        energies = frequencies
+    def _run_point(self, group, fi, fe):
+        distance, frequencies, weights = self.load_weights(group)
 
-                    spectral_functions = self.calculate_spectral_functions(
-                        energies, weights)
+        frequencies = np.array(frequencies)
+        if self._is_squared:
+            energies = square_frequencies(frequencies)
+        else:
+            energies = frequencies
 
-                    self._write_irreps  (fi, group, distance, spectral_functions)
-                    self._write_elements(fe, group, distance, spectral_functions)
+        spectral_functions = self.calculate_spectral_functions(
+            energies, weights)
+
+        self._write_irreps  (fi, group, distance, spectral_functions)
+        self._write_elements(fe, group, distance, spectral_functions)
 
     def _write_irreps(self, file_out, group, distance, sf):
         ir_labels = np.array(self._band_data[group + 'ir_labels'])
 
         file_out.write('# {:10s}'.format('Dist.'))
-        file_out.write('{:12s}'.format('Freq.'))
+        file_out.write('{:12s}'.format('Freq. (THz)'))
         file_out.write('{:12s}'.format('Total'))
         for ir_label in ir_labels:
             file_out.write('{:12s}'.format(ir_label))
@@ -265,7 +273,7 @@ class DensityExtractorText(DensityExtractor):
         ne = len(elements)
 
         file_out.write('# {:10s}'.format('Dist.'))
-        file_out.write('{:12s}'.format('Freq.'))
+        file_out.write('{:12s}'.format('Freq. (THz)'))
         file_out.write('{:12s}'.format('Total'))
         for ie in range(ne):
             for je in range(ie, ne):

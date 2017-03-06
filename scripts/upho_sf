@@ -45,6 +45,9 @@ def main():
     parser.add_argument("--nosquared", dest='is_squared',
                         action='store_false',
                         help="Use raw frequencies instead of Squared frequencies.")
+    parser.add_argument("-g", "--group",
+                        type=str,
+                        help="Group (point) to plot.")
     args = parser.parse_args()
 
     if args.format == 'hdf5':
@@ -64,6 +67,7 @@ def main():
         fpitch=args.fpitch,
         sigma=args.sigma,
         is_squared=args.is_squared,
+        group=args.group,
     )
 
 
