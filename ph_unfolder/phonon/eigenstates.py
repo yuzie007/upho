@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function
-
-__author__ = "Yuji Ikeda"
-
 import numpy as np
 from phonopy.structure.cells import get_primitive
 from phonopy.units import VaspToTHz
@@ -14,6 +11,9 @@ from ph_unfolder.phonon.vectors_adjuster import VectorsAdjuster
 from ph_unfolder.phonon.element_weights_calculator import (
     ElementWeightsCalculator)
 from ph_unfolder.analysis.time_measurer import TimeMeasurer
+
+
+__author__ = "Yuji Ikeda"
 
 
 class Eigenstates(object):
@@ -111,6 +111,14 @@ class Eigenstates(object):
         Parameters
         ----------
         q : Reciprocal space point in fractional coordinates for "PC".
+
+        Notes
+        -----
+        weights_arms : dictionary
+            'total' : (num_arms, nbands)
+            'SR'    : (num_arms, num_irreps, nbands)
+            'E1'    : (num_arms, natoms_p, nelements, nbands)
+            'SR_E1' : (num_arms, num_irreps, natoms_p, nelements, natoms_p, nelements, nbands)
         """
         print("=" * 40)
         print("q:", q)
@@ -122,66 +130,43 @@ class Eigenstates(object):
 
         q_star, transformation_matrices = self.create_q_star(q)
 
-        eigvals_arms         = []  # (num_arms, nbands)
-        trans_weights_arms   = []  # (num_arms, nbands)
-        rot_weights_arms     = []  # (num_arms, num_irreps, nbands)
-        element_weights_arms = []  # (num_arms, natoms_p, nelements, nbands)
-        rot_elemental_weights_arms = []  # (num_arms, num_irreps, natoms_p, nelements, natoms_p, nelements, nbands)
+        eigvals_arms = []  # (num_arms, nbands)
+
+        weights_arms = {}
+        weights_keys = ['total', 'SR', 'E1', 'SR_E1']
+        for k in weights_keys:
+            weights_arms[k] = []
         for i_star, (q, transformation_matrix) in enumerate(zip(q_star, transformation_matrices)):
             print("i_star:", i_star)
             print("q_pc:", q)
-            (eigvals,
-             eigvecs,
-             weights,
-             rot_weights,
-             element_weights,
-             rot_elemental_weights) = self._extract_eigenstates_for_q(
+            eigvals, eigvecs, weights = self._extract_eigenstates_for_q(
                 q, transformation_matrix)
 
-            eigvals_arms        .append(eigvals)
-            trans_weights_arms  .append(weights)
-            rot_weights_arms    .append(rot_weights)
-            element_weights_arms.append(element_weights)
-            rot_elemental_weights_arms.append(rot_elemental_weights)
+            eigvals_arms.append(eigvals)
+            for k in weights_keys:
+                weights_arms[k].append(weights[k])
 
         frequencies_arms = calculate_frequencies(np.array(eigvals_arms), self._factor)
 
-        trans_weights_arms   = np.array(trans_weights_arms  ) / len(q_star)
-        rot_weights_arms     = np.array(rot_weights_arms    ) / len(q_star)
-        element_weights_arms = np.array(element_weights_arms) / len(q_star)
-        rot_elemental_weights_arms = np.array(rot_elemental_weights_arms) / len(q_star)
+        for k in weights_keys:
+            weights_arms[k] = np.array(weights_arms[k]) / len(q_star)
 
-        print("Sum of trans_weights_arms  :", np.nansum(trans_weights_arms  ))
-        print("Sum of rot_weights_arms    :", np.nansum(rot_weights_arms    ))
-        print("Sum of element_weights_arms:", np.nansum(element_weights_arms))
-        print("Sum of rot_elm_weights_arms:", np.nansum(rot_elemental_weights_arms))
+        print("Sum of trans_weights_arms  :", np.nansum(weights_arms['total']))
+        print("Sum of rot_weights_arms    :", np.nansum(weights_arms['SR'   ]))
+        print("Sum of element_weights_arms:", np.nansum(weights_arms['E1'   ]))
+        print("Sum of rot_elm_weights_arms:", np.nansum(weights_arms['SR_E1']))
 
         self._q_star = q_star
         self._point = q
 
         self._frequencies_arms     = frequencies_arms
-        self._trans_weights_arms   = trans_weights_arms
-        self._rot_weights_arms     = rot_weights_arms
-        self._element_weights_arms = element_weights_arms
-        self._rot_elemental_weights_arms = rot_elemental_weights_arms
+        self._weights_arms = weights_arms
 
     def get_point(self):
         return self._point
 
     def get_frequencies_arms(self):
         return self._frequencies_arms
-
-    def get_trans_weights_arms(self):
-        return self._trans_weights_arms
-
-    def get_rot_weights_arms(self):
-        return self._rot_weights_arms
-
-    def get_element_weights_arms(self):
-        return self._element_weights_arms
-
-    def get_rot_elemental_weights_arms(self):
-        return self._rot_elemental_weights_arms
 
     def get_narms(self):
         return len(self._q_star)
@@ -219,7 +204,7 @@ class Eigenstates(object):
         eigvals : Eigenvalues of "SC".
         eigvecs : Eigenvectors of "SC".
         weights : Weights for the phonon modes of SC on PC.
-        elemental_weights : (natoms_p, nelms, natoms_p, nelms, nbands) complex array
+            'E1' : (natoms_p, nelms, natoms_p, nelms, nbands) complex array
         """
         primitive_matrix = self._primitive.get_primitive_matrix()
         q_sc = get_q_sc_from_q_pc(q_pc, primitive_matrix)
@@ -231,23 +216,25 @@ class Eigenstates(object):
         with TimeMeasurer('Solve eigenproblem'):
             eigvals, eigvecs = np.linalg.eigh(dm)
 
-        with TimeMeasurer('Calculate weights for wavevectors'):
-            weights, t_proj_eigvecs = self._extract_weights(q_sc, eigvecs)
+        weights = {}
 
-        rot_weights, rot_proj_vectors = self._create_rot_projection_weights(
+        with TimeMeasurer('Calculate weights for wavevectors'):
+            weights['total'], t_proj_eigvecs = self._extract_weights(q_sc, eigvecs)
+
+        weights['SR'], rot_proj_vectors = self._create_rot_projection_weights(
             q_pc, transformation_matrix, t_proj_eigvecs)
 
         # if __debug__:
         #     self._print_debug(eigvals, rot_weights)
 
-        elemental_weights, t_proj_elm_vecs = self._create_elemental_weights(
+        weights['E1'], t_proj_elm_vecs = self._create_elemental_weights(
             eigvecs, q_sc)
 
-        rot_elemental_weights, rot_proj_elm_vecs = self._create_rotational_weights_for_elements(
+        weights['SR_E1'], rot_proj_elm_vecs = self._create_rotational_weights_for_elements(
             q_pc, transformation_matrix, t_proj_elm_vecs
         )
 
-        return eigvals, eigvecs, weights, rot_weights, elemental_weights, rot_elemental_weights
+        return eigvals, eigvecs, weights
 
     def _extract_weights(self, q, eigvecs):
         """Extract weights.
@@ -393,10 +380,10 @@ class Eigenstates(object):
             'num_irreps'       : self.get_num_irreps(),
             'ir_labels'        : self.get_ir_labels(),
             'frequencies'      : self.get_frequencies_arms(),
-            'weights_t'        : self.get_trans_weights_arms(),
-            'weights_e'        : self.get_element_weights_arms(),
-            'weights_s'        : self.get_rot_weights_arms(),
-            'weights_s_e'      : self.get_rot_elemental_weights_arms(),
+            'weights_t'        : self._weights_arms['total'],
+            'weights_e'        : self._weights_arms['E1'   ],
+            'weights_s'        : self._weights_arms['SR'   ],
+            'weights_s_e'      : self._weights_arms['SR_E1'],
         }
 
         for k, v in data_dict.items():
