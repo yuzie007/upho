@@ -133,7 +133,7 @@ class Eigenstates(object):
         eigvals_arms = []  # (num_arms, nbands)
 
         weights_arms = {}
-        weights_keys = ['total', 'SR', 'E1', 'SR_E1']
+        weights_keys = ['total', 'SR', 'E1', 'SR_E1', 'E2']
         for k in weights_keys:
             weights_arms[k] = []
         for i_star, (q, transformation_matrix) in enumerate(zip(q_star, transformation_matrices)):
@@ -155,6 +155,7 @@ class Eigenstates(object):
         print("Sum of rot_weights_arms    :", np.nansum(weights_arms['SR'   ]))
         print("Sum of element_weights_arms:", np.nansum(weights_arms['E1'   ]))
         print("Sum of rot_elm_weights_arms:", np.nansum(weights_arms['SR_E1']))
+        print("Sum of weights_arms E2     :", np.nansum(weights_arms['E2'   ]))
 
         self._q_star = q_star
         self._point = q
@@ -227,8 +228,9 @@ class Eigenstates(object):
         # if __debug__:
         #     self._print_debug(eigvals, rot_weights)
 
-        weights['E1'], t_proj_elm_vecs = self._create_elemental_weights(
-            eigvecs, q_sc)
+        vectors_elements = self._create_vectors_elements(eigvecs)
+        weights['E1'], t_proj_elm_vecs = self._create_weights_e1(vectors_elements, q_sc            )
+        weights['E2']                  = self._create_weights_e2(vectors_elements, weights['total'])
 
         weights['SR_E1'], rot_proj_elm_vecs = self._create_rotational_weights_for_elements(
             q_pc, transformation_matrix, t_proj_elm_vecs
@@ -318,36 +320,55 @@ class Eigenstates(object):
             print("".join("{:12.6f}".format(v) for v in values[:num_irs]), end="")
             print()
 
-    def _create_elemental_weights(self, vectors, kpoint):
+    def _create_vectors_elements(self, vectors):
+        elemental_projector = self._element_weights_calculator
+        vectors_elements = elemental_projector.project_vectors(vectors)
+        return vectors_elements
+
+    def _create_weights_e1(self, vectors_elements, kpoint):
         """
 
         Parameters
         ----------
-        vectors : (natoms_u * ndims, nbands) array
+        vectors_elements : (natoms_p, nelms, natoms_u * ndims, nbands) array
         kpoint : Reciprocal space point in fractional coordinates for SC.
 
         Returns
         -------
-        weights : (natoms_p, nelms, natoms_p, nelms, nbands) array
+        weights_e1 : (natoms_p, nelms, natoms_p, nelms, nbands) array
             Elemental weights.
         projected_vectors : (natoms_p, nelms, natoms_u * ndims, nbands) array
             Elemental projected vectors.
         """
-        elemental_projector = self._element_weights_calculator
         translational_projector = self._translational_projector
 
-        elemental_vectors = elemental_projector.project_vectors(vectors)
         projected_vectors = translational_projector.project_vectors(
-            vectors=elemental_vectors, kpoint=kpoint)
+            vectors=vectors_elements, kpoint=kpoint)
 
         natoms_p, nelms, tmp, nbands = projected_vectors.shape
 
-        weights = np.zeros((natoms_p, nelms, natoms_p, nelms, nbands), dtype=complex)
+        weights_e1 = np.zeros((natoms_p, nelms, natoms_p, nelms, nbands), dtype=complex)
         for i in range(nbands):
-            weights[..., i] = np.inner(
+            weights_e1[..., i] = np.inner(
                 np.conj(projected_vectors[..., i]), projected_vectors[..., i])
 
-        return weights, projected_vectors
+        return weights_e1, projected_vectors
+
+    def _create_weights_e2(self, vectors_elements, weights_total):
+        """
+        
+        Parameters
+        ----------
+        vectors_elements : (natoms_p, nelms, natoms_u * ndims, nbands) array
+        weights_total : (nbands) array
+
+        Returns
+        -------
+        weights_e2 : (natoms_p, nelms, nbands) array
+        """
+        weights_tmp = np.linalg.norm(vectors_elements, axis=2)  # (natoms_p, nelms, nbands)
+        weights_e2 = weights_total * weights_tmp
+        return weights_e2
 
     def get_distance(self):
         return self._distance
@@ -384,6 +405,7 @@ class Eigenstates(object):
             'weights_e'        : self._weights_arms['E1'   ],
             'weights_s'        : self._weights_arms['SR'   ],
             'weights_s_e'      : self._weights_arms['SR_E1'],
+            'weights_e2'       : self._weights_arms['E2'   ],
         }
 
         for k, v in data_dict.items():
