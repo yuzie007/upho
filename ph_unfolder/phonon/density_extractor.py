@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, print_function, unicode_literals
 import h5py
 import numpy as np
 from ph_unfolder.analysis.smearing import Smearing, create_points
@@ -56,12 +56,14 @@ class DensityExtractor(object):
         raise NotImplementedError
 
     def _load_weights(self, group):
+        band_data = self._band_data
         weights = {}
-        weights['total'] = self._band_data[group + 'weights_t'  ]
-        weights['E1'   ] = self._band_data[group + 'weights_e'  ]
-        weights['SR'   ] = self._band_data[group + 'weights_s'  ]
-        weights['SR_E1'] = self._band_data[group + 'weights_s_e']
-        weights['E2'   ] = self._band_data[group + 'weights_e2' ]
+        weights['total'] = band_data[group + 'weights_t'  ]
+        weights['E1'   ] = band_data[group + 'weights_e'  ]
+        weights['SR'   ] = band_data[group + 'weights_s'  ]
+        weights['SR_E1'] = band_data[group + 'weights_s_e']
+        if group + 'weights_e2' in band_data:
+            weights['E2'   ] = band_data[group + 'weights_e2' ]
         return weights
 
     def _load_distance(self, group):
@@ -173,7 +175,8 @@ class DensityExtractorHDF5(DensityExtractor):
         file_out.create_dataset(group + 'partial_sf_e'  , data=spectral_functions['E1'   ])
         file_out.create_dataset(group + 'partial_sf_s'  , data=spectral_functions['SR'   ])
         file_out.create_dataset(group + 'partial_sf_s_e', data=spectral_functions['SR_E1'])
-        file_out.create_dataset(group + 'partial_sf_e2' , data=spectral_functions['E2'   ])
+        if 'E2' in spectral_functions:
+            file_out.create_dataset(group + 'partial_sf_e2' , data=spectral_functions['E2'   ])
 
     def _print_header(self, file_output):
         function_name = self._smearing.get_function_name()
