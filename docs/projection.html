@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Projection &#8212; upho 0.5.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Visualization of obtained spectral functions" href="visualization.html" />
+    <link rel="prev" title="Welcome to upho&#39;s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="visualization.html" title="Visualization of obtained spectral functions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to upho&#39;s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">upho 0.5.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Projection</a><ul>
+<li><a class="reference internal" href="#chemical-projection">Chemical projection</a><ul>
+<li><a class="reference internal" href="#e1">E1</a></li>
+<li><a class="reference internal" href="#e2">E2</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to upho's documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="visualization.html"
+                        title="next chapter">Visualization of obtained spectral functions</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/projection.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="projection">
+<h1>Projection<a class="headerlink" href="#projection" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="chemical-projection">
+<h2>Chemical projection<a class="headerlink" href="#chemical-projection" title="Permalink to this headline">¶</a></h2>
+<p>There may be several possible schemes for the chemical projection.</p>
+<div class="section" id="e1">
+<h3>E1<a class="headerlink" href="#e1" title="Permalink to this headline">¶</a></h3>
+<div class="math">
+\begin{align}
+    w_{\mathbf{k}, \textrm{XX}'}
+    &amp;=
+    \left(
+    \hat{P}^{\mathbf{k}}
+    \hat{P}^{\textrm{X}}
+    \tilde{\mathbf{v}}
+    \right)^{\dagger}
+    \left(
+    \hat{P}^{\mathbf{k}}
+    \hat{P}^{\textrm{X}'}
+    \tilde{\mathbf{v}}
+    \right)
+\end{align}</div><p>Generally this scheme causes cross terms, which can be negative.</p>
+</div>
+<div class="section" id="e2">
+<h3>E2<a class="headerlink" href="#e2" title="Permalink to this headline">¶</a></h3>
+<div class="math">
+\begin{gather}
+    w_{\mathbf{k}}
+    =
+    \left|
+    \hat{P}^{\mathbf{k}}
+    \tilde{\mathbf{v}}
+    \right|^{2}
+    \\
+    w_{\textrm{X}}
+    =
+    \left|
+    \hat{P}^{\textrm{X}}
+    \tilde{\mathbf{v}}
+    \right|^{2}
+    \\
+
+    w_{\mathbf{k}, \textrm{X}}
+    \equiv
+    w_{\mathbf{k}}
+    w_{\textrm{X}}
+\end{gather}</div><p>This scheme does not cause cross terms.
+Instead, <span class="math">\(w_{\mathbf{k}, \textrm{X}'}/w_{\mathbf{k}, \textrm{X}}\)</span> does no longer depend on
+<span class="math">\(\mathbf{k}\)</span>.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="visualization.html" title="Visualization of obtained spectral functions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to upho&#39;s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">upho 0.5.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Yuji IKEDA.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
+    </div>
+  </body>
+</html>

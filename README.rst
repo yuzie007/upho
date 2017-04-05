@@ -1,7 +1,7 @@
 UPHO
 ====
 
-Band unfolding for phonons
+Band unfolding for phonons <http://yuzie007.github.io/upho/>
 
 Requirements
 ------------
@@ -13,7 +13,7 @@ Requirements
 Install
 -------
 
-1.  Download the latest version from <https://github.com/yuzie007/ph_unfolder/releases>
+1.  Download the latest version from <https://github.com/yuzie007/upho/releases>
 
 2.  Run setup.py like::
 
