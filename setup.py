@@ -14,7 +14,7 @@ scripts = [
     'scripts/upho_sf',
 ]
 setup(name='upho',
-      version='0.4.0',
+      version='0.5.0',
       author="Yuji Ikeda",
       author_email="ikeda.yuji.6m@kyoto-u.ac.jp",
       packages=packages,
