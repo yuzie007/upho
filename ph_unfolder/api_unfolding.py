@@ -294,8 +294,9 @@ class PhonopyUnfolding(Phonopy):
 
     def average_masses(self):
 
+        masses = self._unitcell.get_masses()
         masses_average = calculate_average_masses(
-            self._unitcell, Symmetry(self._unitcell_ideal))
+            masses, Symmetry(self._unitcell_ideal))
         self._unitcell.set_masses(masses_average)
 
         self._build_supercell()
@@ -317,22 +318,46 @@ class PhonopyUnfolding(Phonopy):
         self.set_force_constants(fc_average)  # Dynamical matrices are also prepared inside.
 
 
-def calculate_average_masses(unitcell, symmetry):
+def calculate_average_masses(masses, symmetry):
     """Calculate avearge masses from the ideal structure
 
     Parameters
     ----------
-    unitcell : Cell
+    masses : list-like object containing atomic masses
     symmetry : Symmetry obtained from unitcell_ideal
+    """
+    masses_average = calculate_average_atomic_property(masses, symmetry)
+    return masses_average
+
+def calculate_average_atomic_property(values, symmetry):
+    """Calculate average property of atoms
+
+    Parameters
+    ----------
+    values : list-like object with the length of num_atoms
+    symmetry : Symmetry obtained from unitcell_ideal
+
+    Returns
+    -------
+    values_average :
+
     """
     # TODO(ikeda): Now atomic order is supposed to be the same, which should be modified.
     map_atoms = symmetry.get_map_atoms()
     independent_atoms = symmetry.get_independent_atoms()
 
-    masses = unitcell.get_masses()
-    masses_average = np.zeros_like(masses)
+    values_average = np.zeros_like(values)
     for ia in independent_atoms:
         indices = (map_atoms == ia)
-        mass_average = np.average(masses[indices])
-        masses_average[indices] = mass_average
-    return masses_average
+        average = np.average(values[indices])
+        values_average[indices] = average
+    return values_average
+
+def calculate_mass_variances(masses, symmetry):
+    masses = np.array(masses)
+    masses_average = calculate_average_atomic_property(
+        masses, symmetry)
+    masses_squared_average = calculate_average_atomic_property(
+        masses ** 2, symmetry)
+    mass_variances = masses_squared_average - masses_average ** 2
+    return mass_variances
