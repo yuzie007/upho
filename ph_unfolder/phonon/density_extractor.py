@@ -144,10 +144,6 @@ class DensityExtractorHDF5(DensityExtractor):
                     print(ipath, ip)
                     group = '{}/{}/'.format(ipath, ip)
                     frequencies = band_data[group + 'frequencies']
-                    weights_t   = band_data[group + 'weights_t'  ]
-                    weights_e   = band_data[group + 'weights_e'  ]
-                    weights_s   = band_data[group + 'weights_s'  ]
-                    weights_s_e = band_data[group + 'weights_s_e']
 
                     frequencies = np.array(frequencies)
                     if self._is_squared:
@@ -155,10 +151,17 @@ class DensityExtractorHDF5(DensityExtractor):
                     else:
                         energies = frequencies
 
+                    weights_t   = band_data[group + 'weights_t'  ]
+                    weights_e   = band_data[group + 'weights_e'  ]
+                    weights_s   = band_data[group + 'weights_s'  ]
+                    weights_s_e = band_data[group + 'weights_s_e']
+                    weights_e2  = band_data[group + 'weights_e2' ]
+
                     total_sf       = self.calculate_density(energies, weights_t  )
                     partial_sf_e   = self.calculate_density(energies, weights_e  )
                     partial_sf_s   = self.calculate_density(energies, weights_s  )
                     partial_sf_s_e = self.calculate_density(energies, weights_s_e)
+                    partial_sf_e2  = self.calculate_density(energies, weights_e2 )
 
                     self._write(
                         f,
@@ -167,6 +170,7 @@ class DensityExtractorHDF5(DensityExtractor):
                         partial_sf_e,
                         partial_sf_s,
                         partial_sf_s_e,
+                        partial_sf_e2,
                     )
 
     def _write(self,
@@ -175,7 +179,8 @@ class DensityExtractorHDF5(DensityExtractor):
                total_sf,
                partial_sf_e,
                partial_sf_s,
-               partial_sf_s_e):
+               partial_sf_s_e,
+               partial_sf_e2):
 
         keys = [
             'natoms_primitive',
@@ -194,6 +199,7 @@ class DensityExtractorHDF5(DensityExtractor):
         file_out.create_dataset(group + 'partial_sf_e'  , data=partial_sf_e  )
         file_out.create_dataset(group + 'partial_sf_s'  , data=partial_sf_s  )
         file_out.create_dataset(group + 'partial_sf_s_e', data=partial_sf_s_e)
+        file_out.create_dataset(group + 'partial_sf_e2' , data=partial_sf_e2 )
 
     def _print_header(self, file_output):
         function_name = self._smearing.get_function_name()
