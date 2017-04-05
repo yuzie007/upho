@@ -7,11 +7,11 @@ __author__ = "Yuji Ikeda"
 
 import os
 import subprocess
-from ph_unfolder.file_io import read_band_hdf5
+from upho.file_io import read_band_hdf5
 
 
 def main():
-    ph_unfolder = "~/code/ph_unfolder/scripts/ph_unfolder"
+    ph_unfolder = "~/code/upho/scripts/upho"
     str_command = "python -m cProfile "
     str_command += ph_unfolder
     str_command += " band.conf -i input.json"

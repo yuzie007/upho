@@ -9,7 +9,7 @@ import h5py
 import numpy as np
 from phonopy.units import VaspToTHz
 from phonopy.structure.cells import get_primitive
-from ph_unfolder.phonon.eigenstates import Eigenstates
+from upho.phonon.eigenstates import Eigenstates
 
 
 class BandStructure(object):

@@ -6,9 +6,9 @@ from __future__ import (absolute_import, division,
 __author__ = "Yuji Ikeda"
 
 import numpy as np
-from ph_unfolder.structure.structure_analyzer import (
+from upho.structure.structure_analyzer import (
     StructureAnalyzer, find_lattice_vectors)
-from ph_unfolder.analysis.mappings_modifier import MappingsModifier
+from upho.analysis.mappings_modifier import MappingsModifier
 
 
 class TranslationalProjector(object):

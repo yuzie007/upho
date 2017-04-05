@@ -12,7 +12,7 @@ __author__ = "Yuji Ikeda"
 
 import numpy as np
 from phonopy.structure.symmetry import get_pointgroup
-from ph_unfolder.irreps.character_tables import character_tables
+from upho.irreps.character_tables import character_tables
 from group.mathtools import similarity_transformation
 
 

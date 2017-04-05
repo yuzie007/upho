@@ -9,7 +9,7 @@ import unittest
 import numpy as np
 from phonopy.interface.vasp import read_vasp
 from phonopy.structure.cells import get_primitive
-from ph_unfolder.phonon.element_weights_calculator import (
+from upho.phonon.element_weights_calculator import (
     ElementWeightsCalculator)
 
 

@@ -13,12 +13,12 @@ from phonopy.cui.settings import PhonopyConfParser
 from phonopy.interface import read_crystal_structure
 from phonopy.units import VaspToTHz
 from phonopy.structure.cells import print_cell
-from ph_unfolder.api_unfolding import PhonopyUnfolding
-from ph_unfolder.file_io import read_input
+from upho.api_unfolding import PhonopyUnfolding
+from upho.file_io import read_input
 
 
 def print_version():
-    from ph_unfolder import __version__ as version
+    from upho import __version__ as version
     print('UPHO version. {}'.format(version))
 
 

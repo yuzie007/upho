@@ -9,7 +9,7 @@ import unittest
 import numpy as np
 from phonopy.structure.cells import get_primitive
 from phonopy.interface.vasp import read_vasp
-from ph_unfolder.phonon.vectors_adjuster import VectorsAdjuster
+from upho.phonon.vectors_adjuster import VectorsAdjuster
 
 
 class DummyAtoms(object):

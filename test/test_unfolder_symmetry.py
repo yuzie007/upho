@@ -7,7 +7,7 @@ __author__ = "Yuji Ikeda"
 import unittest
 import numpy as np
 from phonopy.interface.vasp import read_vasp
-from ph_unfolder.structure.unfolder_symmetry import UnfolderSymmetry
+from upho.structure.unfolder_symmetry import UnfolderSymmetry
 
 
 class TestUnfolderSymmetry(unittest.TestCase):

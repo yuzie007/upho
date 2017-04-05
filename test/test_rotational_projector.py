@@ -7,7 +7,7 @@ __author__ = "Yuji Ikeda"
 
 import unittest
 import numpy as np
-from ph_unfolder.phonon.rotational_projector import RotationalProjector
+from upho.phonon.rotational_projector import RotationalProjector
 from phonopy.interface.vasp import read_vasp
 
 

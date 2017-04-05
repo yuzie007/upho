@@ -11,7 +11,7 @@ import numpy as np
 from phonopy.cui.settings import PhonopyConfParser
 from phonopy.interface.vasp import read_vasp
 from phonopy.structure.cells import get_primitive
-from ph_unfolder.file_io import read_input
+from upho.file_io import read_input
 
 
 class Separation(object):

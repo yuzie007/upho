@@ -7,7 +7,7 @@ __author__ = "Yuji Ikeda"
 
 import unittest
 import numpy as np
-from ph_unfolder.phonon.translational_projector import TranslationalProjector
+from upho.phonon.translational_projector import TranslationalProjector
 
 
 class DummyPrimitive(object):

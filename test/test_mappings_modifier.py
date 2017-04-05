@@ -6,7 +6,7 @@ __author__ = "Yuji Ikeda"
 
 import unittest
 import numpy as np
-from ph_unfolder.analysis.mappings_modifier import MappingsModifier
+from upho.analysis.mappings_modifier import MappingsModifier
 
 
 class TestMappingsInverter(unittest.TestCase):

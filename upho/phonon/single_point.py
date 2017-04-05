@@ -7,7 +7,7 @@ __author__ = "Yuji Ikeda"
 
 import h5py
 from phonopy.units import VaspToTHz
-from ph_unfolder.phonon.eigenstates import Eigenstates
+from upho.phonon.eigenstates import Eigenstates
 
 
 class SinglePoint(object):

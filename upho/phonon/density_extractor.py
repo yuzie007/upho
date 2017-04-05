@@ -3,7 +3,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import h5py
 import numpy as np
-from ph_unfolder.analysis.smearing import Smearing, create_points
+from upho.analysis.smearing import Smearing, create_points
 
 
 __author__ = "Yuji Ikeda"

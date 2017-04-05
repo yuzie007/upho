@@ -8,8 +8,8 @@ __author__ = "Yuji Ikeda"
 import h5py
 import numpy as np
 from scipy.optimize import curve_fit
-from ph_unfolder.analysis.functions import lorentzian_unnormalized
-from ph_unfolder.irreps.irreps import extract_degeneracy_from_ir_label
+from upho.analysis.functions import lorentzian_unnormalized
+from upho.irreps.irreps import extract_degeneracy_from_ir_label
 
 
 class SFFitter(object):

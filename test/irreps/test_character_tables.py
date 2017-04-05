@@ -6,7 +6,7 @@ from __future__ import (absolute_import, division,
 __author__ = "Yuji Ikeda"
 
 import unittest
-from ph_unfolder.irreps.character_tables import character_tables
+from upho.irreps.character_tables import character_tables
 
 class TestCharacterTables(unittest.TestCase):
     def test_ir_labels_length(self):

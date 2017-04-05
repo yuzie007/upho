@@ -9,7 +9,7 @@ from phonopy.units import VaspToTHz
 from phonopy.structure.grid_points import GridPoints
 from phonopy.phonon.mesh import Mesh
 from phonopy.structure.cells import get_primitive
-from ph_unfolder.phonon.eigenstates import Eigenstates
+from upho.phonon.eigenstates import Eigenstates
 
 
 class MeshUnfolding(Mesh):

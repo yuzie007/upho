@@ -51,10 +51,10 @@ def main():
     args = parser.parse_args()
 
     if args.format == 'hdf5':
-        from ph_unfolder.phonon.density_extractor \
+        from upho.phonon.density_extractor \
             import DensityExtractorHDF5 as DensityExtractor
     elif args.format == 'text':
-        from ph_unfolder.phonon.density_extractor \
+        from upho.phonon.density_extractor \
             import DensityExtractorText as DensityExtractor
     else:
         raise ValueError('Invalid format {}'.format(args.format))

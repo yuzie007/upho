@@ -5,15 +5,15 @@ import numpy as np
 from phonopy import Phonopy
 from phonopy.structure.symmetry import Symmetry
 from phonopy.structure.cells import get_supercell, get_primitive
-from ph_unfolder.harmonic.dynamical_matrix import (
+from upho.harmonic.dynamical_matrix import (
         UnfolderDynamicalMatrix as DynamicalMatrix)
 from phonopy.units import VaspToTHz
-from ph_unfolder.phonon.band_structure import BandStructure
-from ph_unfolder.phonon.single_point import SinglePoint
-from ph_unfolder.phonon.mesh_unfolding import MeshUnfolding
-# from ph_unfolder.dos_unfolding import TotalDos, PartialDos
-from ph_unfolder.phonon.dos_unfolding import TotalDosUnfolding
-from ph_unfolder.phonon.density_extractor import DensityExtractor
+from upho.phonon.band_structure import BandStructure
+from upho.phonon.single_point import SinglePoint
+from upho.phonon.mesh_unfolding import MeshUnfolding
+# from upho.dos_unfolding import TotalDos, PartialDos
+from upho.phonon.dos_unfolding import TotalDosUnfolding
+from upho.phonon.density_extractor import DensityExtractor
 from .analysis.fc_symmetrizer_spg import FCSymmetrizerSPG
 
 

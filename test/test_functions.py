@@ -7,7 +7,7 @@ __author__ = "Yuji Ikeda"
 
 import unittest
 import numpy as np
-from ph_unfolder.analysis.functions import lorentzian_unnormalized
+from upho.analysis.functions import lorentzian_unnormalized
 
 
 class TestFunctions(unittest.TestCase):

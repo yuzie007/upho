@@ -9,8 +9,8 @@ import unittest
 import numpy as np
 from phonopy.interface.vasp import read_vasp
 from phonopy.structure.symmetry import Symmetry
-from ph_unfolder.structure.unfolder_symmetry import UnfolderSymmetry
-from ph_unfolder.irreps.irreps import Irreps
+from upho.structure.unfolder_symmetry import UnfolderSymmetry
+from upho.irreps.irreps import Irreps
 
 
 class TestIrreps(unittest.TestCase):

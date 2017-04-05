@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 from phonopy.interface.vasp import read_vasp
 from phonopy.structure.symmetry import Symmetry
-from ph_unfolder.api_unfolding import (
+from upho.api_unfolding import (
     calculate_average_masses, calculate_mass_variances)
 
 

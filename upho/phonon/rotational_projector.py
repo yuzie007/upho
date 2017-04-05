@@ -6,10 +6,10 @@ from __future__ import (absolute_import, division,
 __author__ = "Yuji Ikeda"
 
 import numpy as np
-from ph_unfolder.structure.structure_analyzer import StructureAnalyzer
-from ph_unfolder.analysis.mappings_modifier import MappingsModifier
-from ph_unfolder.irreps.irreps import Irreps
-from ph_unfolder.structure.unfolder_symmetry import UnfolderSymmetry
+from upho.structure.structure_analyzer import StructureAnalyzer
+from upho.analysis.mappings_modifier import MappingsModifier
+from upho.irreps.irreps import Irreps
+from upho.structure.unfolder_symmetry import UnfolderSymmetry
 
 
 class RotationalProjector(object):

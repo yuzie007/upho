@@ -10,7 +10,7 @@ import unittest
 import numpy as np
 from phonopy.interface.vasp import read_vasp
 from phonopy.harmonic.dynamical_matrix import get_equivalent_smallest_vectors
-from ph_unfolder.harmonic.dynamical_matrix import get_equivalent_smallest_vectors_np
+from upho.harmonic.dynamical_matrix import get_equivalent_smallest_vectors_np
 
 
 class TestRotationalProjector(unittest.TestCase):

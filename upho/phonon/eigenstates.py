@@ -4,13 +4,13 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 from phonopy.structure.cells import get_primitive
 from phonopy.units import VaspToTHz
-from ph_unfolder.phonon.star_creator import StarCreator
-from ph_unfolder.phonon.translational_projector import TranslationalProjector
-from ph_unfolder.phonon.rotational_projector import RotationalProjector
-from ph_unfolder.phonon.vectors_adjuster import VectorsAdjuster
-from ph_unfolder.phonon.element_weights_calculator import (
+from upho.phonon.star_creator import StarCreator
+from upho.phonon.translational_projector import TranslationalProjector
+from upho.phonon.rotational_projector import RotationalProjector
+from upho.phonon.vectors_adjuster import VectorsAdjuster
+from upho.phonon.element_weights_calculator import (
     ElementWeightsCalculator)
-from ph_unfolder.analysis.time_measurer import TimeMeasurer
+from upho.analysis.time_measurer import TimeMeasurer
 
 
 __author__ = "Yuji Ikeda"

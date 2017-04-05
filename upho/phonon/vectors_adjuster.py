@@ -6,7 +6,7 @@ from __future__ import (absolute_import, division,
 __author__ = "Yuji Ikeda"
 
 import numpy as np
-from ph_unfolder.analysis.mappings_modifier import MappingsModifier
+from upho.analysis.mappings_modifier import MappingsModifier
 
 
 class VectorsAdjuster(object):

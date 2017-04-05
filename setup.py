@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 from distutils.core import setup
 
-packages = ['ph_unfolder',
-            'ph_unfolder.phonon',
-            'ph_unfolder.harmonic',
-            'ph_unfolder.analysis',
-            'ph_unfolder.structure',
-            'ph_unfolder.irreps',
+packages = ['upho',
+            'upho.phonon',
+            'upho.harmonic',
+            'upho.analysis',
+            'upho.structure',
+            'upho.irreps',
             'group',
 ]
 scripts = [
