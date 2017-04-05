@@ -136,6 +136,7 @@ class Eigenstates(object):
         weights_keys = ['total', 'SR', 'E1', 'SR_E1', 'E2']
         for k in weights_keys:
             weights_arms[k] = []
+
         for i_star, (q, transformation_matrix) in enumerate(zip(q_star, transformation_matrices)):
             print("i_star:", i_star)
             print("q_pc:", q)
@@ -151,11 +152,8 @@ class Eigenstates(object):
         for k in weights_keys:
             weights_arms[k] = np.array(weights_arms[k]) / len(q_star)
 
-        print("Sum of trans_weights_arms  :", np.nansum(weights_arms['total']))
-        print("Sum of rot_weights_arms    :", np.nansum(weights_arms['SR'   ]))
-        print("Sum of element_weights_arms:", np.nansum(weights_arms['E1'   ]))
-        print("Sum of rot_elm_weights_arms:", np.nansum(weights_arms['SR_E1']))
-        print("Sum of weights_arms E2     :", np.nansum(weights_arms['E2'   ]))
+        for k in weights_keys:
+            print("Sum of weights_arms {:5s} :".format(k), np.nansum(weights_arms[k]))
 
         self._q_star = q_star
         self._point = q
