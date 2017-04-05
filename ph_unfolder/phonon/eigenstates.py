@@ -366,7 +366,7 @@ class Eigenstates(object):
         -------
         weights_e2 : (natoms_p, nelms, nbands) array
         """
-        weights_tmp = np.linalg.norm(vectors_elements, axis=2)  # (natoms_p, nelms, nbands)
+        weights_tmp = np.linalg.norm(vectors_elements, axis=2) ** 2  # (natoms_p, nelms, nbands)
         weights_e2 = weights_total * weights_tmp
         return weights_e2
 
