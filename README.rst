@@ -157,9 +157,9 @@ Minimum frequency (THz).
 ^^^^^^^^^^^^^^^
 Frequency pitch (THz).
 
---nosquared
+--squared
 ^^^^^^^^^^^
-Use raw frequencies instead of Squared frequencies.
+Use squared frequencies instead of raw frequencies.
 
 Not yet (possible bugs)
 -----------------------

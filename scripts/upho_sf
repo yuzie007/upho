@@ -42,8 +42,8 @@ def main():
                         default=0.05,
                         type=float,
                         help="Frequency pitch (THz).")
-    parser.add_argument("--nosquared", dest='is_squared',
-                        action='store_false',
+    parser.add_argument("--squared", dest='is_squared',
+                        action='store_true',
                         help="Use raw frequencies instead of Squared frequencies.")
     parser.add_argument("-g", "--group",
                         type=str,
