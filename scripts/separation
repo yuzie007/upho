@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
 import os
 import h5py
 import numpy as np
@@ -13,10 +10,13 @@ from phonopy.interface.vasp import read_vasp
 from phonopy.structure.cells import get_primitive
 from upho.file_io import read_input
 
+__author__ = 'Yuji Ikeda'
+
 
 class Separation(object):
-    def __init__(self, conf_file, poscar_file):
+    def __init__(self, conf_file, input_file, structure_ideal):
         self._conf_file = conf_file
+        self._input_file = input_file
 
         phonopy_conf = PhonopyConfParser(filename=self._conf_file,
                                          option_list=[])
@@ -24,7 +24,7 @@ class Separation(object):
 
         self._distance = 0.
 
-        self.create_primitive_cell(poscar_file)
+        self.create_primitive_cell(structure_ideal)
 
         self._paths = np.array(self._settings.get_bands())
         print(self._paths)
@@ -55,7 +55,11 @@ class Separation(object):
     def write_input(self):
         import json
 
-        dict_input = read_input("input.json")
+        if self._input_file is not None:
+            dict_input = read_input(self._input_file)
+        else:
+            dict_input = {}
+
         dict_input["run_mode"] = "single_point"
         for ipath, path in enumerate(self._paths):
             for iq, qpoint in enumerate(path):
@@ -110,12 +114,15 @@ class Separation(object):
 def main():
     import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--input_file",
+                        type=str,
+                        help="Input file for unfolding.")
     parser.add_argument("conf_file",
                         type=str,
                         help="Phonopy conf file")
     args = parser.parse_args()
 
-    Separation(args.conf_file, "POSCAR_ideal")
+    Separation(args.conf_file, args.input_file, structure_ideal="POSCAR_ideal")
 
 if __name__ == "__main__":
     main()

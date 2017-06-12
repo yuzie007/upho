@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
 import os
 import subprocess
 from upho.file_io import read_band_hdf5
 
+__author__ = 'Yuji Ikeda'
+
 
 def main():
-    ph_unfolder = "~/code/upho/scripts/upho"
+    ph_unfolder = "~/codes/upho/scripts/upho"
     str_command = "python -m cProfile "
     str_command += ph_unfolder
     str_command += " band.conf -i input.json"
