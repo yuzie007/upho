@@ -36,7 +36,6 @@ class PhonopyUnfolding(Phonopy):
                  is_auto_displacements=True,
                  dynamical_matrix_decimals=None,
                  force_constants_decimals=None,
-                 dict_spectrum=None,
                  star="none",
                  mode="eigenvector",
                  symprec=1e-5,

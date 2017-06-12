@@ -30,13 +30,6 @@ def get_default_dict_input():
         help="Treatment for the star of q-points."
     """
     default_dict_input = {
-        "spectrum": {
-            "function": "gaussian",
-            "freq_min": -2.5,
-            "freq_max": 10.0,
-            "freq_pitch": 0.05,
-            "sigma": 0.2,
-        },
         "structure"      : "POSCAR",
         "structure_ideal": "POSCAR_ideal",
         "force_constants": "FORCE_CONSTANTS",
@@ -167,7 +160,6 @@ def main():
                               supercell_matrix,
                               primitive_matrix,
                               factor=factor,
-                              dict_spectrum=dict_input["spectrum"],
                               star=star,
                               mode=projection,
                               symprec=args.symprec,
