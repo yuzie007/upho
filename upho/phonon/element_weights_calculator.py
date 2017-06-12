@@ -131,6 +131,7 @@ class ElementWeightsCalculator(object):
             for ie, le in enumerate(map_elements):
                 indices_tmp = sorted(set(lp) & set(le))
                 indices = MappingsModifier(indices_tmp).expand_mappings(ndims)
-                projected_vectors[ip, ie, indices] = vectors[indices]
+                if len(indices) > 0:  # The element "le" exists on the sublattice.
+                    projected_vectors[ip, ie, indices] = vectors[indices]
 
         return projected_vectors
