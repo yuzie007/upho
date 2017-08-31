@@ -1,13 +1,14 @@
 #!/usr/bin/env python
-from distutils.core import setup
+from setuptools import setup
 
-packages = ['upho',
-            'upho.phonon',
-            'upho.harmonic',
-            'upho.analysis',
-            'upho.structure',
-            'upho.irreps',
-            'group',
+packages = [
+    'upho',
+    'upho.phonon',
+    'upho.harmonic',
+    'upho.analysis',
+    'upho.structure',
+    'upho.irreps',
+    'group',
 ]
 scripts = [
     'scripts/upho_weights',
@@ -18,4 +19,5 @@ setup(name='upho',
       author="Yuji Ikeda",
       author_email="ikeda.yuji.6m@kyoto-u.ac.jp",
       packages=packages,
-      scripts=scripts)
+      scripts=scripts,
+      install_requires=['numpy'])
