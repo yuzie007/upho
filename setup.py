@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from setuptools import setup
+from distutils.core import setup
 
 packages = [
     'upho',
@@ -8,11 +8,13 @@ packages = [
     'upho.analysis',
     'upho.structure',
     'upho.irreps',
+    'upho.qpoints',
     'group',
 ]
 scripts = [
     'scripts/upho_weights',
     'scripts/upho_sf',
+    'scripts/qpoints',
 ]
 setup(name='upho',
       version='0.5.1',

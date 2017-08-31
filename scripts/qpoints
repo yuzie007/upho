@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+import numpy as np
+from upho.qpoints.qpoints_creator import QpointsCreator
+
+__author__ = 'Yuji Ikeda'
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    # http://people.sc.fsu.edu/~jburkardt/datasets/sphere_lebedev_rule/sphere_lebedev_rule.html
+    parser.add_argument(
+        '--lebedev',
+        default=6,
+        type=int,
+        help='Number of Lebedev mesh points')
+    parser.add_argument(
+        '--rmin',
+        default=0.0,
+        type=float,
+        help='Maximum radius in fractional coordinates')
+    parser.add_argument(
+        '--rmax',
+        default=1.0,
+        type=float,
+        help='Maximum radius in fractional coordinates')
+    parser.add_argument(
+        '--rstep',
+        default=0.02,
+        type=float,
+        help='Step of radii in fractional coordinates')
+    args = parser.parse_args()
+
+    nr = int(round(args.rmax - args.rmin) / args.rstep) + 1
+    radii = np.linspace(args.rmin, args.rmax, nr)
+
+    QpointsCreator(radii=radii, lebedev=args.lebedev).write()
+
+if __name__ == '__main__':
+    main()
