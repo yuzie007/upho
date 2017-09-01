@@ -19,7 +19,7 @@ class QpointsCreator(object):
         xyzw = np.array(Lebedev(self._lebedev))
         self._qpoints = (radii[:, None, None] * xyzw[None, :, :3]).reshape(-1, 3)
         self._weights = np.tile(xyzw[:, 3], radii.size)
-        self._groups = np.repeat(np.arange(xyzw.shape[0]), radii.size)
+        self._groups = np.repeat(np.arange(radii.size), xyzw.shape[0])
 
     def write(self):
         self._write_qpoints()
