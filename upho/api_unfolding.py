@@ -11,13 +11,10 @@ from phonopy.units import VaspToTHz
 from upho.phonon.band_structure import BandStructure
 from upho.phonon.single_point import SinglePoint
 from upho.phonon.mesh_unfolding import MeshUnfolding
-# from upho.dos_unfolding import TotalDos, PartialDos
 from upho.phonon.dos_unfolding import TotalDosUnfolding
-from upho.phonon.density_extractor import DensityExtractor
 from .analysis.fc_symmetrizer_spg import FCSymmetrizerSPG
 
-
-__author__ = "Yuji Ikeda"
+__author__ = 'Yuji Ikeda'
 
 
 class PhonopyUnfolding(Phonopy):
@@ -49,9 +46,6 @@ class PhonopyUnfolding(Phonopy):
         self._is_symmetry = is_symmetry
         self._use_lapack_solver = use_lapack_solver
         self._log_level = log_level
-
-        # self.create_density_extractor(dict_spectrum)
-        self._density_extractor = None
 
         # Create supercell and primitive cell
         self._unitcell = unitcell
@@ -119,24 +113,14 @@ class PhonopyUnfolding(Phonopy):
         self._star = star
         self._mode = mode
 
-    def create_density_extractor(self, dict_spectrum):
-        self._density_extractor = DensityExtractor(
-            function=dict_spectrum["function"],
-            fmin=dict_spectrum["freq_min"],
-            fmax=dict_spectrum["freq_max"],
-            fpitch=dict_spectrum["freq_pitch"],
-            sigma=dict_spectrum["sigma"],
-        )
-
     # Single point
     def run_single_point(self, qpoint, distance):
-        single_point = SinglePoint(
+        SinglePoint(
             qpoint,
             distance,
             dynamical_matrix=self._dynamical_matrix,
             unitcell_ideal=self._unitcell_ideal,
             primitive_matrix_ideal=self._primitive_matrix_ideal,
-            density_extractor=self._density_extractor,
             factor=self._factor,
             star=self._star,
             mode=self._mode,
@@ -157,7 +141,6 @@ class PhonopyUnfolding(Phonopy):
             self._dynamical_matrix,
             self._unitcell_ideal,
             self._primitive_matrix_ideal,
-            density_extractor=self._density_extractor,
             is_eigenvectors=is_eigenvectors,
             is_band_connection=is_band_connection,
             group_velocity=self._group_velocity,
@@ -225,7 +208,7 @@ class PhonopyUnfolding(Phonopy):
     def _set_dynamical_matrix(self):
         self._dynamical_matrix = None
 
-        if (self._supercell is None or self._primitive is None):
+        if self._supercell is None or self._primitive is None:
             print("Bug: Supercell or primitive is not created.")
             return False
         elif self._force_constants is None:
@@ -244,7 +227,7 @@ class PhonopyUnfolding(Phonopy):
                     symprec=self._symprec)
             else:
                 raise ValueError(
-                'Currently NAC is not available for unfolding.')
+                    'Currently NAC is not available for unfolding.')
             return True
 
     def _search_symmetry_ideal(self):
@@ -256,16 +239,18 @@ class PhonopyUnfolding(Phonopy):
         self._primitive_symmetry = Symmetry(self._primitive_ideal,
                                             self._symprec,
                                             self._is_symmetry)
-        
-        if (len(self._symmetry.get_pointgroup_operations()) !=
-            len(self._primitive_symmetry.get_pointgroup_operations())):
-            print("Warning: Point group symmetries of supercell and primitive"
-                  "cell are different.")
+
+        n0 = len(self._symmetry.get_pointgroup_operations())
+        n1 = len(self._primitive_symmetry.get_pointgroup_operations())
+        if n0 != n1:
+            raise Warning("Point group symmetries of supercell and primitive"
+                          "cell are different.")
 
     def _build_supercell_ideal(self):
-        self._supercell_ideal = get_supercell(self._unitcell_ideal,
-                                        self._supercell_matrix,
-                                        self._symprec)
+        self._supercell_ideal = get_supercell(
+            self._unitcell_ideal,
+            self._supercell_matrix,
+            self._symprec)
 
     def _build_primitive_cell_ideal(self):
         """
@@ -328,6 +313,7 @@ def calculate_average_masses(masses, symmetry):
     masses_average = calculate_average_atomic_property(masses, symmetry)
     return masses_average
 
+
 def calculate_average_atomic_property(values, symmetry):
     """Calculate average property of atoms
 
@@ -351,6 +337,7 @@ def calculate_average_atomic_property(values, symmetry):
         average = np.average(values[indices])
         values_average[indices] = average
     return values_average
+
 
 def calculate_mass_variances(masses, symmetry):
     masses = np.array(masses)
