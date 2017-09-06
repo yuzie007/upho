@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
-
 from upho.phonon.sf_fitter import SFFitter
+
+__author__ = 'Yuji Ikeda'
+
 
 def main():
     import argparse
@@ -19,9 +18,14 @@ def main():
     # parser.add_argument("--mode_band",
     #                     action="store_true",
     #                     help="Fitting for each band")
+    parser.add_argument('--function',
+                        type=str,
+                        default='gaussian',
+                        choices=['gaussian', 'lorentzian'],
+                        help="Fitting function")
     args = parser.parse_args()
 
-    SFFitter()
+    SFFitter(name=args.function)
 
 
 if __name__ == "__main__":

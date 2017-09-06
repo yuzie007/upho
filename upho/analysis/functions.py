@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
 import numpy as np
+
+__author__ = 'Yuji Ikeda'
 
 
 def lorentzian_old(x, position, width):
@@ -25,3 +24,29 @@ def gaussian(x, position, width):
     sigma = width / np.sqrt(2.0 * np.log(2.0))
     tmp = np.exp(- (x - position) ** 2 / (2.0 * sigma ** 2))
     return 1.0 / np.sqrt(2.0 * np.pi) / sigma * tmp
+
+
+def gaussian_unnormalized(x, position, width, norm):
+    return norm * gaussian(x, position, width)
+
+
+class FittingFunctionFactory(object):
+    def __init__(self, name: str, is_normalized: bool):
+        self._name = name
+        self._is_normalized = is_normalized
+
+    def create(self):
+        name = self._name
+        is_normalized = self._is_normalized
+        if name == 'lorentzian':
+            if is_normalized:
+                return lorentzian
+            else:
+                return lorentzian_unnormalized
+        elif name == 'gaussian':
+            if is_normalized:
+                return gaussian
+            else:
+                return gaussian_unnormalized
+        else:
+            raise ValueError('Unknown name', name)

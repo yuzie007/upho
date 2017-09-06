@@ -2,18 +2,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
 import h5py
 import numpy as np
 from scipy.optimize import curve_fit
-from upho.analysis.functions import lorentzian_unnormalized
+from upho.analysis.functions import FittingFunctionFactory
 from upho.irreps.irreps import extract_degeneracy_from_ir_label
+
+__author__ = 'Yuji Ikeda'
 
 
 class SFFitter(object):
-    def __init__(self, filename='sf.hdf5'):
+    def __init__(self, filename='sf.hdf5', name='gaussian'):
+        self._name = name
 
         with h5py.File(filename, 'r') as f:
             self._band_data = f
@@ -27,7 +27,7 @@ class SFFitter(object):
         frequencies = np.array(frequencies)
         self._is_squared = np.array(band_data['is_squared'])
 
-        filename_sf = 'sf_fitted.hdf5'
+        filename_sf = 'sf_fit.hdf5'
         with h5py.File(filename_sf, 'w') as f:
             self.print_header(f)
             for ipath in range(npaths):
@@ -48,6 +48,10 @@ class SFFitter(object):
         partial_sf_s = point_data['partial_sf_s']
         num_irreps = np.array(point_data['num_irreps'])
 
+        function = FittingFunctionFactory(
+            name=self._name,
+            is_normalized=False).create()
+
         peak_positions = []
         widths         = []
         norms          = []
@@ -62,9 +66,6 @@ class SFFitter(object):
                 width         = self._create_initial_width()
                 if self._is_squared:
                     norm = self._create_initial_norm(frequencies, sf)
-
-                    function = lorentzian_unnormalized
-
                     p0 = [peak_position, width, norm]
                     maxfev = create_maxfev(p0)
                     fit_params, pcov = curve_fit(
@@ -73,16 +74,16 @@ class SFFitter(object):
                     width         = fit_params[1]
                     norm          = fit_params[2]
                 else:
-                    ir_label = point_data['ir_labels'][i]
+                    ir_label = str(point_data['ir_labels'][i], encoding='ascii')
                     norm = float(extract_degeneracy_from_ir_label(ir_label))
 
-                    def lorentzian(x, p, w):
-                        return lorentzian_unnormalized(x, p, w, norm)
+                    def function_normalized(x, p, w):
+                        return function(x, p, w, norm)
 
                     p0 = [peak_position, width]
                     maxfev = create_maxfev(p0)
                     fit_params, pcov = curve_fit(
-                        lorentzian, frequencies, sf, p0=p0, maxfev=maxfev)
+                        function_normalized, frequencies, sf, p0=p0, maxfev=maxfev)
                     peak_position = fit_params[0]
                     width         = fit_params[1]
 
@@ -115,12 +116,7 @@ class SFFitter(object):
         return norm
 
     def print_header(self, file_output):
-        if self._is_squared:
-            function_name = 'lorentzian_unnormalized'
-        else:
-            function_name = 'lorentzian'
-
-        file_output.create_dataset('function'  , data=function_name)
+        file_output.create_dataset('function'  , data=self._name)
         file_output.create_dataset('is_squared', data=self._is_squared)
         file_output.create_dataset('paths'     , data=self._band_data['paths'])
 

@@ -14,7 +14,8 @@ packages = [
 scripts = [
     'scripts/upho_weights',
     'scripts/upho_sf',
-    'scripts/qpoints',
+    'scripts/upho_qpoints',
+    'scripts/upho_fit',
 ]
 setup(name='upho',
       version='0.5.1',
