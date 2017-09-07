@@ -35,18 +35,19 @@ class SFFitter(object):
                     print(ipath, ip)
                     group = '{}/{}/'.format(ipath, ip)
 
-                    peak_positions, widths, norms, fiterrs = (
+                    peak_positions, widths, norms, fiterrs, sf_fittings = (
                         self._fit_spectral_functions(
                             frequencies,
                             point_data=band_data[group],
                         )
                     )
 
-                    self._write(f, group, peak_positions, widths, norms, fiterrs)
+                    self._write(f, group, peak_positions, widths, norms, fiterrs, sf_fittings)
 
     def _fit_spectral_functions(self, frequencies, point_data, prec=1e-6):
         partial_sf_s = point_data['partial_sf_s']
         num_irreps = np.array(point_data['num_irreps'])
+        dfreq = frequencies[1] - frequencies[0]
 
         fitting_function = FittingFunctionFactory(
             name=self._name,
@@ -56,6 +57,7 @@ class SFFitter(object):
         widths         = []
         norms          = []
         fiterrs = []
+        sf_fittings = []
         for i in range(num_irreps):
             sf = partial_sf_s[:, i]
             if np.sum(sf) < prec:
@@ -63,6 +65,7 @@ class SFFitter(object):
                 width         = np.nan
                 norm          = np.nan
                 fiterr = np.nan
+                sf_fitting = np.full(frequencies.shape, np.nan)
             else:
                 peak_position = self._create_initial_peak_position(frequencies, sf)
                 width         = self._create_initial_width()
@@ -80,23 +83,26 @@ class SFFitter(object):
                 maxfev = create_maxfev(p0)
                 fit_params, pcov = curve_fit(
                     f, frequencies, sf, p0=p0, maxfev=maxfev)
-                fiterr = np.sqrt(np.sum((f(frequencies, *fit_params) - sf) ** 2))
+                fiterr = np.sqrt(np.sum((f(frequencies, *fit_params) - sf) ** 2)) * dfreq
 
                 peak_position = fit_params[0]
                 width         = fit_params[1]
                 norm          = fit_params[2] if len(fit_params) == 3 else norm
+                sf_fitting = f(frequencies, *fit_params)
 
             peak_positions.append(peak_position)
             widths        .append(width)
             norms         .append(norm)
             fiterrs.append(fiterr)
+            sf_fittings.append(sf_fitting)
 
         peak_positions = np.array(peak_positions)
         widths         = np.array(widths)
         norms          = np.array(norms)
         fiterrs = np.asarray(fiterrs)
+        sf_fittings = np.asarray(sf_fittings)
 
-        return peak_positions, widths, norms, fiterrs
+        return peak_positions, widths, norms, fiterrs, sf_fittings
 
     def _create_initial_peak_position(self, frequencies, sf, prec=1e-12):
         position = frequencies[np.argmax(sf)]
@@ -120,8 +126,9 @@ class SFFitter(object):
         file_output.create_dataset('function'  , data=self._name)
         file_output.create_dataset('is_squared', data=self._is_squared)
         file_output.create_dataset('paths'     , data=self._band_data['paths'])
+        file_output['frequencies'] = self._band_data['frequencies'][...]
 
-    def _write(self, file_out, group_name, peak_positions_s, widths_s, norms_s, fiterrs):
+    def _write(self, file_out, group_name, peak_positions_s, widths_s, norms_s, fiterrs, sf_fittings):
         group = file_out.create_group(group_name)
 
         keys = [
@@ -141,6 +148,8 @@ class SFFitter(object):
         group.create_dataset('widths_s', data=widths_s)
         group.create_dataset('norms_s', data=norms_s)
         group['fitting_errors'] = fiterrs
+        group['partial_sf_s'] = sf_fittings
+        group['total_sf'] = np.nansum(sf_fittings, axis=0)
 
 
 def create_maxfev(p0):
