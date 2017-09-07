@@ -35,67 +35,68 @@ class SFFitter(object):
                     print(ipath, ip)
                     group = '{}/{}/'.format(ipath, ip)
 
-                    peak_positions, widths, norms = (
+                    peak_positions, widths, norms, fiterrs = (
                         self._fit_spectral_functions(
                             frequencies,
                             point_data=band_data[group],
                         )
                     )
 
-                    self._write(f, group, peak_positions, widths, norms)
+                    self._write(f, group, peak_positions, widths, norms, fiterrs)
 
     def _fit_spectral_functions(self, frequencies, point_data, prec=1e-6):
         partial_sf_s = point_data['partial_sf_s']
         num_irreps = np.array(point_data['num_irreps'])
 
-        function = FittingFunctionFactory(
+        fitting_function = FittingFunctionFactory(
             name=self._name,
             is_normalized=False).create()
 
         peak_positions = []
         widths         = []
         norms          = []
+        fiterrs = []
         for i in range(num_irreps):
             sf = partial_sf_s[:, i]
             if np.sum(sf) < prec:
                 peak_position = np.nan
                 width         = np.nan
                 norm          = np.nan
+                fiterr = np.nan
             else:
                 peak_position = self._create_initial_peak_position(frequencies, sf)
                 width         = self._create_initial_width()
+
                 if self._is_squared:
                     norm = self._create_initial_norm(frequencies, sf)
-                    p0 = [peak_position, width, norm]
-                    maxfev = create_maxfev(p0)
-                    fit_params, pcov = curve_fit(
-                        function, frequencies, sf, p0=p0, maxfev=maxfev)
-                    peak_position = fit_params[0]
-                    width         = fit_params[1]
-                    norm          = fit_params[2]
                 else:
                     ir_label = str(point_data['ir_labels'][i], encoding='ascii')
                     norm = float(extract_degeneracy_from_ir_label(ir_label))
 
-                    def function_normalized(x, p, w):
-                        return function(x, p, w, norm)
+                def f(x, p, w):
+                    return fitting_function(x, p, w, norm)
 
-                    p0 = [peak_position, width]
-                    maxfev = create_maxfev(p0)
-                    fit_params, pcov = curve_fit(
-                        function_normalized, frequencies, sf, p0=p0, maxfev=maxfev)
-                    peak_position = fit_params[0]
-                    width         = fit_params[1]
+                p0 = [peak_position, width]
+                maxfev = create_maxfev(p0)
+                fit_params, pcov = curve_fit(
+                    f, frequencies, sf, p0=p0, maxfev=maxfev)
+                fiterr = np.sqrt(np.sum((f(frequencies, *fit_params) - sf) ** 2))
+
+                peak_position = fit_params[0]
+                width         = fit_params[1]
+                norm          = fit_params[2] if len(fit_params) == 3 else norm
 
             peak_positions.append(peak_position)
-            widths        .append(width        )
-            norms         .append(norm         )
+            widths        .append(width)
+            norms         .append(norm)
+            fiterrs.append(fiterr)
 
         peak_positions = np.array(peak_positions)
         widths         = np.array(widths)
         norms          = np.array(norms)
+        fiterrs = np.asarray(fiterrs)
 
-        return peak_positions, widths, norms
+        return peak_positions, widths, norms, fiterrs
 
     def _create_initial_peak_position(self, frequencies, sf, prec=1e-12):
         position = frequencies[np.argmax(sf)]
@@ -120,7 +121,8 @@ class SFFitter(object):
         file_output.create_dataset('is_squared', data=self._is_squared)
         file_output.create_dataset('paths'     , data=self._band_data['paths'])
 
-    def _write(self, file_out, group, peak_positions_s, widths_s, norms_s):
+    def _write(self, file_out, group_name, peak_positions_s, widths_s, norms_s, fiterrs):
+        group = file_out.create_group(group_name)
 
         keys = [
             'natoms_primitive',
@@ -133,11 +135,12 @@ class SFFitter(object):
 
         for k in keys:
             file_out.create_dataset(
-                group + k, data=np.array(self._band_data[group + k])
+                group_name + k, data=np.array(self._band_data[group_name + k])
             )
-        file_out.create_dataset(group + 'peaks_s' , data=peak_positions_s)
-        file_out.create_dataset(group + 'widths_s', data=widths_s        )
-        file_out.create_dataset(group + 'norms_s' , data=norms_s         )
+        group.create_dataset('peaks_s', data=peak_positions_s)
+        group.create_dataset('widths_s', data=widths_s)
+        group.create_dataset('norms_s', data=norms_s)
+        group['fitting_errors'] = fiterrs
 
 
 def create_maxfev(p0):
