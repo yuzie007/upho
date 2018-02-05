@@ -57,7 +57,36 @@ character_tables['m'] = {
     'character_table': (
         (1,  1),
         (1, -1),
-    )
+    ),
+    'class_to_rotations_list': [
+        # Improper rotation axis: x
+        {
+            'E'    : ((( 1,  0,  0),
+                       ( 0,  1,  0),
+                       ( 0,  0,  1),),),
+            'sgh'  : (((-1,  0,  0),
+                       ( 0,  1,  0),
+                       ( 0,  0,  1),),)
+        },
+        # Improper rotation axis: y
+        {
+            'E'    : ((( 1,  0,  0),
+                       ( 0,  1,  0),
+                       ( 0,  0,  1),),),
+            'sgh'  : ((( 1,  0,  0),
+                       ( 0, -1,  0),
+                       ( 0,  0,  1),),)
+        },
+        # Improper rotation axis: z
+        {
+            'E'    : ((( 1,  0,  0),
+                       ( 0,  1,  0),
+                       ( 0,  0,  1),),),
+            'sgh'  : ((( 1,  0,  0),
+                       ( 0,  1,  0),
+                       ( 0,  0, -1),),)
+        },
+    ]
 }
 # 5(C_2h)
 character_tables['2/m'] = {
