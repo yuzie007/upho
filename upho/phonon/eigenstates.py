@@ -375,7 +375,8 @@ class Eigenstates(object):
         self._distance = distance
 
     def get_reduced_elements(self):
-        return self._element_weights_calculator.get_reduced_elements()
+        return np.array(
+            self._element_weights_calculator.get_reduced_elements(), dtype='S')
 
     def write_hdf5(self, hdf5_file, group=''):
         """
