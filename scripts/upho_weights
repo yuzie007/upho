@@ -119,9 +119,7 @@ def main():
 
     print_version()
 
-    phonopy_conf = PhonopyConfParser(filename=args.conf_file,
-                                     options=args,
-                                     option_list=[])
+    phonopy_conf = PhonopyConfParser(filename=args.conf_file, args=object)
     settings = phonopy_conf.get_settings()
 
     dict_input = get_default_dict_input()
@@ -189,7 +187,7 @@ def main():
 
     if run_mode == 'band' or run_mode == 'mesh' or run_mode == 'band_mesh':
         if run_mode == 'band' or run_mode == 'band_mesh':
-            bands = settings.get_bands()
+            bands = settings.get_band_paths()
             phonon.set_band_structure(
                 bands,
                 is_eigenvectors=settings.get_is_eigenvectors(),
