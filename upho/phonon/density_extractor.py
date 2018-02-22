@@ -257,7 +257,7 @@ class DensityExtractorText(DensityExtractor):
         file_out.write('\n')
 
     def _write_e1(self, file_out, group, distance, sf):
-        elements = np.array(self._band_data[group + 'elements'])
+        elements = self._get_elements(group)
         ne = len(elements)
 
         file_out.write('# {:10s}'.format('Dist.'))
@@ -291,7 +291,7 @@ class DensityExtractorText(DensityExtractor):
         file_out.write('\n')
 
     def _write_e2(self, file_out, group, distance, sf):
-        elements = np.array(self._band_data[group + 'elements'])
+        elements = self._get_elements(group)
         ne = len(elements)
 
         file_out.write('# {:10s}'.format('Dist.'))
@@ -325,3 +325,6 @@ class DensityExtractorText(DensityExtractor):
         file_output.write('# sigma: {}\n'.format(sigma))  # For THz^2 or THz
         file_output.write('# is_squared: {}\n'.format(is_squared))
         file_output.write('#\n')
+
+    def _get_elements(self, group):
+        return [str(x) for x in self._band_data[group + 'elements']]
