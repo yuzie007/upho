@@ -103,7 +103,7 @@ of the A1 (fcc) structure.
 
 5.  Run::
 
-        /path/to/upho/scripts/upho_sf --fpitch 0.01 -s 0.05 --function lorentzian --nosquared --format text
+        /path/to/upho/scripts/upho_sf --fpitch 0.01 -s 0.05 --function lorentzian --format text
 
     then you hopefully get ``sf.dat`` file.
     In this file, the first, second, and third columns are for distances in reciprocal space, frequencies,
