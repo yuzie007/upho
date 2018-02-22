@@ -234,7 +234,7 @@ class DensityExtractorText(DensityExtractor):
         self._write_e2    (fe2, group, distance, spectral_functions)
 
     def _write_irreps(self, file_out, group, distance, sf):
-        ir_labels = np.array(self._band_data[group + 'ir_labels'])
+        ir_labels = [x.decode('ascii') for x in self._band_data[group + 'ir_labels']]
 
         file_out.write('# {:10s}'.format('Dist.'))
         file_out.write('{:12s}'.format('Freq. (THz)'))
@@ -327,4 +327,4 @@ class DensityExtractorText(DensityExtractor):
         file_output.write('#\n')
 
     def _get_elements(self, group):
-        return [str(x) for x in self._band_data[group + 'elements']]
+        return [x.decode('ascii') for x in self._band_data[group + 'elements']]
