@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+import unittest
+import numpy as np
+from upho.irreps.character_tables import character_tables
 
 __author__ = "Yuji Ikeda"
 
-import unittest
-from upho.irreps.character_tables import character_tables
 
 class TestCharacterTables(unittest.TestCase):
     def test_ir_labels_length(self):
@@ -27,9 +28,23 @@ class TestCharacterTables(unittest.TestCase):
                 ir_labels = character_tables[pg]["ir_labels"]
                 current_max = max(max(len(s) for s in ir_labels), current_max)
                 print(ir_labels, current_max)
+
+                is_orthogonal = self.is_orthogonal(
+                    character_tables[pg]["character_table"])
+                self.assertTrue(is_orthogonal)
             else:
                 print("Not implemeneted yet.")
         self.assertEqual(current_max, 3)
+
+    @staticmethod
+    def is_orthogonal(character_table):
+        character_table = np.array(character_table)
+        for i0, v0 in enumerate(character_table.T):
+            for i1, v1 in enumerate(character_table.T):
+                if i0 != i1 and not np.isclose(np.dot(v0, np.conj(v1)), 0.0):
+                    print(i0, i1, np.dot(v0, v1))
+                    return False
+        return True
 
 
 if __name__ == "__main__":
