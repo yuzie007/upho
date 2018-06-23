@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
-
-__author__ = "Yuji Ikeda"
-
 import sys
 from pprint import pprint
 import argparse
@@ -13,8 +10,11 @@ from phonopy.cui.settings import PhonopyConfParser
 from phonopy.interface import read_crystal_structure
 from phonopy.units import VaspToTHz
 from phonopy.structure.cells import print_cell
+from phonopy.phonon.band_structure import get_band_qpoints
 from upho.api_unfolding import PhonopyUnfolding
 from upho.file_io import read_input
+
+__author__ = "Yuji Ikeda"
 
 
 def print_version():
@@ -112,9 +112,7 @@ def main():
 
     print_version()
 
-    phonopy_conf = PhonopyConfParser(filename=args.conf_file,
-                                     options=args,
-                                     option_list=[])
+    phonopy_conf = PhonopyConfParser(filename=args.conf_file, args=object)
     settings = phonopy_conf.get_settings()
 
     dict_input = get_default_dict_input()
@@ -181,7 +179,9 @@ def main():
 
     if run_mode == 'band' or run_mode == 'mesh' or run_mode == 'band_mesh':
         if run_mode == 'band' or run_mode == 'band_mesh':
-            bands = settings.get_bands()
+            band_paths = settings.get_band_paths()
+            npoints = settings.get_band_points()
+            bands = get_band_qpoints(band_paths, npoints)
             phonon.set_band_structure(
                 bands,
                 is_eigenvectors=settings.get_is_eigenvectors(),
