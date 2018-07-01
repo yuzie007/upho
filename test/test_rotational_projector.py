@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import unittest
 import numpy as np
 from upho.phonon.rotational_projector import RotationalProjector
 from phonopy.interface.vasp import read_vasp
+
+__author__ = "Yuji Ikeda"
 
 
 class TestRotationalProjector(unittest.TestCase):
@@ -17,7 +16,7 @@ class TestRotationalProjector(unittest.TestCase):
         self._vectors = self._vectors[None]  # Tests for arbitrary number of dimensions
 
     def load_sc(self):
-        atoms = read_vasp("poscars/POSCAR_sc")
+        atoms = read_vasp("poscars/POSCAR_A_h")
         self._rotational_projector = RotationalProjector(atoms)
 
     def load_fcc(self):
