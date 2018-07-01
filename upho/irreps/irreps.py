@@ -5,15 +5,14 @@ Note
 ----
 Characters are generally not integer.
 """
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import numpy as np
 from phonopy.structure.symmetry import get_pointgroup
 from upho.irreps.character_tables import character_tables
 from group.mathtools import similarity_transformation
+
+__author__ = "Yuji Ikeda"
 
 
 def extract_degeneracy_from_ir_label(ir_label):
@@ -123,7 +122,7 @@ class Irreps(object):
         num_rotations = len(rotation_labels)
         num_irreps = len(character_table_data["ir_labels"])
 
-        characters = np.zeros((num_rotations, num_irreps))
+        characters = np.zeros((num_rotations, num_irreps), dtype=complex)
         for i, rotation_label in enumerate(rotation_labels):
             rotation_index = label_order.index(rotation_label)
             characters[i] = character_table[:, rotation_index]
