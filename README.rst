@@ -170,7 +170,7 @@ symmetry operations are not equal to zero.
 
 Author(s)
 ---------
-Yuji IKEDA (Kyoto University, Japan)
+Yuji Ikeda (y.ikeda@mpie.de, Max-Planck-Institut für Eisenforschung GmbH, Germary)
 
 How to cite
 -----------
