@@ -86,7 +86,7 @@ character_tables['2'] = {
 character_tables['m'] = {
     'rotation_labels': ('E', 'sgh'),
     'class_order_list': (1, 1),
-    'ir_labels': ('A\'', 'A\'\''),
+    'ir_labels': ('A\'', 'A\"'),
     'character_table': (
         (1,  1),
         (1, -1),
@@ -538,7 +538,7 @@ character_tables['-42m'] = {
 }
 # 15(D_4h)
 character_tables['4/mmm'] = {
-    'rotation_labels': ('E', 'C4', 'C2', 'C2\'', 'C2\'\'',
+    'rotation_labels': ('E', 'C4', 'C2', 'C2\'', 'C2\"',
                       'i', 'S4', 'sgh', 'sgv', 'sgd'),
     'class_order_list': (1, 2, 1, 2, 2, 1, 2, 1, 2, 2),
     'ir_labels': ('A1g', 'A2g', 'B1g', 'B2g', 'Eg',
@@ -575,7 +575,7 @@ character_tables['4/mmm'] = {
                        ((-1, 0, 0 ),
                         ( 0, 1, 0 ),
                         ( 0, 0,-1 ),),),
-            'C2\'\'': ((( 0, 1, 0 ),
+            'C2\"'  : ((( 0, 1, 0 ),
                         ( 1, 0, 0 ),
                         ( 0, 0,-1 ),),
                        (( 0,-1, 0 ),
@@ -1126,7 +1126,7 @@ character_tables['-6m2'] = {
 }
 # 27(D_6h)
 character_tables['6/mmm'] = {
-    'rotation_labels': ('E', 'C6', 'C3', 'C2', 'C2\'', 'C2\'\'',
+    'rotation_labels': ('E', 'C6', 'C3', 'C2', 'C2\'', 'C2\"',
                       'i', 'S3', 'S6', 'sgh', 'sgd', 'sgv'),
     'class_order_list': (1, 2, 2, 1, 3, 3, 1, 2, 2, 1, 3, 3),
     'ir_labels': ('A1g', 'A2g', 'B1g', 'B2g', 'E1g', 'E2g',
@@ -1174,7 +1174,7 @@ character_tables['6/mmm'] = {
                        (( 1,  0,  0),
                         ( 1, -1,  0),
                         ( 0,  0, -1),),),
-            'C2\'\'': ((( 0,  1,  0),
+            'C2\"':   ((( 0,  1,  0),
                         ( 1,  0,  0),
                         ( 0,  0, -1),),
                        (( 1, -1,  0),
