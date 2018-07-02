@@ -31,7 +31,14 @@ def gaussian_unnormalized(x, position, width, norm):
 
 
 class FittingFunctionFactory(object):
-    def __init__(self, name: str, is_normalized: bool):
+    def __init__(self, name, is_normalized):
+        """
+
+        Parameters
+        ----------
+        name : str
+        is_normalized : bool
+        """
         self._name = name
         self._is_normalized = is_normalized
 

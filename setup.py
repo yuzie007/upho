@@ -22,5 +22,4 @@ setup(name='upho',
       author="Yuji Ikeda",
       author_email="y.ikeda@mpie.de",
       packages=packages,
-      scripts=scripts,
-      install_requires=['numpy', 'h5py', 'phonopy'])
+      scripts=scripts)
