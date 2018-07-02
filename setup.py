@@ -18,7 +18,7 @@ scripts = [
     'scripts/upho_fit',
 ]
 setup(name='upho',
-      version='0.5.4',
+      version='0.5.6',
       author="Yuji Ikeda",
       author_email="y.ikeda@mpie.de",
       packages=packages,
