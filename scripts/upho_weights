@@ -112,7 +112,7 @@ def main():
 
     print_version()
 
-    phonopy_conf = PhonopyConfParser(filename=args.conf_file, args=object)
+    phonopy_conf = PhonopyConfParser(filename=args.conf_file)
     settings = phonopy_conf.get_settings()
 
     dict_input = get_default_dict_input()

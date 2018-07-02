@@ -5,8 +5,7 @@ import numpy as np
 from phonopy import Phonopy
 from phonopy.structure.symmetry import Symmetry
 from phonopy.structure.cells import get_supercell, get_primitive
-from upho.harmonic.dynamical_matrix import (
-        UnfolderDynamicalMatrix as DynamicalMatrix)
+from phonopy.harmonic.dynamical_matrix import DynamicalMatrix
 from phonopy.units import VaspToTHz
 from upho.phonon.band_structure import BandStructure
 from upho.phonon.single_point import SinglePoint
