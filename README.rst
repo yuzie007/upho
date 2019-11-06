@@ -8,18 +8,14 @@ Requirements
 
 * numpy
 * h5py
-* phonopy
+* phonopy>=2.3.2
 
 Install
 -------
 
-1.  Download the latest version from <https://github.com/yuzie007/upho/releases>
+.. code-block::
 
-2.  Run setup.py like::
-
-        python setup.py install --home=.
-
-3.  Put 'upho/lib/python' into ``$PYTHONPATH``.
+    pip install git+https://github.com/yuzie007/upho.git@v0.6.0
 
 Usage and Tutorial
 ------------------
@@ -97,13 +93,13 @@ of the A1 (fcc) structure.
 
 4.  Run::
 
-        /path/to/upho/scripts/upho_weights band.conf
+        upho_weights band.conf
 
     then you hopefully get ``band.hdf5`` file.
 
 5.  Run::
 
-        /path/to/upho/scripts/upho_sf --fpitch 0.01 -s 0.05 --function lorentzian --format text
+        upho_sf --fpitch 0.01 -s 0.05 --function lorentzian --format text
 
     then you hopefully get ``sf_E1.dat``, ``sf_E2.dat``, and ``sf_SR.dat`` files.
     In these files, the first, second, and third columns are
