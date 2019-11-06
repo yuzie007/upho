@@ -1,6 +1,9 @@
 UPHO
 ====
 
+.. image:: https://travis-ci.org/yuzie007/upho.svg?branch=master
+    :target: https://travis-ci.org/yuzie007/upho
+
 Band unfolding for phonons <http://yuzie007.github.io/upho/>
 
 Requirements
