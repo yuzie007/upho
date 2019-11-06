@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
 import unittest
 import numpy as np
 from phonopy.structure.cells import get_primitive
@@ -103,7 +96,7 @@ class TestVectorsAdjuster(unittest.TestCase):
 
     def test_reduce_vectors_to_primitive(self):
         vectors_adjuster = self._vectors_adjuster
-        atoms = read_vasp("poscars/POSCAR_fcc")
+        atoms = read_vasp("tests/poscars/POSCAR_fcc")
         primitive_matrix = [
             [0.0, 0.5, 0.5],
             [0.5, 0.0, 0.5],
@@ -124,7 +117,7 @@ class TestVectorsAdjuster(unittest.TestCase):
 
     def test_reduce_vectors_to_primitive_for_multidimensional_vectors(self):
         vectors_adjuster = self._vectors_adjuster
-        atoms = read_vasp("poscars/POSCAR_fcc")
+        atoms = read_vasp("tests/poscars/POSCAR_fcc")
         primitive_matrix = [
             [0.0, 0.5, 0.5],
             [0.5, 0.0, 0.5],

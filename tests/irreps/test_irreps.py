@@ -1,18 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import unittest
 from phonopy.interface.vasp import read_vasp
 from upho.structure.unfolder_symmetry import UnfolderSymmetry
 from upho.irreps.irreps import Irreps
 
-__author__ = "Yuji Ikeda"
-
 
 class TestIrreps(unittest.TestCase):
     def test_fcc_conv(self):
-        filename = "../poscars/POSCAR_fcc"
+        filename = "tests/poscars/POSCAR_fcc"
 
         atoms = read_vasp(filename)
         symmetry = UnfolderSymmetry(atoms)
@@ -30,7 +24,7 @@ class TestIrreps(unittest.TestCase):
         self.check_irreps(rotations, 'mm2')
 
     def test_fcc_prim(self):
-        filename = "../poscars/POSCAR_fcc_prim"
+        filename = "tests/poscars/POSCAR_fcc_prim"
 
         atoms = read_vasp(filename)
         symmetry = UnfolderSymmetry(atoms)
@@ -67,7 +61,7 @@ class TestIrreps(unittest.TestCase):
         self.check_irreps(rotations, '1')
 
     def test_a3(self):
-        filename = "../poscars/POSCAR_A3"
+        filename = "tests/poscars/POSCAR_A3"
 
         atoms = read_vasp(filename)
         symmetry = UnfolderSymmetry(atoms)
@@ -96,7 +90,7 @@ class TestIrreps(unittest.TestCase):
         self.check_irreps(rotations, '6mm')
 
     def test_a13(self):
-        filename = "../poscars/POSCAR_A13"
+        filename = "tests/poscars/POSCAR_A13"
 
         atoms = read_vasp(filename)
         symmetry = UnfolderSymmetry(atoms)  # 213
@@ -109,7 +103,7 @@ class TestIrreps(unittest.TestCase):
         self.check_irreps(rotations, '422')
 
     def test_b3(self):
-        filename = "../poscars/POSCAR_B3_conv"
+        filename = "tests/poscars/POSCAR_B3_conv"
 
         atoms = read_vasp(filename)
         symmetry = UnfolderSymmetry(atoms)  # 216
@@ -122,7 +116,7 @@ class TestIrreps(unittest.TestCase):
         self.check_irreps(rotations, '-42m')
 
     def test_mgnh(self):
-        filename = "../poscars/POSCAR_MgNH"
+        filename = "tests/poscars/POSCAR_MgNH"
 
         atoms = read_vasp(filename)
         symmetry = UnfolderSymmetry(atoms)  # 216
@@ -143,7 +137,7 @@ class TestIrreps(unittest.TestCase):
         self.check_irreps(rotations, '3')
 
     def test_sc(self):
-        filename = "../poscars/POSCAR_Sc"
+        filename = "tests/poscars/POSCAR_Sc"
 
         atoms = read_vasp(filename)
         symmetry = UnfolderSymmetry(atoms)  # 178
@@ -156,7 +150,7 @@ class TestIrreps(unittest.TestCase):
         self.check_irreps(rotations, '32')
 
     def test_cl12pd6(self):
-        filename = "../poscars/POSCAR_Cl12Pd6"
+        filename = "tests/poscars/POSCAR_Cl12Pd6"
 
         atoms = read_vasp(filename)
         symmetry = UnfolderSymmetry(atoms)  # 148
@@ -165,7 +159,7 @@ class TestIrreps(unittest.TestCase):
         self.check_irreps(rotations, '-3')
 
     def test_thcl4(self):
-        filename = "../poscars/POSCAR_ThCl4"
+        filename = "tests/poscars/POSCAR_ThCl4"
 
         atoms = read_vasp(filename)
         symmetry = UnfolderSymmetry(atoms)  # 88
@@ -174,7 +168,7 @@ class TestIrreps(unittest.TestCase):
         self.check_irreps(rotations, '4/m')
 
     def test_22(self):
-        filename = "../poscars/POSCAR_H3S"
+        filename = "tests/poscars/POSCAR_H3S"
 
         atoms = read_vasp(filename)
         symmetry = UnfolderSymmetry(atoms)
@@ -183,7 +177,7 @@ class TestIrreps(unittest.TestCase):
         self.check_irreps(rotations, '222')
 
     def test_97(self):
-        filename = "../poscars/POSCAR_NaGdCu2F8"
+        filename = "tests/poscars/POSCAR_NaGdCu2F8"
 
         atoms = read_vasp(filename)
         symmetry = UnfolderSymmetry(atoms)

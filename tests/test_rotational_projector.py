@@ -16,12 +16,12 @@ class TestRotationalProjector(unittest.TestCase):
         self._vectors = self._vectors[None]  # Tests for arbitrary number of dimensions
 
     def load_sc(self):
-        atoms = read_vasp("poscars/POSCAR_A_h")
+        atoms = read_vasp("tests/poscars/POSCAR_A_h")
         self._rotational_projector = RotationalProjector(atoms)
 
     def load_fcc(self):
-        atoms = read_vasp("poscars/POSCAR_fcc_prim_test")
-        # atoms = read_vasp("poscars/POSCAR_fcc_prim")
+        atoms = read_vasp("tests/poscars/POSCAR_fcc_prim_test")
+        # atoms = read_vasp("tests/poscars/POSCAR_fcc_prim")
         self._rotational_projector = RotationalProjector(atoms)
 
     def test_0(self):

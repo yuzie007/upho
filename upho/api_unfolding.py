@@ -222,8 +222,7 @@ class PhonopyUnfolding(Phonopy):
                     self._supercell,
                     self._primitive,
                     self._force_constants,
-                    decimals=self._dynamical_matrix_decimals,
-                    symprec=self._symprec)
+                    decimals=self._dynamical_matrix_decimals)
             else:
                 raise ValueError(
                     'Currently NAC is not available for unfolding.')

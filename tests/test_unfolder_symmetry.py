@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import division, absolute_import, print_function
-
-__author__ = "Yuji Ikeda"
-
 import unittest
 import numpy as np
 from phonopy.interface.vasp import read_vasp
@@ -12,7 +6,7 @@ from upho.structure.unfolder_symmetry import UnfolderSymmetry
 
 class TestUnfolderSymmetry(unittest.TestCase):
     def setUp(self):
-        atoms = read_vasp("POSCAR_sc")
+        atoms = read_vasp("tests/poscars/POSCAR_A_h")
         self._symmetry = UnfolderSymmetry(atoms)
 
     def test_000(self):
