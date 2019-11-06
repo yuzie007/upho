@@ -11,7 +11,7 @@ POSCAR_DIR = os.path.join(os.path.dirname(__file__), 'poscars')
 
 class TestElementWeightsCalculator(unittest.TestCase):
     def test_A4(self):
-        unitcell = read_vasp(os.path.join(POSCAR, "POSCAR_A4_conv"))
+        unitcell = read_vasp(os.path.join(POSCAR_DIR, "POSCAR_A4_conv"))
         primitive_matrix = [
             [0.0, 0.5, 0.5],
             [0.5, 0.0, 0.5],
