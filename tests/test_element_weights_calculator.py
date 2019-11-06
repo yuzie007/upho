@@ -1,16 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
 import unittest
+import os
 import numpy as np
 from phonopy.interface.vasp import read_vasp
 from phonopy.structure.cells import get_primitive
 from upho.phonon.element_weights_calculator import (
     ElementWeightsCalculator)
+
+POSCAR_DIR = os.path.join(os.path.dirname(__file__), 'poscars')
 
 
 class TestElementWeightsCalculator(unittest.TestCase):

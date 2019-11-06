@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import division, absolute_import, print_function
-
-__author__ = "Yuji Ikeda"
-
 import unittest
 import numpy as np
 from upho.analysis.mappings_modifier import MappingsModifier

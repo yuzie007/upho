@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
 import unittest
 import numpy as np
 from upho.analysis.functions import lorentzian_unnormalized
@@ -34,7 +27,7 @@ class TestFunctions(unittest.TestCase):
                     print()
                     if not np.isnan(ratio):
                         self.assertTrue(np.abs(ratio - 1.0) < prec)
-                
+
 
 if __name__ == "__main__":
     unittest.main()

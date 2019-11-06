@@ -1,9 +1,12 @@
 import unittest
+import os
 import numpy as np
 from phonopy.interface.vasp import read_vasp
 from phonopy.structure.symmetry import Symmetry
 from upho.api_unfolding import (
     calculate_average_masses, calculate_mass_variances)
+
+POSCAR_DIR = os.path.join(os.path.dirname(__file__), 'poscars')
 
 
 def create_msg(list1, list2):
@@ -15,12 +18,12 @@ def create_msg(list1, list2):
 
 class TestAverageMasses(unittest.TestCase):
     def setUp(self):
-        unitcell_ideal = read_vasp('tests/poscars/POSCAR_omega_ideal')
+        unitcell_ideal = read_vasp(os.path.join(POSCAR_DIR, 'POSCAR_omega_ideal'))
         self._symmetry = Symmetry(unitcell_ideal)
         self._prec = 1e-12
 
     def test_1(self):
-        unitcell = read_vasp('tests/poscars/POSCAR_omega_disordered_1')
+        unitcell = read_vasp(os.path.join(POSCAR_DIR, 'POSCAR_omega_disordered_1'))
         masses = unitcell.get_masses()
 
         masses_average = calculate_average_masses(masses, self._symmetry)
@@ -36,7 +39,7 @@ class TestAverageMasses(unittest.TestCase):
         self.assertTrue(is_same, msg=msg)
 
     def test_2(self):
-        unitcell = read_vasp('tests/poscars/POSCAR_omega_disordered_2')
+        unitcell = read_vasp(os.path.join(POSCAR_DIR, 'POSCAR_omega_disordered_2'))
         masses = unitcell.get_masses()
 
         masses_average = calculate_average_masses(masses, self._symmetry)

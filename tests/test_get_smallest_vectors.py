@@ -1,15 +1,18 @@
 import time
 import unittest
+import os
 import numpy as np
 from phonopy.interface.vasp import read_vasp
 from phonopy.structure.cells import _get_smallest_vectors, get_primitive
 from upho.harmonic.dynamical_matrix import (
     get_smallest_vectors as get_smallest_vectors_upho)
 
+POSCAR_DIR = os.path.join(os.path.dirname(__file__), 'poscars')
+
 
 class TestRotationalProjector(unittest.TestCase):
     def setUp(self):
-        self._atoms = read_vasp('tests/poscars/POSCAR_fcc_2x2x2')
+        self._atoms = read_vasp(os.path.join(POSCAR_DIR, 'POSCAR_fcc_2x2x2'))
         self._primitive_matrix = np.array([
             [0.00, 0.25, 0.25],
             [0.25, 0.00, 0.25],

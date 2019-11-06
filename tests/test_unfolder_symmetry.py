@@ -1,12 +1,15 @@
 import unittest
+import os
 import numpy as np
 from phonopy.interface.vasp import read_vasp
 from upho.structure.unfolder_symmetry import UnfolderSymmetry
 
+POSCAR_DIR = os.path.join(os.path.dirname(__file__), 'poscars')
+
 
 class TestUnfolderSymmetry(unittest.TestCase):
     def setUp(self):
-        atoms = read_vasp("tests/poscars/POSCAR_A_h")
+        atoms = read_vasp(os.path.join(POSCAR_DIR, "POSCAR_A_h"))
         self._symmetry = UnfolderSymmetry(atoms)
 
     def test_000(self):

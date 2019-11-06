@@ -1,8 +1,11 @@
 import unittest
+import os
 import numpy as np
 from phonopy.structure.cells import get_primitive
 from phonopy.interface.vasp import read_vasp
 from upho.phonon.vectors_adjuster import VectorsAdjuster
+
+POSCAR_DIR = os.path.join(os.path.dirname(__file__), 'poscars')
 
 
 class DummyAtoms(object):
@@ -96,7 +99,7 @@ class TestVectorsAdjuster(unittest.TestCase):
 
     def test_reduce_vectors_to_primitive(self):
         vectors_adjuster = self._vectors_adjuster
-        atoms = read_vasp("tests/poscars/POSCAR_fcc")
+        atoms = read_vasp(os.path.join(POSCAR_DIR, "POSCAR_fcc"))
         primitive_matrix = [
             [0.0, 0.5, 0.5],
             [0.5, 0.0, 0.5],
@@ -117,7 +120,7 @@ class TestVectorsAdjuster(unittest.TestCase):
 
     def test_reduce_vectors_to_primitive_for_multidimensional_vectors(self):
         vectors_adjuster = self._vectors_adjuster
-        atoms = read_vasp("tests/poscars/POSCAR_fcc")
+        atoms = read_vasp(os.path.join(POSCAR_DIR, "POSCAR_fcc"))
         primitive_matrix = [
             [0.0, 0.5, 0.5],
             [0.5, 0.0, 0.5],
