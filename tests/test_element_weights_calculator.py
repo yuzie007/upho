@@ -11,7 +11,7 @@ POSCAR_DIR = os.path.join(os.path.dirname(__file__), 'poscars')
 
 class TestElementWeightsCalculator(unittest.TestCase):
     def test_A4(self):
-        unitcell = read_vasp("tests/poscars/POSCAR_A4_conv")
+        unitcell = read_vasp(os.path.join(POSCAR, "POSCAR_A4_conv"))
         primitive_matrix = [
             [0.0, 0.5, 0.5],
             [0.5, 0.0, 0.5],
@@ -21,7 +21,7 @@ class TestElementWeightsCalculator(unittest.TestCase):
         self.check(unitcell, primitive)
 
     def test_B3(self):
-        unitcell = read_vasp("tests/poscars/POSCAR_B3_conv")
+        unitcell = read_vasp(os.path.join(POSCAR_DIR, "POSCAR_B3_conv"))
         primitive_matrix = [
             [0.0, 0.5, 0.5],
             [0.5, 0.0, 0.5],
@@ -36,13 +36,13 @@ class TestElementWeightsCalculator(unittest.TestCase):
         self.check(unitcell, primitive)
 
     def prepare_L1_2(self):
-        unitcell = read_vasp("tests/poscars/POSCAR_L1_2")
+        unitcell = read_vasp(os.path.join(POSCAR_DIR, "POSCAR_L1_2"))
         primitive_matrix = [
             [0.0, 0.5, 0.5],
             [0.5, 0.0, 0.5],
             [0.5, 0.5, 0.0],
         ]
-        unitcell_ideal = read_vasp("tests/poscars/POSCAR_fcc")
+        unitcell_ideal = read_vasp(os.path.join(POSCAR_DIR, "POSCAR_fcc"))
         return unitcell, unitcell_ideal, primitive_matrix
 
     def check(self, unitcell, primitive):
