@@ -1,0 +1,12 @@
+language: python
+
+env:
+  - PHONOPY_VERSION=2.3.2
+
+install:
+  - python -mpip install phonopy==$PHONOPY_VERSION
+  - python -mpip install pytest pytest-cov
+  - python -mpip install codecov coverage
+script: python -mpytest tests -ra --cov=./ --log-level=DEBUG
+after_success:
+  - codecov
