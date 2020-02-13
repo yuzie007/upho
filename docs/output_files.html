@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Output files &#8212; upho 0.6.0 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Projection" href="projection.html" />
+    <link rel="prev" title="Welcome to upho’s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="projection.html" title="Projection"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to upho’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">upho 0.6.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Output files</a><ul>
+<li><a class="reference internal" href="#band-hdf5"><code class="docutils literal notranslate"><span class="pre">band.hdf5</span></code></a><ul>
+<li><a class="reference internal" href="#paths"><code class="docutils literal notranslate"><span class="pre">paths</span></code></a></li>
+<li><a class="reference internal" href="#point"><code class="docutils literal notranslate"><span class="pre">point</span></code></a></li>
+<li><a class="reference internal" href="#q-star"><code class="docutils literal notranslate"><span class="pre">q_star</span></code></a></li>
+<li><a class="reference internal" href="#distance"><code class="docutils literal notranslate"><span class="pre">distance</span></code></a></li>
+<li><a class="reference internal" href="#natoms-primitive"><code class="docutils literal notranslate"><span class="pre">natoms_primitive</span></code></a></li>
+<li><a class="reference internal" href="#elements"><code class="docutils literal notranslate"><span class="pre">elements</span></code></a></li>
+<li><a class="reference internal" href="#num-arms"><code class="docutils literal notranslate"><span class="pre">num_arms</span></code></a></li>
+<li><a class="reference internal" href="#pointgroup-symbol"><code class="docutils literal notranslate"><span class="pre">pointgroup_symbol</span></code></a></li>
+<li><a class="reference internal" href="#num-irreps"><code class="docutils literal notranslate"><span class="pre">num_irreps</span></code></a></li>
+<li><a class="reference internal" href="#ir-labels"><code class="docutils literal notranslate"><span class="pre">ir_labels</span></code></a></li>
+<li><a class="reference internal" href="#frequencies"><code class="docutils literal notranslate"><span class="pre">frequencies</span></code></a></li>
+<li><a class="reference internal" href="#weights-t"><code class="docutils literal notranslate"><span class="pre">weights_t</span></code></a></li>
+<li><a class="reference internal" href="#weights-e"><code class="docutils literal notranslate"><span class="pre">weights_e</span></code></a></li>
+<li><a class="reference internal" href="#weights-s"><code class="docutils literal notranslate"><span class="pre">weights_s</span></code></a></li>
+<li><a class="reference internal" href="#weights-s-e"><code class="docutils literal notranslate"><span class="pre">weights_s_e</span></code></a></li>
+<li><a class="reference internal" href="#weights-e2"><code class="docutils literal notranslate"><span class="pre">weights_e2</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to upho’s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="projection.html"
+                        title="next chapter">Projection</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/output_files.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="output-files">
+<h1>Output files<a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="band-hdf5">
+<h2><code class="docutils literal notranslate"><span class="pre">band.hdf5</span></code><a class="headerlink" href="#band-hdf5" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">band.hdf5</span>
+<span class="go">├── paths (Dataset {3, 101, 3})</span>
+<span class="go">├── 0 (Group)</span>
+<span class="go">│   ├── 0 (Group)</span>
+<span class="go">│   ├── 1 (Group)</span>
+<span class="go">│   │   ├── point             (Dataset {3})</span>
+<span class="go">│   │   ├── q_star            (Dataset {6, 3})</span>
+<span class="go">│   │   ├── distance          (Dataset {SCALAR})</span>
+<span class="go">│   │   ├── natoms_primitive  (Dataset {SCALAR})</span>
+<span class="go">│   │   ├── elements          (Dataset {2})</span>
+<span class="go">│   │   ├── num_arms          (Dataset {SCALAR})</span>
+<span class="go">│   │   ├── pointgroup_symbol (Dataset {SCALAR})</span>
+<span class="go">│   │   ├── num_irreps        (Dataset {SCALAR})</span>
+<span class="go">│   │   ├── ir_labels         (Dataset {10})</span>
+<span class="go">│   │   ├── frequencies       (Dataset {6, 12})</span>
+<span class="go">│   │   ├── weights_t         (Dataset {6, 12})</span>
+<span class="go">│   │   ├── weights_e         (Dataset {6, 1, 2, 1, 2, 12})</span>
+<span class="go">│   │   ├── weights_s         (Dataset {6, 5, 12})</span>
+<span class="go">│   │   ├── weights_s_e       (Dataset {6, 5, 1, 2, 1, 2, 12})</span>
+<span class="go">│   │   └── weights_e2        (Dataset {6, 1, 2, 12})</span>
+<span class="go">│   ├── 2 (Group)</span>
+<span class="go">│   .</span>
+<span class="go">│   .</span>
+<span class="go">│   .</span>
+<span class="go">│</span>
+<span class="go">├── 1 (Group)</span>
+<span class="go">│   ├── 0 (Group)</span>
+<span class="go">│   ├── 1 (Group)</span>
+<span class="go">│   ├── 2 (Group)</span>
+<span class="go">│   .</span>
+<span class="go">│   .</span>
+<span class="go">│   .</span>
+<span class="go">│</span>
+<span class="go">├── 2 (Group)</span>
+<span class="go">│   ├── 0 (Group)</span>
+<span class="go">│   ├── 1 (Group)</span>
+<span class="go">│   ├── 2 (Group)</span>
+<span class="go">│   .</span>
+<span class="go">│   .</span>
+<span class="go">│   .</span>
+</pre></div>
+</div>
+<div class="section" id="paths">
+<h3><code class="docutils literal notranslate"><span class="pre">paths</span></code><a class="headerlink" href="#paths" title="Permalink to this headline">¶</a></h3>
+<p>Array with the shape of <code class="docutils literal notranslate"><span class="pre">(NPATHS,</span> <span class="pre">BAND_POINTS,</span> <span class="pre">3)</span></code>.</p>
+<p>Q-point sets and the shape of band paths.</p>
+<p><code class="docutils literal notranslate"><span class="pre">NPATHS</span></code> corresponds to the number of 3-integer sets in <code class="docutils literal notranslate"><span class="pre">BAND</span></code> in <code class="docutils literal notranslate"><span class="pre">band.conf</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BAND_POINTS</span></code> corresponds to that in <code class="docutils literal notranslate"><span class="pre">band.conf</span></code>.</p>
+<p>Each group corresponds to one of the q-points given here.</p>
+</div>
+<div class="section" id="point">
+<h3><code class="docutils literal notranslate"><span class="pre">point</span></code><a class="headerlink" href="#point" title="Permalink to this headline">¶</a></h3>
+<p>Reciprocal space point in fractional coordinates to be computed.</p>
+</div>
+<div class="section" id="q-star">
+<h3><code class="docutils literal notranslate"><span class="pre">q_star</span></code><a class="headerlink" href="#q-star" title="Permalink to this headline">¶</a></h3>
+<p>Star (symmetrically equivalent set of points) of <code class="docutils literal notranslate"><span class="pre">point</span></code> in the ideal lattice considered in the calculations.
+The actual behavior depends on the value of <code class="docutils literal notranslate"><span class="pre">star</span></code> in <code class="docutils literal notranslate"><span class="pre">input.json</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sym</span></code> (default): Symmetrically euqivalent q-points, w/o duplications, are considered.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">all</span></code>: Symmetrically equivalent q-points, possibly duplicated due to symmetry operations. Maybe used for testing purposes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">none</span></code>: Only the given q-point is considered.</p></li>
+</ul>
+</div>
+<div class="section" id="distance">
+<h3><code class="docutils literal notranslate"><span class="pre">distance</span></code><a class="headerlink" href="#distance" title="Permalink to this headline">¶</a></h3>
+<p>Distance of the considered reciprocal-space point from the first one along the band paths in fractional coordinates.</p>
+</div>
+<div class="section" id="natoms-primitive">
+<h3><code class="docutils literal notranslate"><span class="pre">natoms_primitive</span></code><a class="headerlink" href="#natoms-primitive" title="Permalink to this headline">¶</a></h3>
+<p>The number of atoms in the primitive cell of the ideal lattice. (<code class="docutils literal notranslate"><span class="pre">natoms_p</span></code> in <code class="docutils literal notranslate"><span class="pre">eigenstates.py</span></code>.)</p>
+</div>
+<div class="section" id="elements">
+<h3><code class="docutils literal notranslate"><span class="pre">elements</span></code><a class="headerlink" href="#elements" title="Permalink to this headline">¶</a></h3>
+<p>Chemical elements in the disordered-alloy model.
+The number of the chemical elements are <code class="docutils literal notranslate"><span class="pre">nelms</span></code> in <code class="docutils literal notranslate"><span class="pre">eigenstates.py</span></code>.</p>
+</div>
+<div class="section" id="num-arms">
+<h3><code class="docutils literal notranslate"><span class="pre">num_arms</span></code><a class="headerlink" href="#num-arms" title="Permalink to this headline">¶</a></h3>
+<p>The number of the arms of the star.
+Specifically this equals to <code class="docutils literal notranslate"><span class="pre">len(q_star)</span></code>.</p>
+</div>
+<div class="section" id="pointgroup-symbol">
+<h3><code class="docutils literal notranslate"><span class="pre">pointgroup_symbol</span></code><a class="headerlink" href="#pointgroup-symbol" title="Permalink to this headline">¶</a></h3>
+<p>Point group symbol in the Hermann–Mauguin notation associated with the little co-group of the considered reciprocal-space point.</p>
+</div>
+<div class="section" id="num-irreps">
+<h3><code class="docutils literal notranslate"><span class="pre">num_irreps</span></code><a class="headerlink" href="#num-irreps" title="Permalink to this headline">¶</a></h3>
+<p>The number of irreducible representations of the little co-group.</p>
+</div>
+<div class="section" id="ir-labels">
+<h3><code class="docutils literal notranslate"><span class="pre">ir_labels</span></code><a class="headerlink" href="#ir-labels" title="Permalink to this headline">¶</a></h3>
+<p>Labels of the irreducible representations.</p>
+</div>
+<div class="section" id="frequencies">
+<h3><code class="docutils literal notranslate"><span class="pre">frequencies</span></code><a class="headerlink" href="#frequencies" title="Permalink to this headline">¶</a></h3>
+<p>Array with the shape of <code class="docutils literal notranslate"><span class="pre">(num_arms,</span> <span class="pre">nfreqs)</span></code>, where <code class="docutils literal notranslate"><span class="pre">nfreqs</span></code> is equal to <code class="docutils literal notranslate"><span class="pre">3</span> <span class="pre">*</span> <span class="pre">natoms_primitive</span></code>.</p>
+<p>Phonon frequencies projected onto this q-point.</p>
+</div>
+<div class="section" id="weights-t">
+<h3><code class="docutils literal notranslate"><span class="pre">weights_t</span></code><a class="headerlink" href="#weights-t" title="Permalink to this headline">¶</a></h3>
+<p>Array with the shape of <code class="docutils literal notranslate"><span class="pre">(num_arms,</span> <span class="pre">nfreqs)</span></code>.</p>
+<p>Weights of the phonon frequencies determined by the band unfolding.</p>
+</div>
+<div class="section" id="weights-e">
+<h3><code class="docutils literal notranslate"><span class="pre">weights_e</span></code><a class="headerlink" href="#weights-e" title="Permalink to this headline">¶</a></h3>
+<p>Array with the shape of <code class="docutils literal notranslate"><span class="pre">(num_arms,</span> <span class="pre">natoms_p,</span> <span class="pre">nelms,</span> <span class="pre">natoms_p,</span> <span class="pre">nelms,</span> <span class="pre">nfreqs)</span></code>.</p>
+<p>Partial weights for chemical pairs.</p>
+</div>
+<div class="section" id="weights-s">
+<h3><code class="docutils literal notranslate"><span class="pre">weights_s</span></code><a class="headerlink" href="#weights-s" title="Permalink to this headline">¶</a></h3>
+<p>Array with the shape of <code class="docutils literal notranslate"><span class="pre">(num_arms,</span> <span class="pre">num_irreps,</span> <span class="pre">nfreqs)</span></code>.</p>
+<p>Partial weights for irreducible representations.
+Introduced in
+<a class="reference external" href="https://doi.org/10.1103/PhysRevB.95.024305">[Y. Ikeda, A. Carreras, A. Seko, A. Togo, and I. Tanaka, Phys. Rev. B 95, 24305 (2017)</a>].</p>
+</div>
+<div class="section" id="weights-s-e">
+<h3><code class="docutils literal notranslate"><span class="pre">weights_s_e</span></code><a class="headerlink" href="#weights-s-e" title="Permalink to this headline">¶</a></h3>
+<p>Array with the shape of
+<code class="docutils literal notranslate"><span class="pre">(num_arms,</span> <span class="pre">num_irreps,</span> <span class="pre">natoms_p,</span> <span class="pre">nelms,</span> <span class="pre">natoms_p,</span> <span class="pre">nelms,</span> <span class="pre">nfreqs)</span></code>.</p>
+<p>Partial weights for irreducible representations and for chemical pairs.</p>
+</div>
+<div class="section" id="weights-e2">
+<h3><code class="docutils literal notranslate"><span class="pre">weights_e2</span></code><a class="headerlink" href="#weights-e2" title="Permalink to this headline">¶</a></h3>
+<p>Array with the shape of
+<code class="docutils literal notranslate"><span class="pre">(num_arms,</span> <span class="pre">natoms_p,</span> <span class="pre">nelms,</span> <span class="pre">nfreqs)</span></code>.</p>
+<p>Partial weights for chemical elements. Introduced in
+[<a class="reference external" href="https://doi.org/10.1038/s41524-017-0037-8">F. Körmann, Y. Ikeda, B. Grabowski, and M. H. F. Sluiter, Npj Comput. Mater. 3, 36 (2017)</a>].</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="projection.html" title="Projection"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to upho’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">upho 0.6.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Yuji IKEDA.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>
