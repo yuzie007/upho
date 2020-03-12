@@ -1,10 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function
 import numpy as np
 from phonopy import Phonopy
 from phonopy.structure.symmetry import Symmetry
-from phonopy.structure.cells import get_supercell, get_primitive
+from phonopy.structure.cells import (
+    get_supercell, get_primitive, guess_primitive_matrix)
 from phonopy.harmonic.dynamical_matrix import DynamicalMatrix
 from phonopy.units import VaspToTHz
 from upho.phonon.band_structure import BandStructure
@@ -12,8 +10,6 @@ from upho.phonon.single_point import SinglePoint
 from upho.phonon.mesh_unfolding import MeshUnfolding
 from upho.phonon.dos_unfolding import TotalDosUnfolding
 from .analysis.fc_symmetrizer_spg import FCSymmetrizerSPG
-
-__author__ = 'Yuji Ikeda'
 
 
 class PhonopyUnfolding(Phonopy):
@@ -51,7 +47,13 @@ class PhonopyUnfolding(Phonopy):
         self._unitcell_ideal = unitcell_ideal
         self._supercell_matrix = supercell_matrix
         self._primitive_matrix = None
-        self._primitive_matrix_ideal = primitive_matrix_ideal
+        if type(primitive_matrix_ideal) is str and primitive_matrix_ideal == 'auto':
+            self._primitive_matrix_ideal = self._guess_primitive_matrix()
+        elif primitive_matrix is not None:
+            self._primitive_matrix_ideal = np.array(primitive_matrix_ideal,
+                                              dtype='double', order='c')
+        else:
+            self._primitive_matrix = None
         self._supercell = None
         self._primitive = None
         self._build_supercell()
@@ -286,6 +288,9 @@ class PhonopyUnfolding(Phonopy):
 
         self._search_symmetry()
         self._search_primitive_symmetry()
+
+    def _guess_primitive_matrix(self):
+        return guess_primitive_matrix(self._unitcell_ideal, symprec=self._symprec)
 
     def average_force_constants(self):
         fc_symmetrizer_spg = FCSymmetrizerSPG(
