@@ -181,6 +181,8 @@ def main():
         if run_mode == 'band' or run_mode == 'band_mesh':
             band_paths = settings.get_band_paths()
             npoints = settings.get_band_points()
+            if npoints is None:
+                npoints = 51  # default value inherited from phonopy
             bands = get_band_qpoints(band_paths, npoints)
             phonon.set_band_structure(
                 bands,
