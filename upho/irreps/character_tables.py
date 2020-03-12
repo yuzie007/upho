@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 
 Note
@@ -11,11 +9,8 @@ At the moment of 25.06.2018, the character table of C_6 in the wikipedia page
 has a typo.
 """
 # TODO(ikeda): Modify ir_labels of "m"
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import numpy as np
 
-__author__ = "Yuji Ikeda"
 
 MAX_IRREPS = 12  # D_6h, temporary
 
@@ -356,15 +351,15 @@ character_tables['-4'] = {
             'E'   : ((( 1,  0,  0),
                       ( 0,  1,  0),
                       ( 0,  0,  1),),),
-            'S4'  : ((( 0, -1,  0),
-                      ( 1,  0,  0),
-                      ( 0,  0,  1),),),
+            'S4'  : ((( 0,  1,  0),
+                      (-1,  0,  0),
+                      ( 0,  0, -1),),),
             'C2'  : (((-1,  0,  0),
                       ( 0, -1,  0),
                       ( 0,  0,  1),),),
-            'S4^3': ((( 0,  1,  0),
-                      (-1,  0,  0),
-                      ( 0,  0,  1),),),
+            'S4^3': ((( 0, -1,  0),
+                      ( 1,  0,  0),
+                      ( 0,  0, -1),),),
         },
     ],
 }
@@ -1233,7 +1228,7 @@ character_tables['23'] = {
         (1, r3c, r3 ,  1),
         (3,   0,   0, -1),
     ),
-    'class_to_rotations': [
+    'class_to_rotations_list': [
         {
             'E'   : ((( 1,  0,  0),
                       ( 0,  1,  0),
