@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function
 import numpy as np
 from phonopy.structure.cells import get_primitive
 from phonopy.units import VaspToTHz
@@ -11,9 +8,6 @@ from upho.phonon.vectors_adjuster import VectorsAdjuster
 from upho.phonon.element_weights_calculator import (
     ElementWeightsCalculator)
 from upho.analysis.time_measurer import TimeMeasurer
-
-
-__author__ = "Yuji Ikeda"
 
 
 class Eigenstates(object):
@@ -220,8 +214,11 @@ class Eigenstates(object):
         with TimeMeasurer('Calculate weights for wavevectors'):
             weights['total'], t_proj_eigvecs = self._extract_weights(q_sc, eigvecs)
 
-        weights['SR'], rot_proj_vectors = self._create_rot_projection_weights(
-            q_pc, transformation_matrix, t_proj_eigvecs)
+        try:
+            weights['SR'], rot_proj_vectors = self._create_rot_projection_weights(
+                q_pc, transformation_matrix, t_proj_eigvecs)
+        except ValueError:
+            weights['SR'] = np.nan
 
         # if __debug__:
         #     self._print_debug(eigvals, rot_weights)
@@ -230,9 +227,12 @@ class Eigenstates(object):
         weights['E1'], t_proj_elm_vecs = self._create_weights_e1(vectors_elements, q_sc            )
         weights['E2']                  = self._create_weights_e2(vectors_elements, weights['total'])
 
-        weights['SR_E1'], rot_proj_elm_vecs = self._create_rotational_weights_for_elements(
-            q_pc, transformation_matrix, t_proj_elm_vecs
-        )
+        try:
+            weights['SR_E1'], rot_proj_elm_vecs = self._create_rotational_weights_for_elements(
+                q_pc, transformation_matrix, t_proj_elm_vecs
+            )
+        except ValueError:
+            weights['SR_E1'] = np.nan
 
         return eigvals, eigvecs, weights
 
