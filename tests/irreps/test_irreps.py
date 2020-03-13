@@ -185,6 +185,15 @@ class TestIrreps(unittest.TestCase):
         rotations = symmetry.get_pointgroup_operations()
         self.check_irreps(rotations, '422')
 
+    def test_b_h(self):
+        filename = "tests/poscars/POSCAR_WC"
+
+        atoms = read_vasp(filename)
+        symmetry = UnfolderSymmetry(atoms)
+
+        rotations = symmetry.get_pointgroup_operations()
+        self.check_irreps(rotations, '-6m2')
+
     def check_irreps(self, rotations, pointgroup_symbol):
         # multiplication_table = create_multiplication_table(rotations)
         # print(multiplication_table)

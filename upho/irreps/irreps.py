@@ -81,7 +81,9 @@ class Irreps(object):
             if False not in rotation_labels:
                 self._rotation_labels = rotation_labels
                 return
-        raise ValueError("Class labels cannot be assigned to rotations.")
+        msg = "Class labels cannot be assigned to rotations.\n"
+        msg += str(rotation_labels)
+        raise ValueError(msg)
 
     def _assign_class_label_to_rotation(self, rconv, class_to_rotations):
         """
