@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+from upho.irreps.irreps import find_rotation_type
 from upho.irreps.character_tables import (
     character_tables, find_rotation_type_from_class_label)
 
@@ -44,10 +45,13 @@ class TestCharacterTables:
 
     @pytest.mark.parametrize('pg', pointgroup_symbols)
     def test_class_to_rotations_list(self, pg):
-        class_to_rotations_list = character_tables[pg]['class_to_rotations_list']
+        k = 'class_to_rotations_list'
+        if k not in character_tables[pg]:
+            return
+        class_to_rotations_list = character_tables[pg][k]
         for class_to_rotations in class_to_rotations_list:
             for rotation_label, rotations in class_to_rotations.items():
                 tmp0 = find_rotation_type_from_class_label(rotation_label)
                 for r in rotations:
-                    tmp1 = np.trace(r), int(round(np.linalg.det(r)))
+                    tmp1 = find_rotation_type(r)
                     assert rotation_label and tmp0 == tmp1

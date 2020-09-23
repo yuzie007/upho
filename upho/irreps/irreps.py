@@ -15,6 +15,24 @@ from group.mathtools import similarity_transformation
 __author__ = "Yuji Ikeda"
 
 
+def find_rotation_type(rotation):
+    # https://doi.org/10.1107/S0108767398010186
+    tr = np.trace(rotation)
+    det = int(round(np.linalg.det(rotation)))
+    return {
+        (-2, -1): -6,
+        (-1, -1): -4,
+        ( 0, -1): -3,
+        (+1, -1): -2,
+        (-3, -1): -1,
+        (+3, +1): +1,
+        (-1, +1): +2,
+        ( 0, +1): +3,
+        (+1, +1): +4,
+        (+2, +1): +6,
+    }[(tr, det)]
+
+
 def extract_degeneracy_from_ir_label(ir_label):
     if ir_label[0] == 'E':
         degeneracy = 2
