@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
-from upho.irreps.character_tables import character_tables
+from upho.irreps.character_tables import (
+    character_tables, find_rotation_type_from_class_label)
 
 
 pointgroup_symbols = (
@@ -44,38 +45,9 @@ class TestCharacterTables:
     @pytest.mark.parametrize('pg', pointgroup_symbols)
     def test_class_to_rotations_list(self, pg):
         class_to_rotations_list = character_tables[pg]['class_to_rotations_list']
-        lookup = {
-            'E'    : (+3, +1),
-            'C2'   : (-1, +1),
-            'C2x'  : (-1, +1),
-            'C2y'  : (-1, +1),
-            'C2\'' : (-1, +1),
-            'C2\"' : (-1, +1),
-            'C4^2' : (-1, +1),
-            'C3'   : ( 0, +1),
-            'C3^2' : ( 0, +1),
-            'C4'   : ( 1, +1),
-            'C4^3' : ( 1, +1),
-            'C6'   : ( 2, +1),
-            'C6^5' : ( 2, +1),
-            'i'    : (-3, -1),
-            'sgh'  : (+1, -1),
-            'sgv'  : (+1, -1),
-            'sgv\'': (+1, -1),
-            'sgxy' : (+1, -1),
-            'sgxz' : (+1, -1),
-            'sgyz' : (+1, -1),
-            'sgd'  : (+1, -1),
-            'S6'   : ( 0, -1),  # -3
-            'S6^5' : ( 0, -1),  # -3
-            'S4'   : (-1, -1),
-            'S4^3' : (-1, -1),
-            'S3'   : (-2, -1),  # -6
-            'S3^5' : (-2, -1),  # -6
-        }
         for class_to_rotations in class_to_rotations_list:
             for rotation_label, rotations in class_to_rotations.items():
-                tmp0 = lookup[rotation_label]
+                tmp0 = find_rotation_type_from_class_label(rotation_label)
                 for r in rotations:
                     tmp1 = np.trace(r), int(round(np.linalg.det(r)))
                     assert rotation_label and tmp0 == tmp1
