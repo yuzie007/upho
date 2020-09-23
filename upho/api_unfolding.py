@@ -49,7 +49,7 @@ class PhonopyUnfolding(Phonopy):
         self._primitive_matrix = None
         if type(primitive_matrix_ideal) is str and primitive_matrix_ideal == 'auto':
             self._primitive_matrix_ideal = self._guess_primitive_matrix()
-        elif primitive_matrix is not None:
+        elif primitive_matrix_ideal is not None:
             self._primitive_matrix_ideal = np.array(primitive_matrix_ideal,
                                               dtype='double', order='c')
         else:
