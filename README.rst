@@ -11,7 +11,7 @@ Requirements
 
 * numpy
 * h5py
-* phonopy>=2.3.2
+* phonopy>=2.7.0
 
 Install
 -------
