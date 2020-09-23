@@ -10,7 +10,8 @@ from phonopy.cui.settings import PhonopyConfParser
 from phonopy.interface.calculator import read_crystal_structure
 from phonopy.units import VaspToTHz
 from phonopy.structure.cells import print_cell
-from phonopy.phonon.band_structure import get_band_qpoints
+from phonopy.phonon.band_structure import (
+    get_band_qpoints, get_band_qpoints_by_seekpath)
 from upho.api_unfolding import PhonopyUnfolding
 from upho.file_io import read_input
 
@@ -115,6 +116,9 @@ def main():
     phonopy_conf = PhonopyConfParser(filename=args.conf_file)
     settings = phonopy_conf.get_settings()
 
+    is_band_auto = (type(settings.get_band_paths()) is str and
+                    settings.get_band_paths() == 'auto')
+
     dict_input = get_default_dict_input()
     if args.input_file is not None:
         dict_input.update(read_input(args.input_file))
@@ -183,7 +187,11 @@ def main():
             npoints = settings.get_band_points()
             if npoints is None:
                 npoints = 51  # default value inherited from phonopy
-            bands = get_band_qpoints(band_paths, npoints)
+            if is_band_auto:
+                bands = get_band_qpoints_by_seekpath(
+                    phonon.get_primitive(), npoints)[0]
+            else:
+                bands = get_band_qpoints(band_paths, npoints)
             phonon.set_band_structure(
                 bands,
                 is_eigenvectors=settings.get_is_eigenvectors(),

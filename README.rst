@@ -94,6 +94,16 @@ of the A1 (fcc) structure.
 
     ``PRIMITIVE_AXIS`` is the conversion matrix from POSCAR_ideal to the the primitive cell you expect.
 
+    **Since v0.6.2:** We can also use ``BAND = AUTO`` like::
+
+        DIM =  2 2 2
+        PRIMITIVE_AXIS =  0 1/2 1/2  1/2 0 1/2  1/2 1/2 0
+        BAND = AUTO
+        BAND_POINTS = 101
+        FORCE_CONSTANTS = READ
+
+    Internally, this uses `SeeK-path <https://seekpath.readthedocs.io/en/latest/>`_ via phonopy.
+
 4.  Run::
 
         upho_weights band.conf
