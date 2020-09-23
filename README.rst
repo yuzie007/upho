@@ -179,7 +179,7 @@ symmetry operations are not equal to zero.
 
 Author(s)
 ---------
-Yuji Ikeda (y.ikeda@mpie.de, Max-Planck-Institut für Eisenforschung GmbH, Germary)
+Yuji Ikeda (yuji.ikeda.ac.jp@gmail.com, Universität Stuttgart, Germary)
 
 How to cite
 -----------
@@ -190,3 +190,10 @@ When using this code, please cite the following article.
     Yuji Ikeda, Abel Carreras, Atsuto Seko, Atsushi Togo, and Isao Tanaka,
     Phys. Rev. B **95**, 024305 (2017).
     http://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.024305
+
+For high entropy alloy works, you can also consider
+
+    *Phonon Broadening in High Entropy Alloys*,
+    Fritz Körmann, Yuji Ikeda, Blazej Grabowski, and Marcel H. F. Sluiter,
+    Npj Comput. Mater. **3**, 1 (2017).
+    https://www.nature.com/articles/s41524-017-0037-8
