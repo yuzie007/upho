@@ -89,6 +89,10 @@ class TestIrreps(unittest.TestCase):
         rotations = symmetry.get_group_of_wave_vector(p)[0]
         self.check_irreps(rotations, '6mm')
 
+        p = [1.0 / 3.0, 1.0 / 3.0, 0.25]  # P (3m)
+        rotations = symmetry.get_group_of_wave_vector(p)[0]
+        self.check_irreps(rotations, '3m')
+
     def test_a13(self):
         filename = "tests/poscars/POSCAR_A13"
 

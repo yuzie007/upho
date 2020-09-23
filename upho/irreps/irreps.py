@@ -9,7 +9,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import numpy as np
 from phonopy.structure.symmetry import get_pointgroup
-from upho.irreps.character_tables import character_tables
+from upho.irreps.character_tables import (
+    character_tables, find_rotation_type_from_class_label)
 from group.mathtools import similarity_transformation
 
 __author__ = "Yuji Ikeda"
@@ -31,6 +32,15 @@ def find_rotation_type(rotation):
         (+1, +1): +4,
         (+2, +1): +6,
     }[(tr, det)]
+
+
+def assign_class_labels_to_rotations(class_labels, rotations):
+    rotation_types = [find_rotation_type(r) for r in rotations]
+    d = {find_rotation_type_from_class_label(_): _ for _ in class_labels}
+    if len(set(d.keys())) != len(class_labels):
+        raise ValueError(
+            'Classes and rotation types do not have a 1-to-1 correspondence.')
+    return [d[_] for _ in rotation_types]
 
 
 def extract_degeneracy_from_ir_label(ir_label):
@@ -88,20 +98,24 @@ class Irreps(object):
         self._character_table_data = character_tables[self._pointgroup_symbol]
 
     def _assign_class_labels_to_rotations(self):
-        class_to_rotations_list = (
-            self._character_table_data["class_to_rotations_list"])
-        for class_to_rotations in class_to_rotations_list:
-            rotation_labels = []
-            for rconv in self._conventional_rotations:
-                label = self._assign_class_label_to_rotation(
-                    rconv, class_to_rotations)
-                rotation_labels.append(label)
-            if False not in rotation_labels:
-                self._rotation_labels = rotation_labels
-                return
-        msg = "Class labels cannot be assigned to rotations.\n"
-        msg += str(rotation_labels)
-        raise ValueError(msg)
+        if 'class_to_rotations_list' not in self._character_table_data:
+            self._rotation_labels = assign_class_labels_to_rotations(
+                self._character_table_data['rotation_labels'], self._rotations)
+        else:
+            class_to_rotations_list = (
+                self._character_table_data["class_to_rotations_list"])
+            for class_to_rotations in class_to_rotations_list:
+                rotation_labels = []
+                for rconv in self._conventional_rotations:
+                    label = self._assign_class_label_to_rotation(
+                        rconv, class_to_rotations)
+                    rotation_labels.append(label)
+                if False not in rotation_labels:
+                    self._rotation_labels = rotation_labels
+                    return
+            msg = "Class labels cannot be assigned to rotations.\n"
+            msg += str(rotation_labels)
+            raise ValueError(msg)
 
     def _assign_class_label_to_rotation(self, rconv, class_to_rotations):
         """
