@@ -6,7 +6,6 @@ from pprint import pprint
 import argparse
 import numpy as np
 import phonopy.file_IO as file_IO
-from phonopy.cui.settings import PhonopyConfParser
 from phonopy.interface.calculator import read_crystal_structure
 from phonopy.units import VaspToTHz
 from phonopy.structure.cells import print_cell
@@ -14,6 +13,7 @@ from phonopy.phonon.band_structure import (
     get_band_qpoints, get_band_qpoints_by_seekpath)
 from upho.api_unfolding import PhonopyUnfolding
 from upho.file_io import read_input
+from upho.cui.settings import parse_phonopy_conf
 
 __author__ = "Yuji Ikeda"
 
@@ -113,11 +113,7 @@ def main():
 
     print_version()
 
-    phonopy_conf = PhonopyConfParser(filename=args.conf_file)
-    settings = phonopy_conf.get_settings()
-
-    is_band_auto = (type(settings.get_band_paths()) is str and
-                    settings.get_band_paths() == 'auto')
+    settings = parse_phonopy_conf(args.conf_file)
 
     dict_input = get_default_dict_input()
     if args.input_file is not None:
@@ -148,8 +144,8 @@ def main():
     unitcell_ideal_filename = dict_input["structure_ideal"]
     unitcell_ideal = read_crystal_structure(unitcell_ideal_filename)[0]
 
-    supercell_matrix = settings.get_supercell_matrix()
-    primitive_matrix = settings.get_primitive_matrix()
+    supercell_matrix = settings['supercell_matrix']
+    primitive_matrix = settings['primitive_matrix']
     print("supercell_matrix:")
     print(supercell_matrix)
     print("primitive_matrix:")
@@ -183,77 +179,74 @@ def main():
 
     if run_mode == 'band' or run_mode == 'mesh' or run_mode == 'band_mesh':
         if run_mode == 'band' or run_mode == 'band_mesh':
-            band_paths = settings.get_band_paths()
-            npoints = settings.get_band_points()
-            if npoints is None:
+            band_paths = settings['band_paths']
+            if 'band_points' not in settings:
                 npoints = 51  # default value inherited from phonopy
-            if is_band_auto:
+            else:
+                npoints = settings['band_points']
+            if settings['is_band_auto']:
                 bands = get_band_qpoints_by_seekpath(
                     phonon.get_primitive(), npoints)[0]
             else:
                 bands = get_band_qpoints(band_paths, npoints)
-            phonon.set_band_structure(
-                bands,
-                is_eigenvectors=settings.get_is_eigenvectors(),
-                is_band_connection=settings.get_is_band_connection(),
-            )
+            phonon.set_band_structure(bands)
 
-    if run_mode == 'mesh' or run_mode == 'band_mesh':
-        settings.set_is_mesh_symmetry(False)  # For unfolding.
-        (mesh,
-         mesh_shift,
-         t_symmetry,
-         q_symmetry,
-         is_gamma_center) = settings.get_mesh()
-        print("q_symmetry:", q_symmetry)
-        phonon.set_mesh(mesh,
-                        mesh_shift,
-                        is_time_reversal=t_symmetry,
-                        is_mesh_symmetry=q_symmetry,
-                        is_eigenvectors=settings.get_is_eigenvectors(),
-                        is_gamma_center=settings.get_is_gamma_center())
-        weights = phonon.get_mesh()[1]
-        if log_level > 0:
-            if q_symmetry:
-                print("Number of irreducible q-points on sampling mesh: "
-                      "%d/%d" % (weights.shape[0], np.prod(mesh)))
-            else:
-                print("Number of q-points on sampling mesh: %d" %
-                      weights.shape[0])
+    # if run_mode == 'mesh' or run_mode == 'band_mesh':
+    #     settings['is_mesh_symmetry'] = False  # For unfolding.
+    #     (mesh,
+    #      mesh_shift,
+    #      t_symmetry,
+    #      q_symmetry,
+    #      is_gamma_center) = settings.get_mesh()
+    #     print("q_symmetry:", q_symmetry)
+    #     phonon.set_mesh(mesh,
+    #                     mesh_shift,
+    #                     is_time_reversal=t_symmetry,
+    #                     is_mesh_symmetry=q_symmetry,
+    #                     is_eigenvectors=settings.get_is_eigenvectors(),
+    #                     is_gamma_center=settings.get_is_gamma_center())
+    #     weights = phonon.get_mesh()[1]
+    #     if log_level > 0:
+    #         if q_symmetry:
+    #             print("Number of irreducible q-points on sampling mesh: "
+    #                   "%d/%d" % (weights.shape[0], np.prod(mesh)))
+    #         else:
+    #             print("Number of q-points on sampling mesh: %d" %
+    #                   weights.shape[0])
 
-        if settings.get_write_mesh():
-            if settings.get_is_hdf5():
-                phonon.write_hdf5_mesh()
-            else:
-                phonon.write_yaml_mesh()
+    #     if settings.get_write_mesh():
+    #         if settings.get_is_hdf5():
+    #             phonon.write_hdf5_mesh()
+    #         else:
+    #             phonon.write_yaml_mesh()
 
-        # Total DOS
-        if (args.is_graph_plot or settings.get_is_dos_mode()):
-            dos_range = settings.get_dos_range()
+    #     # Total DOS
+    #     if (args.is_graph_plot or settings.get_is_dos_mode()):
+    #         dos_range = settings.get_dos_range()
 
-            phonon.set_total_DOS(
-                sigma=settings.get_sigma(),
-                freq_min=dos_range['min'],
-                freq_max=dos_range['max'],
-                freq_pitch=dos_range['step'],
-                tetrahedron_method=settings.get_is_tetrahedron_method())
+    #         phonon.set_total_DOS(
+    #             sigma=settings.get_sigma(),
+    #             freq_min=dos_range['min'],
+    #             freq_max=dos_range['max'],
+    #             freq_pitch=dos_range['step'],
+    #             tetrahedron_method=settings.get_is_tetrahedron_method())
 
-            if log_level > 0:
-                print("Calculating DOS...")
+    #         if log_level > 0:
+    #             print("Calculating DOS...")
 
-            if settings.get_fits_Debye_model():
-                phonon.set_Debye_frequency()
-                if log_level > 0:
-                    debye_freq = phonon.get_Debye_frequency()
-                    print("Debye frequency: %10.5f" % debye_freq)
-            phonon.write_total_DOS()
+    #         if settings.get_fits_Debye_model():
+    #             phonon.set_Debye_frequency()
+    #             if log_level > 0:
+    #                 debye_freq = phonon.get_Debye_frequency()
+    #                 print("Debye frequency: %10.5f" % debye_freq)
+    #         phonon.write_total_DOS()
 
-            if args.is_graph_plot and run_mode != 'band_mesh':
-                plot = phonon.plot_total_DOS()
-                if args.is_graph_save:
-                    plot.savefig('total_dos.pdf')
-                else:
-                    plot.show()
+    #         if args.is_graph_plot and run_mode != 'band_mesh':
+    #             plot = phonon.plot_total_DOS()
+    #             if args.is_graph_save:
+    #                 plot.savefig('total_dos.pdf')
+    #             else:
+    #                 plot.show()
 
     elif run_mode == "single_point":
         phonon.run_single_point(dict_input["qpoint"], dict_input["distance"])
