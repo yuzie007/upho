@@ -1,11 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # TODO(ikeda): The structure of the variable "force_constants_pair" should be
 #     modified. We want to use numpy functions.
-from __future__ import absolute_import, division, print_function
-
 import itertools
-
 import numpy as np
 from phonopy.file_IO import write_FORCE_CONSTANTS
 from phonopy.structure.symmetry import Symmetry

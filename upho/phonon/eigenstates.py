@@ -10,7 +10,7 @@ from upho.phonon.element_weights_calculator import (
 from upho.analysis.time_measurer import TimeMeasurer
 
 
-class Eigenstates(object):
+class Eigenstates:
     def __init__(self,
                  dynamical_matrix,
                  unitcell_ideal,

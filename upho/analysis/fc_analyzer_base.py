@@ -1,16 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
 import numpy as np
 from phonopy.file_IO import write_FORCE_CONSTANTS
 from phonopy.structure.cells import Supercell
 from phonopy.harmonic.force_constants import symmetrize_force_constants
 
-__author__ = "Yuji Ikeda"
 
-
-class FCAnalyzerBase(object):
+class FCAnalyzerBase:
     def __init__(self,
                  force_constants=None,
                  atoms=None,

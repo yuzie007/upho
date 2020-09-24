@@ -1,14 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
 import time
 
 
-class TimeMeasurer(object):
+class TimeMeasurer:
     """Measure method execution time.
 
     This class is made based on the suggestion in the following reference.

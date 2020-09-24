@@ -1,14 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
 import numpy as np
 
 
-class MappingsModifier(object):
+class MappingsModifier:
     def __init__(self, mappings):
         self.set_mappings(mappings)
 

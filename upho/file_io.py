@@ -1,9 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function
 import numpy as np
-
-__author__ = 'Yuji Ikeda'
 
 
 def read_band_yaml(yaml_file="band.yaml"):

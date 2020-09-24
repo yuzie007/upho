@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
 import os
 import h5py
 import numpy as np
@@ -10,10 +7,8 @@ from phonopy.interface.vasp import read_vasp
 from phonopy.structure.cells import get_primitive
 from upho.file_io import read_input
 
-__author__ = 'Yuji Ikeda'
 
-
-class Separation(object):
+class Separation:
     def __init__(self, conf_file, input_file, structure_ideal):
         self._conf_file = conf_file
         self._input_file = input_file

@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
 import sys
 from pprint import pprint
 import argparse
@@ -14,8 +12,6 @@ from phonopy.phonon.band_structure import (
 from upho.api_unfolding import PhonopyUnfolding
 from upho.file_io import read_input
 from upho.cui.settings import parse_phonopy_conf
-
-__author__ = "Yuji Ikeda"
 
 
 def print_version():

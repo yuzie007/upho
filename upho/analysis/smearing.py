@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function
-
-__author__ = "Yuji Ikeda"
-
 import numpy as np
 from .functions import lorentzian
 
@@ -44,7 +38,7 @@ def create_points(xmin, xmax, xpitch):
     return points
 
 
-class Smearing(object):
+class Smearing:
     def __init__(self,
                  function_name="gaussian",
                  sigma=0.1,

@@ -1,16 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
-
-__author__ = "Yuji Ikeda"
-
 import sys
 import itertools
 import numpy as np
 from phonopy.structure.symmetry import Symmetry
 
 
-class StructureAnalyzer(object):
+class StructureAnalyzer:
     def __init__(self, atoms):
         self._atoms = atoms
         self._filename = None

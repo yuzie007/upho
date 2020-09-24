@@ -1,17 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
 import h5py
 import numpy as np
 from phonopy.units import VaspToTHz
 from phonopy.structure.cells import get_primitive
 from upho.phonon.eigenstates import Eigenstates
 
-__author__ = 'Yuji Ikeda'
 
-
-class BandStructure(object):
+class BandStructure:
     def __init__(self,
                  paths,
                  dynamical_matrix,

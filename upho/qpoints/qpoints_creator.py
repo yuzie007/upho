@@ -1,14 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
 import numpy as np
 from .lebedev_write import Lebedev
 
-__author__ = 'Yuji Ikeda'
 
-
-class QpointsCreator(object):
+class QpointsCreator:
     def __init__(self, radii, lebedev):
         self._radii = np.asarray(radii)
         self._lebedev = lebedev

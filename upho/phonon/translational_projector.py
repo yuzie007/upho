@@ -1,17 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
 import numpy as np
 from upho.structure.structure_analyzer import (
     StructureAnalyzer, find_lattice_vectors)
 from upho.analysis.mappings_modifier import MappingsModifier
 
 
-class TranslationalProjector(object):
+class TranslationalProjector:
     """This class makes the projection of the given vectors.
 
     The given vectors could be both eigenvectors and displacements.

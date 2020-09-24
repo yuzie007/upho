@@ -2,7 +2,7 @@ import numpy as np
 from phonopy.structure.symmetry import Symmetry
 
 
-class StarCreator(object):
+class StarCreator:
     def __init__(self, is_overlapping=False, atoms=None, symprec=1e-6):
         """
 

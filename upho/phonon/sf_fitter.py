@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
 import h5py
 import numpy as np
 from scipy.optimize import curve_fit
@@ -11,7 +7,7 @@ from upho.irreps.irreps import extract_degeneracy_from_ir_label
 __author__ = 'Yuji Ikeda'
 
 
-class SFFitter(object):
+class SFFitter:
     def __init__(self, filename='sf.hdf5', name='gaussian'):
         self._name = name
 

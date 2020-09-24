@@ -1,19 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Note
 ----
 Characters are generally not integer.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import numpy as np
 from phonopy.structure.symmetry import get_pointgroup
 from upho.irreps.character_tables import (
     character_tables, find_rotation_type_from_class_label)
 from group.mathtools import similarity_transformation
-
-__author__ = "Yuji Ikeda"
 
 
 def find_rotation_type(rotation):
@@ -53,7 +47,7 @@ def extract_degeneracy_from_ir_label(ir_label):
     return degeneracy
 
 
-class Irreps(object):
+class Irreps:
     """
 
     Note

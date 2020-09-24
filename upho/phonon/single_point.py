@@ -1,15 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
 import h5py
 from phonopy.units import VaspToTHz
 from upho.phonon.eigenstates import Eigenstates
 
-__author__ = "Yuji Ikeda"
 
-
-class SinglePoint(object):
+class SinglePoint:
     def __init__(self,
                  qpoint,
                  distance,

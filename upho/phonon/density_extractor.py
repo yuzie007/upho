@@ -1,12 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 import h5py
 import numpy as np
 from upho.analysis.smearing import Smearing, create_points
-
-
-__author__ = "Yuji Ikeda"
 
 
 def square_frequencies(frequencies):
@@ -14,7 +8,7 @@ def square_frequencies(frequencies):
     return frequencies_2
 
 
-class DensityExtractor(object):
+class DensityExtractor:
     def __init__(self,
                  filename=None,
                  function="gaussian",

@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-
-__author__ = "Yuji Ikeda"
-
 import numpy as np
 from upho.structure.structure_analyzer import StructureAnalyzer
 from upho.analysis.mappings_modifier import MappingsModifier
@@ -12,7 +5,7 @@ from upho.irreps.irreps import Irreps
 from upho.structure.unfolder_symmetry import UnfolderSymmetry
 
 
-class RotationalProjector(object):
+class RotationalProjector:
     def __init__(self, atoms):
         """
         Decomposer of vectors according to rotations
