@@ -4,7 +4,7 @@ Note
 Characters are generally not integer.
 """
 import numpy as np
-from phonopy.structure.symmetry import get_pointgroup
+import spglib
 from upho.irreps.character_tables import (
     character_tables, find_rotation_type_from_class_label)
 from group.mathtools import similarity_transformation
@@ -77,9 +77,9 @@ class Irreps:
     def _create_conventional_rotations(self):
         rotations = self._rotations
 
-        pointgroup = get_pointgroup(rotations)
-        pointgroup_symbol = pointgroup[0]
-        transformation_matrix = pointgroup[1]
+        pointgroup = spglib.get_pointgroup(rotations)
+        pointgroup_symbol = pointgroup[0].strip()
+        transformation_matrix = pointgroup[2]
 
         conventional_rotations = self._transform_rotations(
             transformation_matrix, rotations)

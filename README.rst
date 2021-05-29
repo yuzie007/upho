@@ -18,7 +18,7 @@ Install
 
 .. code-block::
 
-    pip install git+https://github.com/yuzie007/upho.git@v0.6.3
+    pip install git+https://github.com/yuzie007/upho.git@v0.6.4
 
 Usage and Tutorial
 ------------------

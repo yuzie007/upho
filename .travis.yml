@@ -3,6 +3,7 @@ language: python
 env:
   - PHONOPY_VERSION=2.7.0
   - PHONOPY_VERSION=2.8.0
+  - PHONOPY_VERSION=2.9.0
 
 install:
   - python -mpip install phonopy==$PHONOPY_VERSION
