@@ -243,8 +243,8 @@ class PhonopyUnfolding(Phonopy):
         n0 = len(self._symmetry.get_pointgroup_operations())
         n1 = len(self._primitive_symmetry.get_pointgroup_operations())
         if n0 != n1:
-            raise Warning("Point group symmetries of supercell and primitive"
-                          "cell are different.")
+            print("Warning: Point group symmetries of supercell and primitive "
+                  "cell are different.")
 
     def _build_supercell_ideal(self):
         self._supercell_ideal = get_supercell(
