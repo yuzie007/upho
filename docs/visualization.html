@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Visualization of obtained spectral functions &#8212; upho 0.6.0 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Projection" href="projection.html" /> 
@@ -26,47 +26,24 @@
         <li class="right" >
           <a href="projection.html" title="Projection"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">upho 0.6.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">upho 0.6.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Visualization of obtained spectral functions</a></li> 
       </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="projection.html"
-                        title="previous chapter">Projection</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/visualization.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="visualization-of-obtained-spectral-functions">
+  <section id="visualization-of-obtained-spectral-functions">
 <h1>Visualization of obtained spectral functions<a class="headerlink" href="#visualization-of-obtained-spectral-functions" title="Permalink to this headline">¶</a></h1>
 <p>You may be able to use the plotting tools in
 <a class="reference external" href="https://github.com/yuzie007/ph_plotter/releases">https://github.com/yuzie007/ph_plotter/releases</a>.
 Please download the latest one.
 To use the tools, you need to run upho_sf with the option <strong>–format hdf5</strong>
 and obtain <strong>sf.hdf5</strong>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">upho</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">upho_sf</span> <span class="o">--</span><span class="n">fpitch</span> <span class="mf">0.01</span> <span class="o">-</span><span class="n">s</span> <span class="mf">0.05</span> <span class="o">--</span><span class="n">function</span> <span class="n">lorentzian</span> <span class="o">--</span><span class="n">nosquared</span> <span class="o">--</span><span class="nb">format</span> <span class="n">hdf5</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">upho</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">upho_sf</span> <span class="o">--</span><span class="n">fpitch</span> <span class="mf">0.01</span> <span class="o">-</span><span class="n">s</span> <span class="mf">0.05</span> <span class="o">--</span><span class="n">function</span> <span class="n">lorentzian</span> <span class="o">--</span><span class="nb">format</span> <span class="n">hdf5</span>
 </pre></div>
 </div>
 <p>Then run:</p>
@@ -117,13 +94,38 @@ The SRs for this point is found as,</p>
 <p>Then we find “A1”, “A2”, “B1”, and “B2” is the possible SRs for this point.
 Note that some of them can have no contribution to the spectral function.</p>
 <p>The decomposed spectral functions for B1 for the pointgroup_symbol of mm2 may be plotted by adding <strong>—selected_irreps ‘{“mm2”:[“B1”]}’</strong> for the plotting command as,</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DOWNLOADED_PATH</span><span class="o">/</span><span class="n">ph_plotter</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">band_sf</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">sf_with</span> <span class="n">irreps</span> <span class="o">--</span><span class="n">plot_style</span> <span class="n">mesh</span> <span class="o">--</span><span class="n">sf_max</span> <span class="mf">0.8</span> <span class="o">--</span><span class="n">sf_min</span> <span class="mi">0</span> <span class="o">--</span><span class="n">d_sf</span> <span class="mf">0.2</span> <span class="o">--</span><span class="n">f_max</span> <span class="mi">10</span> <span class="o">--</span><span class="n">f_min</span> <span class="mi">0</span> <span class="o">--</span><span class="n">d_freq</span> <span class="mi">2</span> <span class="o">--</span><span class="n">colormap_p</span> <span class="n">r</span> <span class="o">--</span><span class="n">selected_irreps</span> <span class="s1">&#39;{&quot;mm2&quot;:[&quot;B1&quot;]}&#39;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DOWNLOADED_PATH</span><span class="o">/</span><span class="n">ph_plotter</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">band_sf</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">plot_style</span> <span class="n">mesh</span> <span class="o">--</span><span class="n">sf_max</span> <span class="mf">0.8</span> <span class="o">--</span><span class="n">sf_min</span> <span class="mi">0</span> <span class="o">--</span><span class="n">d_sf</span> <span class="mf">0.2</span> <span class="o">--</span><span class="n">f_max</span> <span class="mi">10</span> <span class="o">--</span><span class="n">f_min</span> <span class="mi">0</span> <span class="o">--</span><span class="n">d_freq</span> <span class="mi">2</span> <span class="o">--</span><span class="n">colormap_p</span> <span class="n">r</span> <span class="o">--</span><span class="n">selected_irreps</span> <span class="s1">&#39;{&quot;mm2&quot;:[&quot;B1&quot;]}&#39;</span>
 </pre></div>
 </div>
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="projection.html"
+                        title="previous chapter">Projection</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/visualization.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -137,12 +139,13 @@ Note that some of them can have no contribution to the spectral function.</p>
         <li class="right" >
           <a href="projection.html" title="Projection"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">upho 0.6.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">upho 0.6.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Visualization of obtained spectral functions</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Yuji IKEDA.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

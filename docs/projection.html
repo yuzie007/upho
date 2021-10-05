@@ -1,22 +1,23 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Projection &#8212; upho 0.6.0 documentation</title>
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Visualization of obtained spectral functions" href="visualization.html" />
-    <link rel="prev" title="Output files" href="output_files.html" /> 
+    <link rel="prev" title="Welcome to upho’s documentation!" href="index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -28,62 +29,24 @@
           <a href="visualization.html" title="Visualization of obtained spectral functions"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="output_files.html" title="Output files"
+          <a href="index.html" title="Welcome to upho’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">upho 0.6.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">upho 0.6.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Projection</a></li> 
       </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Projection</a><ul>
-<li><a class="reference internal" href="#chemical-projection">Chemical projection</a><ul>
-<li><a class="reference internal" href="#e1">E1</a></li>
-<li><a class="reference internal" href="#e2">E2</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="output_files.html"
-                        title="previous chapter">Output files</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="visualization.html"
-                        title="next chapter">Visualization of obtained spectral functions</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/projection.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="projection">
+  <section id="projection">
 <h1>Projection<a class="headerlink" href="#projection" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="chemical-projection">
+<section id="chemical-projection">
 <h2>Chemical projection<a class="headerlink" href="#chemical-projection" title="Permalink to this headline">¶</a></h2>
 <p>There may be several possible schemes for the chemical projection.</p>
-<div class="section" id="e1">
+<section id="e1">
 <h3>E1<a class="headerlink" href="#e1" title="Permalink to this headline">¶</a></h3>
 <div class="math notranslate nohighlight">
 \begin{align}
@@ -100,8 +63,8 @@
     \tilde{\mathbf{v}}
     \right)
 \end{align}</div><p>Generally this scheme causes cross terms, which can be negative.</p>
-</div>
-<div class="section" id="e2">
+</section>
+<section id="e2">
 <h3>E2<a class="headerlink" href="#e2" title="Permalink to this headline">¶</a></h3>
 <div class="math notranslate nohighlight">
 \begin{gather}
@@ -127,12 +90,52 @@
 \end{gather}</div><p>This scheme does not cause cross terms.
 Instead, <span class="math notranslate nohighlight">\(w_{\mathbf{k}, \textrm{X}'}/w_{\mathbf{k}, \textrm{X}}\)</span> does no longer depend on
 <span class="math notranslate nohighlight">\(\mathbf{k}\)</span>.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Projection</a><ul>
+<li><a class="reference internal" href="#chemical-projection">Chemical projection</a><ul>
+<li><a class="reference internal" href="#e1">E1</a></li>
+<li><a class="reference internal" href="#e2">E2</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to upho’s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="visualization.html"
+                        title="next chapter">Visualization of obtained spectral functions</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/projection.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -147,14 +150,15 @@ Instead, <span class="math notranslate nohighlight">\(w_{\mathbf{k}, \textrm{X}'
           <a href="visualization.html" title="Visualization of obtained spectral functions"
              >next</a> |</li>
         <li class="right" >
-          <a href="output_files.html" title="Output files"
+          <a href="index.html" title="Welcome to upho’s documentation!"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">upho 0.6.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">upho 0.6.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Projection</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Yuji IKEDA.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

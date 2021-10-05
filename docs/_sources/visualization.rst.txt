@@ -7,7 +7,7 @@ Please download the latest one.
 To use the tools, you need to run upho_sf with the option **--format hdf5**
 and obtain **sf.hdf5**. ::
 
-    /path/to/upho/scripts/upho_sf --fpitch 0.01 -s 0.05 --function lorentzian --nosquared --format hdf5
+    /path/to/upho/scripts/upho_sf --fpitch 0.01 -s 0.05 --function lorentzian --format hdf5
 
 Then run:: 
 
@@ -60,5 +60,5 @@ Note that some of them can have no contribution to the spectral function.
 
 The decomposed spectral functions for B1 for the pointgroup_symbol of mm2 may be plotted by adding **—selected_irreps '{"mm2":["B1”]}’** for the plotting command as, ::
 
-    DOWNLOADED_PATH/ph_plotter/scripts/band_sf.py --sf_with irreps --plot_style mesh --sf_max 0.8 --sf_min 0 --d_sf 0.2 --f_max 10 --f_min 0 --d_freq 2 --colormap_p r --selected_irreps '{"mm2":["B1"]}'
+    DOWNLOADED_PATH/ph_plotter/scripts/band_sf.py --plot_style mesh --sf_max 0.8 --sf_min 0 --d_sf 0.2 --f_max 10 --f_min 0 --d_freq 2 --colormap_p r --selected_irreps '{"mm2":["B1"]}'
     
