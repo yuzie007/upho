@@ -39,6 +39,7 @@ class PhonopyUnfolding(Phonopy):
         self._factor = factor
         self._is_auto_displacements = is_auto_displacements
         self._is_symmetry = is_symmetry
+        self._store_dense_svecs = False
         self._use_lapack_solver = use_lapack_solver
         self._log_level = log_level
 
