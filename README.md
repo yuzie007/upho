@@ -109,9 +109,20 @@ Here we consider the hypothetical case when Cu<sub>3</sub>Au with the L1<sub>2</
     upho_sf --fpitch 0.01 -s 0.05 --function lorentzian --format text
     ```
     You hopefully get `sf_E1.dat`, `sf_E2.dat`, and `sf_SR.dat` files.
-    In these files, the first, second, and third columns are
-    for distances in reciprocal space, frequencies,
-    and the values of spectral functions, respectively.
+    In these files:
+    - `1st column`: distance in the reciprocal space
+    - `2nd column`: frequencies
+    - `3rd column`: values of spectral functions
+
+    Further
+
+    - `sf_E1.dat` has the element-pair-resolved spectral functions.
+    - `sf_E2.dat` has the element-resolved spectral functions.
+    - `sf_SR.dat` has the spectral functions decomposed by the small representations.
+
+6.  Plot the spectral functions. You can refer to `plot.py` in the example directory. Hopefully you get the figure like below:
+
+    ![](examples/L12_Cu3Au/sf.orig.svg)
 
 ## Options (`upho_weights`)
 
