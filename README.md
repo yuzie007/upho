@@ -13,7 +13,7 @@ Band unfolding for phonons (http://yuzie007.github.io/upho/)
 ## Install
 
 ```bash
-pip install git+https://github.com/yuzie007/upho.git@v0.6.5
+pip install git+https://github.com/yuzie007/upho.git@v0.6.6
 ```
 
 ## Usage and Tutorial
