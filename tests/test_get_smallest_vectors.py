@@ -3,11 +3,27 @@ import unittest
 import os
 import numpy as np
 from phonopy.interface.vasp import read_vasp
-from phonopy.structure.cells import _get_smallest_vectors, get_primitive
+from phonopy.structure.cells import get_smallest_vectors, get_primitive
 from upho.harmonic.dynamical_matrix import (
     get_smallest_vectors as get_smallest_vectors_upho)
 
 POSCAR_DIR = os.path.join(os.path.dirname(__file__), 'poscars')
+
+
+# taken from phonopy 2.7.0
+def _get_smallest_vectors(supercell, primitive, symprec):
+    p2s_map = primitive.p2s_map
+    supercell_pos = supercell.scaled_positions
+    primitive_pos = supercell_pos[p2s_map]
+    supercell_bases = supercell.cell
+    primitive_bases = primitive.cell
+    svecs, multi = get_smallest_vectors(
+        supercell_bases, supercell_pos, primitive_pos, symprec=symprec)
+    trans_mat_float = np.dot(supercell_bases, np.linalg.inv(primitive_bases))
+    trans_mat = np.rint(trans_mat_float).astype(int)
+    assert (np.abs(trans_mat_float - trans_mat) < 1e-8).all()
+    svecs = np.array(np.dot(svecs, trans_mat), dtype='double', order='C')
+    return svecs, multi
 
 
 class TestRotationalProjector(unittest.TestCase):
