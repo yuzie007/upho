@@ -178,8 +178,8 @@ def main():
     unitcell_ideal_filename = dict_input["structure_ideal"]
     unitcell_ideal = read_crystal_structure(unitcell_ideal_filename)[0]
 
-    supercell_matrix = settings["supercell_matrix"]
-    primitive_matrix = settings["primitive_matrix"]
+    supercell_matrix = settings.get("supercell_matrix", None)
+    primitive_matrix = settings.get("primitive_matrix", None)
     print("supercell_matrix:")
     print(supercell_matrix)
     print("primitive_matrix:")
