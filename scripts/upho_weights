@@ -188,10 +188,10 @@ def main():
     log_level = 2
 
     phonon = PhonopyUnfolding(
-        unitcell,
-        unitcell_ideal,
-        supercell_matrix,
-        primitive_matrix,
+        unitcell=unitcell,
+        unitcell_ideal=unitcell_ideal,
+        supercell_matrix=supercell_matrix,
+        primitive_matrix_ideal=primitive_matrix,
         factor=factor,
         star=star,
         mode=projection,

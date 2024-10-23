@@ -1,14 +1,14 @@
 import numpy as np
 from phonopy import Phonopy
-from phonopy.structure.symmetry import Symmetry
-from phonopy.structure.cells import get_supercell, get_primitive, guess_primitive_matrix
 from phonopy.harmonic.dynamical_matrix import DynamicalMatrix
-from phonopy.units import VaspToTHz
+from phonopy.structure.cells import get_supercell, get_primitive, guess_primitive_matrix
+from phonopy.structure.symmetry import Symmetry
+
+from upho.analysis.fc_symmetrizer_spg import FCSymmetrizerSPG
 from upho.phonon.band_structure import BandStructure
 from upho.phonon.single_point import SinglePoint
 from upho.phonon.mesh_unfolding import MeshUnfolding
 from upho.phonon.dos_unfolding import TotalDosUnfolding
-from .analysis.fc_symmetrizer_spg import FCSymmetrizerSPG
 
 
 class PhonopyUnfolding(Phonopy):
@@ -19,38 +19,18 @@ class PhonopyUnfolding(Phonopy):
 
     def __init__(
         self,
-        unitcell,
         unitcell_ideal,
-        supercell_matrix,
         primitive_matrix_ideal,
-        nac_params=None,
-        distance=0.01,
-        factor=VaspToTHz,
-        is_auto_displacements=True,
-        dynamical_matrix_decimals=None,
-        force_constants_decimals=None,
         star="none",
         mode="eigenvector",
-        symprec=1e-5,
-        is_symmetry=True,
-        use_lapack_solver=False,
-        log_level=0,
+        *args,
+        **kwargs,
     ):
-        self._symprec = symprec
-        self._distance = distance
-        self._factor = factor
-        self._is_auto_displacements = is_auto_displacements
-        self._is_symmetry = is_symmetry
-        self._store_dense_svecs = False
-        self._use_lapack_solver = use_lapack_solver
-        self._log_level = log_level
+        super().__init__(*args, **kwargs)
 
-        # Create supercell and primitive cell
-        self._unitcell = unitcell
         self._unitcell_ideal = unitcell_ideal
-        self._supercell_matrix = supercell_matrix
         self._primitive_matrix = None
-        if type(primitive_matrix_ideal) is str and primitive_matrix_ideal == "auto":
+        if isinstance(primitive_matrix_ideal, str) and primitive_matrix_ideal == "auto":
             self._primitive_matrix_ideal = self._guess_primitive_matrix()
         elif primitive_matrix_ideal is not None:
             self._primitive_matrix_ideal = np.array(
@@ -72,48 +52,6 @@ class PhonopyUnfolding(Phonopy):
         self._search_primitive_symmetry()
         self._search_symmetry_ideal()
         self._search_primitive_symmetry_ideal()
-
-        # set_force_constants or set_forces
-        self._force_constants = None
-        self._force_constants_decimals = force_constants_decimals
-
-        # set_dynamical_matrix
-        self._dynamical_matrix = None
-        self._nac_params = nac_params
-        self._dynamical_matrix_decimals = dynamical_matrix_decimals
-
-        # set_band_structure
-        self._band_structure = None
-
-        # set_mesh
-        self._mesh = None
-
-        # set_tetrahedron_method
-        self._tetrahedron_method = None
-
-        # set_thermal_properties
-        self._thermal_properties = None
-
-        # set_thermal_displacements
-        self._thermal_displacements = None
-
-        # set_thermal_displacement_matrices
-        self._thermal_displacement_matrices = None
-
-        # set_partial_DOS
-        self._pdos = None
-
-        # set_total_DOS
-        self._total_dos = None
-
-        # set_modulation
-        self._modulation = None
-
-        # set_character_table
-        self._irreps = None
-
-        # set_group_velocity
-        self._group_velocity = None
 
         self._star = star
         self._mode = mode
