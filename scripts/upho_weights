@@ -223,7 +223,8 @@ def main():
             else:
                 npoints = settings["band_points"]
             if settings["is_band_auto"]:
-                bands = get_band_qpoints_by_seekpath(phonon.get_primitive(), npoints)[0]
+                primitive = phonon._primitive_ideal
+                bands = get_band_qpoints_by_seekpath(primitive, npoints)[0]
             else:
                 bands = get_band_qpoints(band_paths, npoints)
             phonon.set_band_structure(bands)
