@@ -1,22 +1,26 @@
 #!/usr/bin/env python
+import argparse
 import sys
 from pprint import pprint
-import argparse
+
 import numpy as np
-import phonopy.file_IO as file_IO
+from phonopy import file_IO
 from phonopy.interface.calculator import read_crystal_structure
 from phonopy.units import VaspToTHz
 from phonopy.structure.cells import print_cell
-from phonopy.phonon.band_structure import (
-    get_band_qpoints, get_band_qpoints_by_seekpath)
+from phonopy.phonon.band_structure import get_band_qpoints, get_band_qpoints_by_seekpath
+from phonopy.version import __version__ as phonopy_version
+
+from upho import __version__ as upho_version
 from upho.api_unfolding import PhonopyUnfolding
-from upho.file_io import read_input
 from upho.cui.settings import parse_phonopy_conf
+from upho.file_io import read_input
 
 
-def print_version():
-    from upho import __version__ as version
-    print('UPHO version. {}'.format(version))
+def print_version() -> None:
+    """Print UPHO version."""
+    print(f"UPHO   : {upho_version}")
+    print(f"Phonopy: {phonopy_version}")
 
 
 def get_default_dict_input():
@@ -27,25 +31,25 @@ def get_default_dict_input():
         help="Treatment for the star of q-points."
     """
     default_dict_input = {
-        "structure"      : "POSCAR",
+        "structure": "POSCAR",
         "structure_ideal": "POSCAR_ideal",
         "force_constants": "FORCE_CONSTANTS",
-        "run_mode"       : "band",
-        "star"           : "sym",
-        "projection"     : "eigenvectors",
+        "run_mode": "band",
+        "star": "sym",
+        "projection": "eigenvectors",
     }
     return default_dict_input
 
 
 def print_cells(phonon, unitcell_filename):
-    print("Crsytal structure is read from \'%s\'." % unitcell_filename)
+    print("Crsytal structure is read from '%s'." % unitcell_filename)
     supercell = phonon.get_supercell()
     unitcell = phonon.get_unitcell()
     primitive = phonon.get_primitive()
     p2p_map = primitive.get_primitive_to_primitive_map()
     mapping = np.array(
-        [p2p_map[x] for x in primitive.get_supercell_to_primitive_map()],
-        dtype='intc')
+        [p2p_map[x] for x in primitive.get_supercell_to_primitive_map()], dtype="intc"
+    )
     s_indep_atoms = phonon.get_symmetry().get_independent_atoms()
     p_indep_atoms = mapping[s_indep_atoms]
     if unitcell.get_number_of_atoms() == primitive.get_number_of_atoms():
@@ -55,7 +59,7 @@ def print_cells(phonon, unitcell_filename):
         u2s_map = supercell.get_unitcell_to_supercell_map()
         print("-" * 30 + " primitive cell " + "-" * 30)
         print_cell(primitive, stars=p_indep_atoms)
-        print("-" * 32 + " unit cell " +  "-" * 33) # 32 + 11 + 33 = 76
+        print("-" * 32 + " unit cell " + "-" * 33)  # 32 + 11 + 33 = 76
         u2u_map = supercell.get_unitcell_to_unitcell_map()
         u_indep_atoms = [u2u_map[x] for x in s_indep_atoms]
         print_cell(unitcell, mapping=mapping[u2s_map], stars=u_indep_atoms)
@@ -64,45 +68,79 @@ def print_cells(phonon, unitcell_filename):
     print("-" * 76)
 
 
-def main():
-    print(" ".join(sys.argv))
-
-    parser = argparse.ArgumentParser()
+def add_arguments(parser: argparse.ArgumentParser) -> None:
+    """Add arguments."""
     parser.set_defaults(
         is_graph_plot=False,
         is_graph_save=False,
         is_eigenvectors=False,
         is_nosym=False,
         star="none",
-        symprec=1e-5)
+        symprec=1e-5,
+    )
 
-    parser.add_argument("-p", "--plot", dest="is_graph_plot",
-                        action="store_true",
-                        help="Plot data")
-    parser.add_argument("-s", "--save", dest="is_graph_save",
-                        action="store_true",
-                        help="Save plot data in pdf")
-    parser.add_argument("--eigvecs", "--eigenvectors", dest="is_eigenvectors",
-                        action="store_true",
-                        help="Output eigenvectors")
-    parser.add_argument("--nosym", dest="is_nosym",
-                        action="store_true",
-                        help="Symmetry is not imposed.")
-    parser.add_argument("--tolerance", dest="symprec", type=float,
-                        help="Symmetry tolerance to search")
-    parser.add_argument("-i", "--input_file",
-                        type=str,
-                        help="Input file for unfolding.")
-    parser.add_argument("--average_masses",
-                        action="store_true",
-                        help="Atomic masses are averaged.")
-    parser.add_argument("--average_force_constants",
-                        action="store_true",
-                        help="Force constants are averaged according to "
-                             "the ideal crystallographic symmetry.")
-    parser.add_argument("conf_file",
-                        type=str,
-                        help="Phonopy conf file")
+    parser.add_argument(
+        "-p",
+        "--plot",
+        dest="is_graph_plot",
+        action="store_true",
+        help="Plot data",
+    )
+    parser.add_argument(
+        "-s",
+        "--save",
+        dest="is_graph_save",
+        action="store_true",
+        help="Save plot data in pdf",
+    )
+    parser.add_argument(
+        "--eigvecs",
+        "--eigenvectors",
+        dest="is_eigenvectors",
+        action="store_true",
+        help="Output eigenvectors",
+    )
+    parser.add_argument(
+        "--nosym",
+        dest="is_nosym",
+        action="store_true",
+        help="Symmetry is not imposed.",
+    )
+    parser.add_argument(
+        "--tolerance",
+        dest="symprec",
+        type=float,
+        help="Symmetry tolerance to search",
+    )
+    parser.add_argument(
+        "-i",
+        "--input_file",
+        type=str,
+        help="Input file for unfolding.",
+    )
+    parser.add_argument(
+        "--average_masses",
+        action="store_true",
+        help="Atomic masses are averaged.",
+    )
+    parser.add_argument(
+        "--average_force_constants",
+        action="store_true",
+        help="Force constants are averaged according to "
+        "the ideal crystallographic symmetry.",
+    )
+    parser.add_argument(
+        "conf_file",
+        type=str,
+        help="Phonopy conf file",
+    )
+
+
+def main():
+    print(" ".join(sys.argv))
+
+    parser = argparse.ArgumentParser()
+    add_arguments(parser)
     args = parser.parse_args()
 
     factor = VaspToTHz  # TEST
@@ -121,12 +159,12 @@ def main():
     print("=" * 40)
 
     run_mode = dict_input["run_mode"]
-    star     = dict_input["star"]
+    star = dict_input["star"]
     projection = dict_input["projection"]
 
     print("run_mode:", run_mode)
     print("star:", star)
-    print('projection:', projection)
+    print("projection:", projection)
 
     # Phonon calculation mode: Band, mesh, qpoints, etc
 
@@ -140,8 +178,8 @@ def main():
     unitcell_ideal_filename = dict_input["structure_ideal"]
     unitcell_ideal = read_crystal_structure(unitcell_ideal_filename)[0]
 
-    supercell_matrix = settings['supercell_matrix']
-    primitive_matrix = settings['primitive_matrix']
+    supercell_matrix = settings["supercell_matrix"]
+    primitive_matrix = settings["primitive_matrix"]
     print("supercell_matrix:")
     print(supercell_matrix)
     print("primitive_matrix:")
@@ -149,19 +187,21 @@ def main():
 
     log_level = 2
 
-    phonon = PhonopyUnfolding(unitcell,
-                              unitcell_ideal,
-                              supercell_matrix,
-                              primitive_matrix,
-                              factor=factor,
-                              star=star,
-                              mode=projection,
-                              symprec=args.symprec,
-                              log_level=log_level)
+    phonon = PhonopyUnfolding(
+        unitcell,
+        unitcell_ideal,
+        supercell_matrix,
+        primitive_matrix,
+        factor=factor,
+        star=star,
+        mode=projection,
+        symprec=args.symprec,
+        log_level=log_level,
+    )
 
     if args.average_masses:
         phonon.average_masses()
-        print('Atomic masses are averaged.')
+        print("Atomic masses are averaged.")
 
     # Print cells
     print_cells(phonon, unitcell_filename)
@@ -170,19 +210,20 @@ def main():
 
     if args.average_force_constants:
         phonon.average_force_constants()
-        print('Force constants are averaged according to '
-              'the ideal crystallographic symmetry.')
+        print(
+            "Force constants are averaged according to "
+            "the ideal crystallographic symmetry."
+        )
 
-    if run_mode == 'band' or run_mode == 'mesh' or run_mode == 'band_mesh':
-        if run_mode == 'band' or run_mode == 'band_mesh':
-            band_paths = settings['band_paths']
-            if 'band_points' not in settings:
+    if run_mode == "band" or run_mode == "mesh" or run_mode == "band_mesh":
+        if run_mode == "band" or run_mode == "band_mesh":
+            band_paths = settings["band_paths"]
+            if "band_points" not in settings:
                 npoints = 51  # default value inherited from phonopy
             else:
-                npoints = settings['band_points']
-            if settings['is_band_auto']:
-                bands = get_band_qpoints_by_seekpath(
-                    phonon.get_primitive(), npoints)[0]
+                npoints = settings["band_points"]
+            if settings["is_band_auto"]:
+                bands = get_band_qpoints_by_seekpath(phonon.get_primitive(), npoints)[0]
             else:
                 bands = get_band_qpoints(band_paths, npoints)
             phonon.set_band_structure(bands)
