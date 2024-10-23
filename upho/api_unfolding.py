@@ -1,8 +1,7 @@
 import numpy as np
 from phonopy import Phonopy
 from phonopy.structure.symmetry import Symmetry
-from phonopy.structure.cells import (
-    get_supercell, get_primitive, guess_primitive_matrix)
+from phonopy.structure.cells import get_supercell, get_primitive, guess_primitive_matrix
 from phonopy.harmonic.dynamical_matrix import DynamicalMatrix
 from phonopy.units import VaspToTHz
 from upho.phonon.band_structure import BandStructure
@@ -17,23 +16,26 @@ class PhonopyUnfolding(Phonopy):
 
     unitcell: before symmetrization
     """
-    def __init__(self,
-                 unitcell,
-                 unitcell_ideal,
-                 supercell_matrix,
-                 primitive_matrix_ideal,
-                 nac_params=None,
-                 distance=0.01,
-                 factor=VaspToTHz,
-                 is_auto_displacements=True,
-                 dynamical_matrix_decimals=None,
-                 force_constants_decimals=None,
-                 star="none",
-                 mode="eigenvector",
-                 symprec=1e-5,
-                 is_symmetry=True,
-                 use_lapack_solver=False,
-                 log_level=0):
+
+    def __init__(
+        self,
+        unitcell,
+        unitcell_ideal,
+        supercell_matrix,
+        primitive_matrix_ideal,
+        nac_params=None,
+        distance=0.01,
+        factor=VaspToTHz,
+        is_auto_displacements=True,
+        dynamical_matrix_decimals=None,
+        force_constants_decimals=None,
+        star="none",
+        mode="eigenvector",
+        symprec=1e-5,
+        is_symmetry=True,
+        use_lapack_solver=False,
+        log_level=0,
+    ):
         self._symprec = symprec
         self._distance = distance
         self._factor = factor
@@ -48,11 +50,12 @@ class PhonopyUnfolding(Phonopy):
         self._unitcell_ideal = unitcell_ideal
         self._supercell_matrix = supercell_matrix
         self._primitive_matrix = None
-        if type(primitive_matrix_ideal) is str and primitive_matrix_ideal == 'auto':
+        if type(primitive_matrix_ideal) is str and primitive_matrix_ideal == "auto":
             self._primitive_matrix_ideal = self._guess_primitive_matrix()
         elif primitive_matrix_ideal is not None:
-            self._primitive_matrix_ideal = np.array(primitive_matrix_ideal,
-                                              dtype='double', order='c')
+            self._primitive_matrix_ideal = np.array(
+                primitive_matrix_ideal, dtype="double", order="c"
+            )
         else:
             self._primitive_matrix = None
         self._supercell = None
@@ -126,13 +129,13 @@ class PhonopyUnfolding(Phonopy):
             factor=self._factor,
             star=self._star,
             mode=self._mode,
-            verbose=True)
+            verbose=True,
+        )
 
     # Band structure
-    def set_band_structure(self,
-                           bands,
-                           is_eigenvectors=False,
-                           is_band_connection=False):
+    def set_band_structure(
+        self, bands, is_eigenvectors=False, is_band_connection=False
+    ):
         if self._dynamical_matrix is None:
             print("Warning: Dynamical matrix has not yet built.")
             self._band_structure = None
@@ -149,17 +152,20 @@ class PhonopyUnfolding(Phonopy):
             factor=self._factor,
             star=self._star,
             mode=self._mode,
-            verbose=True)
+            verbose=True,
+        )
         return True
 
     # Sampling mesh
-    def set_mesh(self,
-                 mesh,
-                 shift=None,
-                 is_time_reversal=True,
-                 is_mesh_symmetry=True,
-                 is_eigenvectors=False,
-                 is_gamma_center=False):
+    def set_mesh(
+        self,
+        mesh,
+        shift=None,
+        is_time_reversal=True,
+        is_mesh_symmetry=True,
+        is_eigenvectors=False,
+        is_gamma_center=False,
+    ):
         if self._dynamical_matrix is None:
             print("Warning: Dynamical matrix has not yet built.")
             self._mesh = None
@@ -181,27 +187,29 @@ class PhonopyUnfolding(Phonopy):
             rotations=self._primitive_symmetry.get_pointgroup_operations(),
             factor=self._factor,
             use_lapack_solver=self._use_lapack_solver,
-            mode=self._mode)
+            mode=self._mode,
+        )
         return True
 
     # DOS
-    def set_total_DOS(self,
-                      sigma=None,
-                      freq_min=None,
-                      freq_max=None,
-                      freq_pitch=None,
-                      tetrahedron_method=False):
-
+    def set_total_DOS(
+        self,
+        sigma=None,
+        freq_min=None,
+        freq_max=None,
+        freq_pitch=None,
+        tetrahedron_method=False,
+    ):
         if self._mesh is None:
-            print("Warning: \'set_mesh\' has to finish correctly "
-                  "before DOS calculation.")
+            print(
+                "Warning: 'set_mesh' has to finish correctly " "before DOS calculation."
+            )
             self._total_dos = None
             return False
 
         total_dos = TotalDosUnfolding(
-            self._mesh,
-            sigma=sigma,
-            tetrahedron_method=tetrahedron_method)
+            self._mesh, sigma=sigma, tetrahedron_method=tetrahedron_method
+        )
         total_dos.set_draw_area(freq_min, freq_max, freq_pitch)
         total_dos.run()
         self._total_dos = total_dos
@@ -225,33 +233,34 @@ class PhonopyUnfolding(Phonopy):
                     self._supercell,
                     self._primitive,
                     self._force_constants,
-                    decimals=self._dynamical_matrix_decimals)
+                    decimals=self._dynamical_matrix_decimals,
+                )
             else:
-                raise ValueError(
-                    'Currently NAC is not available for unfolding.')
+                raise ValueError("Currently NAC is not available for unfolding.")
             return True
 
     def _search_symmetry_ideal(self):
-        self._symmetry = Symmetry(self._supercell_ideal,
-                                  self._symprec,
-                                  self._is_symmetry)
+        self._symmetry = Symmetry(
+            self._supercell_ideal, self._symprec, self._is_symmetry
+        )
 
     def _search_primitive_symmetry_ideal(self):
-        self._primitive_symmetry = Symmetry(self._primitive_ideal,
-                                            self._symprec,
-                                            self._is_symmetry)
+        self._primitive_symmetry = Symmetry(
+            self._primitive_ideal, self._symprec, self._is_symmetry
+        )
 
         n0 = len(self._symmetry.get_pointgroup_operations())
         n1 = len(self._primitive_symmetry.get_pointgroup_operations())
         if n0 != n1:
-            print("Warning: Point group symmetries of supercell and primitive "
-                  "cell are different.")
+            print(
+                "Warning: Point group symmetries of supercell and primitive "
+                "cell are different."
+            )
 
     def _build_supercell_ideal(self):
         self._supercell_ideal = get_supercell(
-            self._unitcell_ideal,
-            self._supercell_matrix,
-            self._symprec)
+            self._unitcell_ideal, self._supercell_matrix, self._symprec
+        )
 
     def _build_primitive_cell_ideal(self):
         """
@@ -269,7 +278,8 @@ class PhonopyUnfolding(Phonopy):
         else:
             trans_mat = np.dot(inv_supercell_matrix, self._primitive_matrix_ideal)
         self._primitive_ideal = get_primitive(
-            self._supercell_ideal, trans_mat, self._symprec)
+            self._supercell_ideal, trans_mat, self._symprec
+        )
         num_satom = self._supercell_ideal.get_number_of_atoms()
         num_patom = self._primitive_ideal.get_number_of_atoms()
         if abs(num_satom * np.linalg.det(trans_mat) - num_patom) < 0.1:
@@ -278,10 +288,10 @@ class PhonopyUnfolding(Phonopy):
             return False
 
     def average_masses(self):
-
         masses = self._unitcell.get_masses()
         masses_average = calculate_average_masses(
-            masses, Symmetry(self._unitcell_ideal))
+            masses, Symmetry(self._unitcell_ideal)
+        )
         self._unitcell.set_masses(masses_average)
 
         self._build_supercell()
@@ -303,7 +313,9 @@ class PhonopyUnfolding(Phonopy):
         fc_symmetrizer_spg.average_force_constants_spg()
         fc_symmetrizer_spg.write_force_constants_symmetrized()
         fc_average = fc_symmetrizer_spg.get_force_constants_symmetrized()
-        self.set_force_constants(fc_average)  # Dynamical matrices are also prepared inside.
+        self.set_force_constants(
+            fc_average
+        )  # Dynamical matrices are also prepared inside.
 
 
 def calculate_average_masses(masses, symmetry):
@@ -337,7 +349,7 @@ def calculate_average_atomic_property(values, symmetry):
 
     values_average = np.zeros_like(values)
     for ia in independent_atoms:
-        indices = (map_atoms == ia)
+        indices = map_atoms == ia
         average = np.average(values[indices])
         values_average[indices] = average
     return values_average
@@ -345,9 +357,7 @@ def calculate_average_atomic_property(values, symmetry):
 
 def calculate_mass_variances(masses, symmetry):
     masses = np.array(masses)
-    masses_average = calculate_average_atomic_property(
-        masses, symmetry)
-    masses_squared_average = calculate_average_atomic_property(
-        masses ** 2, symmetry)
-    mass_variances = masses_squared_average - masses_average ** 2
+    masses_average = calculate_average_atomic_property(masses, symmetry)
+    masses_squared_average = calculate_average_atomic_property(masses**2, symmetry)
+    mass_variances = masses_squared_average - masses_average**2
     return mass_variances
