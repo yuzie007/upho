@@ -30,7 +30,10 @@ class PhonopyUnfolding(Phonopy):
 
         self._unitcell_ideal = unitcell_ideal
         self._primitive_matrix = None
-        if isinstance(primitive_matrix_ideal, str) and primitive_matrix_ideal == "auto":
+        if (
+            isinstance(primitive_matrix_ideal, str)
+            and primitive_matrix_ideal.lower() == "auto"
+        ):
             self._primitive_matrix_ideal = self._guess_primitive_matrix()
         elif primitive_matrix_ideal is not None:
             self._primitive_matrix_ideal = np.array(
